@@ -37,6 +37,8 @@ public class MessagingService: MessagingServiceProtocol {
     
     internal var deviceManager: ApiManager?
     
+    internal var widgetHandler: ((_ widgetAction: ActionItem) -> Void)?
+    
     init() {}
     
     public func registerDeviceToken(token: String, tokenType: String) {
@@ -54,15 +56,16 @@ public class MessagingService: MessagingServiceProtocol {
             return false
         }
 
-        var userInfo: [String:String] = [:]
-        var myActionList: [UNNotificationAction] = []
-        for action: ActionItem in pushPayload.actions {
-            myActionList.append(UNNotificationAction(
-                identifier: action.action!,
-                title: action.title ?? "",
+        let myActionList: [UNNotificationAction] = pushPayload.notificationActions.map() { actionItem in
+            UNNotificationAction(
+                identifier: actionItem.action!,
+                title: actionItem.title ?? "",
                 options: [.foreground]
-            ))
-            userInfo[action.action!] = action.link
+            )
+        }
+        
+        var userInfo = pushPayload.actions.reduce(into: [String: String]()) { (result, actionItem) in
+            result[actionItem.action!] = actionItem.link
         }
 
         // Define the notification type
@@ -107,10 +110,9 @@ public class MessagingService: MessagingServiceProtocol {
                 content.attachments = [imageAttachment]
             }
         }
-       
         
         Task.init{
-            let handled: Bool = await setCategories(newCategory: category)
+            let _ = await setCategories(newCategory: category)
 
             contentHandler(content)
         }
@@ -202,6 +204,10 @@ public class MessagingService: MessagingServiceProtocol {
         // TODO: Implement cancellation of image downloads
         //        RichPushRequestHandler.shared.stopAll()
         //        implementation?.serviceExtensionTimeWillExpire()
+    }
+    
+    public func clearDeviceToken() {
+        // TODO
     }
     
     #endif

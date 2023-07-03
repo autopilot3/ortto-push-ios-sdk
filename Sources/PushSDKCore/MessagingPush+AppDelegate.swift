@@ -22,12 +22,12 @@ public extension PushMessaging {
         
         let userInfo: [AnyHashable : Any] = response.notification.request.content.userInfo
         let key: String = response.actionIdentifier
-
-        guard let deepLink = userInfo[key] as? String else {
+        
+        guard let link = userInfo[key] as? String else {
             return false
         }
 
-        guard let url = URL(string: deepLink) else {
+        guard let url = URL(string: link) else {
             return false;
         }
         
@@ -35,14 +35,24 @@ public extension PushMessaging {
             completionHandler()
             return false
         }
-
-        if #available(iOS 10.0, *) {
+        
+        if url.scheme == "ortto-widget" {
+            guard let widgetId = url.host else {
+                return false
+            }
+            
+            guard let capture = Ortto.shared.capture else {
+                return false
+            }
+            
+            capture.showWidget(widgetId)
+        } else if #available(iOS 10.0, *) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         } else {
             UIApplication.shared.openURL(url)
         }
 
-        Ortto.shared.trackLinkClick(deepLink) {
+        Ortto.shared.trackLinkClick(link) {
             completionHandler()
         }
     

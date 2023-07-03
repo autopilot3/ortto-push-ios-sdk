@@ -124,23 +124,16 @@ internal class ApiManager: ApiManagerInterface {
 
         AF.request(components.url!, method: .post, parameters: identityRegistration, encoder: JSONParameterEncoder.default, headers: headers)
             .validate()
-            .responseJSON { response in
+            .responseDecodable(of: RegistrationResponse.self) { response in
+                debugPrint(response)
+                
                 guard let statusCode = response.response?.statusCode else { return }
-                guard let data = response.data else { return }
-
-                let json = String(data: data, encoding: String.Encoding.utf8)
 
                 Ortto.log().info("ApiManager@registerIdentity status=\(statusCode)")
                 
                 switch (response.result) {
                     case .success(let value):
-                        let decoder = JSONDecoder()
-                        do {
-                            let registration = try decoder.decode(RegistrationResponse.self, from: data)
-                            completion(registration)
-                        } catch let error {
-                            Ortto.log().error("ApiManager@registerIdentity.decode.error \(error.localizedDescription)")
-                        }
+                       completion(value)
                     case .failure(let error):
                         Ortto.log().error("ApiManager@registerIdentity.request.fail \(error.localizedDescription)")
                 }

@@ -13,11 +13,13 @@ let package = Package(
         .library(name: "OrttoPushSDKCore", targets: ["OrttoPushSDKCore"]),
         .library(name: "OrttoPushMessagingFCM", targets: ["OrttoPushMessagingFCM"]),
         .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"]),
+        .library(name: "OrttoCaptureSDK", targets: ["OrttoCaptureSDK"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "8.0.0")),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -39,6 +41,14 @@ let package = Package(
             name: "OrttoPushMessagingAPNS",
             dependencies: ["OrttoPushSDKCore"],
             path: "Sources/PushMessagingAPNS"
+        ),
+        .target(
+            name: "OrttoCaptureSDK",
+            dependencies: ["OrttoPushSDKCore", "SwiftSoup"],
+            path: "Sources/Capture",
+            resources: [
+                .process("Resources/WebView")
+            ]
         ),
         // Tests
         .testTarget(

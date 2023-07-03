@@ -9,10 +9,13 @@ import Alamofire
 
 let version: String = "1.2.2"
 
+public protocol Capture {
+    func showWidget(_ id: String) -> Void
+}
+
 public protocol OrttoInterface {
     var appKey: String? { get }
     var apiEndpoint: String? { get }
-
     func identify(_ user: UserIdentifier)
 }
 
@@ -33,6 +36,7 @@ public class Ortto: OrttoInterface {
     public var permission = PushPermission.Automatic
 
     private var logger: OrttoLogger = PrintLogger()
+    public var capture: Capture?
     
     /**
      Overwrite Logging service
@@ -48,13 +52,13 @@ public class Ortto: OrttoInterface {
     private init() {}
     
     public static func initialize(appKey: String, endpoint: String?) {
-        if var endpoint = endpoint {
-            if endpoint.last == "/" {
-                endpoint = String(endpoint.dropLast())
+        shared.apiEndpoint = {
+            guard let endpoint = endpoint else {
+                return nil
             }
-            shared.apiEndpoint = endpoint
-        }
-        
+            
+            return endpoint.hasSuffix("/") ? String(endpoint.dropLast()) : endpoint
+        }()
         shared.appKey = appKey
     }
     
@@ -91,9 +95,13 @@ public class Ortto: OrttoInterface {
     }
     
     public func getToken() -> String? {
-        return prefsManager.token?.value
+        prefsManager.token?.value
     }
         
+    public func getSessionId() -> String? {
+        prefsManager.sessionID
+    }
+    
     /**
      Send push token to Ortto API
      */
@@ -191,8 +199,8 @@ public class Ortto: OrttoInterface {
         
         AF.request(urlComponents.url!, method: .get)
             .validate()
-            .responseJSON { response in 
-                Ortto.log().info("Ortto@trackLinkClick statusCode=\(response.response?.statusCode)")
+            .responseJSON { response in
+                Ortto.log().info("Ortto@trackLinkClick statusCode=\(response.response?.statusCode ?? 0)")
             }
     }
 }

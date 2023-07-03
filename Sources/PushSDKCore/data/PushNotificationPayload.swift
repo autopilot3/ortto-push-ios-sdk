@@ -95,4 +95,20 @@ public class PushNotificationPayload: Codable {
         return payload
     }
     #endif
+    
+    var notificationActions: [ActionItem] { get {
+        self.actions.filter() { actionItem in
+            !self.isWidgetAction(actionItem)
+        }
+    }}
+    
+    var widgetActions: [ActionItem] { get {
+        self.actions.filter() { actionItem in
+            self.isWidgetAction(actionItem)
+        }
+    }}
+    
+    func isWidgetAction(_ actionItem: ActionItem) -> Bool {
+        actionItem.action == "widget"
+    }
 }
