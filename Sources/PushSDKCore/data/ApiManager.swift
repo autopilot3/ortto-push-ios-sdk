@@ -23,7 +23,7 @@ internal class ApiManager: ApiManagerInterface {
             let encoded = try encoder.encode(model)
             let jsonString = String(data: encoded, encoding: .utf8)!
 
-            print("ApiManager.debug \(name): \(jsonString)")
+            Ortto.log().debug("ApiManager.debug \(name): \(jsonString)")
         } catch let error {
             debugPrint(error)
         }

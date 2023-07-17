@@ -31,11 +31,6 @@ public extension PushMessaging {
             return false;
         }
         
-        if !UIApplication.shared.canOpenURL(url) {
-            completionHandler()
-            return false
-        }
-        
         if url.scheme == "ortto-widget" {
             guard let widgetId = url.host else {
                 return false
@@ -45,8 +40,17 @@ public extension PushMessaging {
                 return false
             }
             
-            capture.showWidget(widgetId)
-        } else if #available(iOS 10.0, *) {
+            _ = capture.queueWidget(widgetId)
+            completionHandler()
+            return true
+        }
+        
+        if !UIApplication.shared.canOpenURL(url) {
+            completionHandler()
+            return false
+        }
+        
+        if #available(iOS 10.0, *) {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         } else {
             UIApplication.shared.openURL(url)

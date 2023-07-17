@@ -16,7 +16,7 @@ struct Widget: Codable {
     let who: Who
     let trigger: Trigger
     let frequency: String
-    let expiry: String?
+    let expiry: Date?
     let isGdpr: Bool
     let style: Style
     let html: String
@@ -239,19 +239,60 @@ struct Properties: Codable {
 
 struct WidgetsResponse: Codable {
     let widgets: [Widget]
+    let hasLogo: Bool
+    let enabledGdpr: Bool
+    let recaptchaSiteKey: String?
+    let countryCode: String
+    let serviceWorkerUrl: String?
+    let cdnUrl: String
+    var expiry: Double = (Date().addingTimeInterval(86400).timeIntervalSince1970 * 1000)
+    
+    static let `default`: WidgetsResponse = WidgetsResponse(
+        widgets: [],
+        hasLogo: false,
+        enabledGdpr: false,
+        recaptchaSiteKey: "",
+        countryCode: "",
+        serviceWorkerUrl: "",
+        cdnUrl: ""
+    )
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.widgets = (try? container.decode([Widget].self, forKey: .widgets)) ?? []
+        widgets = (try? container.decode([Widget].self, forKey: .widgets)) ?? []
+        hasLogo = try container.decode(Bool.self, forKey: .hasLogo)
+        enabledGdpr = try container.decode(Bool.self, forKey: .enabledGdpr)
+        recaptchaSiteKey = try? container.decode(String?.self, forKey: .recaptchaSiteKey)
+        countryCode = try container.decode(String.self, forKey: .countryCode)
+        serviceWorkerUrl = try? container.decode(String.self, forKey: .serviceWorkerUrl)
+        cdnUrl = try container.decode(String.self, forKey: .cdnUrl)
     }
     
-    init(widgets: [Widget]) {
+    init(widgets: [Widget], hasLogo: Bool, enabledGdpr: Bool, recaptchaSiteKey: String?, countryCode: String, serviceWorkerUrl: String?, cdnUrl: String) {
         self.widgets = widgets
+        self.hasLogo = hasLogo
+        self.enabledGdpr = enabledGdpr
+        self.recaptchaSiteKey = recaptchaSiteKey
+        self.countryCode = countryCode
+        self.serviceWorkerUrl = serviceWorkerUrl
+        self.cdnUrl = cdnUrl
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case widgets
+        case hasLogo = "has_logo"
+        case enabledGdpr = "enabled_gdpr"
+        case recaptchaSiteKey = "recaptcha_site_key"
+        case countryCode = "country_code"
+        case serviceWorkerUrl = "service_worker_url"
+        case cdnUrl = "cdn_url"
+        case expiry
     }
 }
 
 struct WebViewConfig: Codable {
     let token: String
     let endpoint: String
+    let captureJsUrl: String
     let data: WidgetsResponse
 }

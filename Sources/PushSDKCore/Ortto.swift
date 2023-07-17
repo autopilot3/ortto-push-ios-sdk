@@ -11,6 +11,7 @@ let version: String = "1.2.2"
 
 public protocol Capture {
     func showWidget(_ id: String) -> Void
+    func queueWidget(_ id: String) -> Void
 }
 
 public protocol OrttoInterface {
