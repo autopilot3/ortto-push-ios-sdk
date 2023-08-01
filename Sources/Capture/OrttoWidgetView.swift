@@ -18,7 +18,6 @@ internal class OrttoWidgetView {
     private let navigationDelegate: WidgetViewNavigationDelegate
     private let uiDelegate: WidgetViewUIDelegate
     internal let webView: WKWebView
-    internal var loaded: Bool = false
     internal var widgetId: String?
     
     public init(closeWidgetRequestHandler: @escaping () -> Void) {
@@ -39,8 +38,7 @@ internal class OrttoWidgetView {
         configuration.preferences = preferences
         configuration.userContentController = contentController
         
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.translatesAutoresizingMaskIntoConstraints = false
+        let webView = FullScreenWebView(frame: .zero, configuration: configuration)
         webView.uiDelegate = uiDelegate
         webView.navigationDelegate = navigationDelegate
         webView.backgroundColor = .clear
@@ -55,26 +53,6 @@ internal class OrttoWidgetView {
     }
     
     public func load(_ completionHandler: @escaping (_ webView: WKWebView) -> Void) {
-        if loaded {
-            getAp3cConfig(widgetId: self.widgetId) { config in
-                do {
-                    try self.webView.setAp3cConfig(config)
-                    
-                    self.webView.ap3cStart() { (result, error) in
-                        if let error = error {
-                            Ortto.log().error("Error starting widget: \(error)")
-                        } else {
-                            completionHandler(self.webView)
-                        }
-                    }
-                } catch {
-                    Ortto.log().error("Error setting config: \(error)")
-                }
-            }
-            
-            return
-        }
-        
         do {
             navigationDelegate.setCompletionHandler() { (result, error) in
                 if result == .success {
@@ -105,16 +83,10 @@ internal class OrttoWidgetView {
             }()
             
             webView.loadHTMLString(htmlString, baseURL: Bundle.module.bundleURL)
-            
-            self.loaded = true
         } catch {
             print("Error loading HTML: \(error)")
         }
     }
-}
-
-struct Ap3cMessage: Codable {
-    let type: String
 }
 
 internal class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
@@ -127,8 +99,6 @@ internal class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "log", let messageBody = message.body as? String {
             Ortto.log().debug("JavaScript console.log: \(messageBody)")
-        } else if message.name == "error", let messageBody = message.body as? String {
-            Ortto.log().debug("JavaScript error: \(messageBody)")
         } else if (message.name == "messageHandler") {
             let messageBody = message.body as? [String: Any]
             
@@ -136,6 +106,18 @@ internal class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
                 switch (type) {
                 case "widget-close":
                     self.closeWidgetRequestHandler()
+                case "ap3c-track":
+                    guard let payload = messageBody?["payload"] as? [String: Any] else {
+                        return
+                    }
+                    
+                    Ortto.log().debug("ap3c-track: \(payload)")
+                case "unhandled-error":
+                    guard let payload = messageBody?["payload"] as? [String: Any] else {
+                        return
+                    }
+                    
+                    Ortto.log().error("Unhandled web view error: \(payload)")
                 default:
                     return
                 }
@@ -164,19 +146,6 @@ internal class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
             """
             console.log = function(message) {
                 window.webkit.messageHandlers.log.postMessage(message);
-            };
-            
-            window.onerror = function(message, source, lineno, colno, error) {
-                const errorData = {
-                    message: message,
-                    source: source,
-                    lineno: lineno,
-                    colno: colno,
-                    error: String(error) // Ensure the error object is converted to a string
-                };
-            
-                // Send errorData to Swift
-                window.webkit.messageHandlers.error.postMessage(JSON.stringify(errorData));
             };
             
             console.log("Log handlers installed")
@@ -215,31 +184,37 @@ internal class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
             return
         }
         
-        getAp3cConfig(widgetId: self.widgetId) { config in
-            DispatchQueue.main.async {
-                do {
-                    try webView.setAp3cConfig(config) { (result, error) in
-                        if let result = result {
-                            Ortto.log().debug("Ap3c config loaded: \(result)")
-                            self.completionHandler?((.success, nil))
+        getAp3cConfig(widgetId: self.widgetId) { result in
+            switch (result) {
+            case .success(let config):
+                DispatchQueue.main.async {
+                    do {
+                        try webView.setAp3cConfig(config) { (result, error) in
+                            if let result = result {
+                                Ortto.log().debug("Ap3c config loaded: \(result)")
+                                self.completionHandler?((.success, nil))
+                            }
+                            
+                            if let error = error {
+                                self.completionHandler?((.fail, error))
+                            }
                         }
-                        
-                        if let error = error {
-                            self.completionHandler?((.fail, error))
-                        }
-                    }
-                } catch {
-                    Ortto.log().error("Error evaluating start script: \(error)")
-                    self.completionHandler?((.fail, error))
-                }
-            
-                webView.ap3cStart() { (result, error) in
-                    if let error = error {
+                    } catch {
                         Ortto.log().error("Error evaluating start script: \(error)")
                         self.completionHandler?((.fail, error))
-                        return
+                    }
+                
+                    webView.ap3cStart() { (result, error) in
+                        if let error = error {
+                            Ortto.log().error("Error evaluating start script: \(error)")
+                            self.completionHandler?((.fail, error))
+                            return
+                        }
                     }
                 }
+            case .fail(let error):
+                Ortto.log().error("Could not get config: \(error)")
+                self.completionHandler?((.fail, nil))
             }
         }
     }
@@ -310,39 +285,97 @@ internal func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsRe
                     widgets: widgetsResponse.widgets
                         .filter { widget in
                             widget.id == widgetId && widget.type == WidgetType.popup
+                        }
+                        .filter { widget in
+                            if let expiry = widget.expiry {
+                                let diff = expiry.timeIntervalSinceNow
+                                    
+                                return !diff.isLess(than: 0)
+                            }
+
+                            return true
                         },
-//                        .filter { widget in
-//                            if let expiry = widget.expiry {
-//                                return !expiry.timeIntervalSinceNow.isLess(than: 0)
-//                            }
-//
-//                            return true
-//                        },
                     hasLogo: widgetsResponse.hasLogo,
                     enabledGdpr: widgetsResponse.enabledGdpr,
                     recaptchaSiteKey: widgetsResponse.recaptchaSiteKey,
                     countryCode: widgetsResponse.countryCode,
                     serviceWorkerUrl: widgetsResponse.serviceWorkerUrl,
-                    cdnUrl: widgetsResponse.cdnUrl
+                    cdnUrl: widgetsResponse.cdnUrl,
+                    sessionId: widgetsResponse.sessionId
                 )
             } else {
                 return widgetsResponse
             }
         }()
         
+        if let sessionId = data.sessionId {
+            Ortto.shared.setSessionId(sessionId)
+        }
+        
         completion(data)
     }
 }
 
-internal func getAp3cConfig(widgetId: String?, completion: @escaping (WebViewConfig) -> Void) -> Void {
+internal func getScreenName() -> String? {
+    Ortto.shared.screenName
+}
+
+internal func getAppName() -> String? {
+    if let appName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String {
+        return "\(appName) (iOS)"
+    }
+    
+    return nil
+}
+
+internal func getPageContext() -> [String: String] {
+    var context: [String: String] = [String: String]()
+    
+    let shownOnScreen = {
+        if let screenName = getScreenName() {
+            return screenName
+        } else if let appName = getAppName() {
+            return appName
+        } else {
+            return "Unknown"
+        }
+    }()
+    
+    context.updateValue(shownOnScreen, forKey: "shown_on_screen")
+    
+    return context
+}
+
+enum Ap3cConfigResult {
+    case success(_ config: WebViewConfig)
+    case fail(_ error: Ap3cConfigError)
+}
+
+enum Ap3cConfigError: Error {
+    case captureJsURLMissing
+    case apiHostMissing
+}
+
+internal func getAp3cConfig(widgetId: String?, completion: @escaping (Ap3cConfigResult) -> Void) -> Void {
+    guard let captureJsURL = OrttoCapture.shared.captureJsURL else {
+        completion(.fail(.captureJsURLMissing))
+        return
+    }
+    
+    guard let apiHost = OrttoCapture.shared.apiHost else {
+        completion(.fail(.apiHostMissing))
+        return
+    }
+    
     fetchWidgets(widgetId) { data in
         let config = WebViewConfig(
             token: OrttoCapture.shared.dataSourceKey,
-            endpoint: OrttoCapture.shared.apiHost.absoluteString,
-            captureJsUrl: OrttoCapture.shared.captureJsURL.absoluteString,
-            data: data
+            endpoint: apiHost.absoluteString,
+            captureJsUrl: captureJsURL.absoluteString,
+            data: data,
+            context: getPageContext()
         )
         
-        completion(config)
+        completion(.success(config))
     }
 }

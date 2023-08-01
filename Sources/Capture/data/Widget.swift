@@ -246,6 +246,7 @@ struct WidgetsResponse: Codable {
     let serviceWorkerUrl: String?
     let cdnUrl: String
     var expiry: Double = (Date().addingTimeInterval(86400).timeIntervalSince1970 * 1000)
+    let sessionId: String?
     
     static let `default`: WidgetsResponse = WidgetsResponse(
         widgets: [],
@@ -254,7 +255,8 @@ struct WidgetsResponse: Codable {
         recaptchaSiteKey: "",
         countryCode: "",
         serviceWorkerUrl: "",
-        cdnUrl: ""
+        cdnUrl: "",
+        sessionId: nil
     )
     
     init(from decoder: Decoder) throws {
@@ -266,9 +268,10 @@ struct WidgetsResponse: Codable {
         countryCode = try container.decode(String.self, forKey: .countryCode)
         serviceWorkerUrl = try? container.decode(String.self, forKey: .serviceWorkerUrl)
         cdnUrl = try container.decode(String.self, forKey: .cdnUrl)
+        sessionId = try? container.decode(String?.self, forKey: .sessionId)
     }
     
-    init(widgets: [Widget], hasLogo: Bool, enabledGdpr: Bool, recaptchaSiteKey: String?, countryCode: String, serviceWorkerUrl: String?, cdnUrl: String) {
+    init(widgets: [Widget], hasLogo: Bool, enabledGdpr: Bool, recaptchaSiteKey: String?, countryCode: String, serviceWorkerUrl: String?, cdnUrl: String, sessionId: String?) {
         self.widgets = widgets
         self.hasLogo = hasLogo
         self.enabledGdpr = enabledGdpr
@@ -276,6 +279,7 @@ struct WidgetsResponse: Codable {
         self.countryCode = countryCode
         self.serviceWorkerUrl = serviceWorkerUrl
         self.cdnUrl = cdnUrl
+        self.sessionId = sessionId
     }
     
     enum CodingKeys: String, CodingKey {
@@ -287,6 +291,7 @@ struct WidgetsResponse: Codable {
         case serviceWorkerUrl = "service_worker_url"
         case cdnUrl = "cdn_url"
         case expiry
+        case sessionId = "session_id"
     }
 }
 
@@ -295,4 +300,5 @@ struct WebViewConfig: Codable {
     let endpoint: String
     let captureJsUrl: String
     let data: WidgetsResponse
+    let context: [String: String]?
 }

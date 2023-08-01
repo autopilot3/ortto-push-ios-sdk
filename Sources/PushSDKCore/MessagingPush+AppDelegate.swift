@@ -31,18 +31,8 @@ public extension PushMessaging {
             return false;
         }
         
-        if url.scheme == "ortto-widget" {
-            guard let widgetId = url.host else {
-                return false
-            }
-            
-            guard let capture = Ortto.shared.capture else {
-                return false
-            }
-            
-            _ = capture.queueWidget(widgetId)
-            completionHandler()
-            return true
+        if let widgetId = PushMessaging.getWidgetIdFromFragment(url) {
+            Ortto.shared.capture?.queueWidget(widgetId)
         }
         
         if !UIApplication.shared.canOpenURL(url) {
@@ -61,6 +51,23 @@ public extension PushMessaging {
         }
     
         return true
+    }
+    
+    static func getWidgetIdFromFragment(_ url: URL?) -> String? {
+        let regex = try? NSRegularExpression(pattern: "widget_id=(?<widgetId>[a-z0-9]+)", options: [.caseInsensitive])
+        
+        if let fragment = url?.fragment {
+            let range = NSRange(location: 0, length: fragment.utf16.count)
+            
+            if let match = regex?.firstMatch(in: fragment, range: range) {
+                let widgetIdRange = match.range(withName: "widgetId")
+                let widgetId = fragment[Range(widgetIdRange, in: fragment)!]
+                
+                return String(widgetId)
+            }
+        }
+        
+        return nil
     }
 }
 #endif

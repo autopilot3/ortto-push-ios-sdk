@@ -56,7 +56,7 @@ public class MessagingService: MessagingServiceProtocol {
             return false
         }
 
-        let myActionList: [UNNotificationAction] = pushPayload.notificationActions.map() { actionItem in
+        let myActionList: [UNNotificationAction] = pushPayload.actions.map() { actionItem in
             UNNotificationAction(
                 identifier: actionItem.action!,
                 title: actionItem.title ?? "",

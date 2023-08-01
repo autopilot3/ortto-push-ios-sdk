@@ -39,6 +39,8 @@ public class Ortto: OrttoInterface {
     private var logger: OrttoLogger = PrintLogger()
     public var capture: Capture?
     
+    public private(set) var screenName: String?
+    
     /**
      Overwrite Logging service
      */
@@ -101,6 +103,10 @@ public class Ortto: OrttoInterface {
         
     public func getSessionId() -> String? {
         prefsManager.sessionID
+    }
+    
+    public func setSessionId(_ sessionId: String) -> Void {
+        prefsManager.setSessionID(sessionId)
     }
     
     /**
@@ -203,5 +209,9 @@ public class Ortto: OrttoInterface {
             .responseJSON { response in
                 Ortto.log().info("Ortto@trackLinkClick statusCode=\(response.response?.statusCode ?? 0)")
             }
+    }
+    
+    public func screen(_ screenName: String) -> Void {
+        self.screenName = screenName
     }
 }

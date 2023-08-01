@@ -8,7 +8,7 @@
 import Foundation
 
 struct WidgetsGetRequest: Codable {
-    let sessionId: String
+    let sessionId: String?
     let contactId: String?
     let emailAddress: String?
     let phoneNumber: String?
@@ -30,7 +30,7 @@ struct WidgetsGetRequest: Codable {
         case ottlk = "ottlk"
     }
     
-    init(sessionId: String, applicationKey: String, contactId: String? = nil, emailAddress: String? = nil) {
+    init(sessionId: String?, applicationKey: String, contactId: String? = nil, emailAddress: String? = nil) {
         self.sessionId = sessionId
         self.applicationKey = applicationKey
         self.contactId = contactId

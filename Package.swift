@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "8.0.0")),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
+        .package(url: "https://github.com/ashleymills/Reachability.swift", from: "5.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -44,7 +45,7 @@ let package = Package(
         ),
         .target(
             name: "OrttoCaptureSDK",
-            dependencies: ["OrttoPushSDKCore", "SwiftSoup"],
+            dependencies: ["OrttoPushSDKCore", "SwiftSoup", .product(name: "Reachability", package: "Reachability.swift")],
             path: "Sources/Capture",
             resources: [
                 .process("Resources/WebView")
