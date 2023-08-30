@@ -7,10 +7,10 @@ let package = Package(
     name: "OrttoSDK",
     platforms: [
         .iOS(.v13),
-        .macOS(.v10_14)
+        .macOS(.v10_14),
     ],
     products: [
-        .library(name: "OrttoPushSDKCore", targets: ["OrttoPushSDKCore"]),
+        .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
         .library(name: "OrttoPushMessagingFCM", targets: ["OrttoPushMessagingFCM"]),
         .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"]),
     ],
@@ -24,27 +24,26 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         // Push SDK
         .target(
-            name: "OrttoPushSDKCore",
+            name: "OrttoSDKCore",
             dependencies: [.product(name: "Alamofire", package: "Alamofire")],
-            path: "Sources/PushSDKCore"
+            path: "Sources/SDKCore"
         ),
         // FCM
         .target(
             name: "OrttoPushMessagingFCM",
-            dependencies: ["OrttoPushSDKCore", .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")],
+            dependencies: ["OrttoSDKCore", .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")],
             path: "Sources/PushMessagingFCM"
         ),
         // PNS
         .target(
             name: "OrttoPushMessagingAPNS",
-            dependencies: ["OrttoPushSDKCore"],
+            dependencies: ["OrttoSDKCore"],
             path: "Sources/PushMessagingAPNS"
         ),
         // Tests
         .testTarget(
             name: "ap3-push-ios-sdkTests",
-            dependencies: ["OrttoPushSDKCore"]
+            dependencies: ["OrttoSDKCore"]
         ),
     ]
 )
-

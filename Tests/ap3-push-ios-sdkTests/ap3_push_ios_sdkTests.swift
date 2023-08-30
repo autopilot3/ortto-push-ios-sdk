@@ -1,7 +1,7 @@
-import XCTest
 @testable import OrttoPushSDKCore
+import XCTest
 
-final class ap3_push_ios_sdkTests: XCTestCase {
+final class Ap3PushIosSdkTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct

@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master] 
+  workflow_dispatch:
+    inputs: 
+      git_tag:
+        description: 'Git Tag (Must already be deployed)'
+        required: true 
+        type: string
+
+jobs:
+  deploy-tag:
+    name: Deploy Tag
+    steps:
+      - uses: actions/checkout@v3
+  deploy-cocoapods:
+    name: Deploy SDK to Cocoapods 
+    needs: [deploy-tag]
+    if: ${{ needs.deploy-tag.outputs.new_release_published == 'true' || github.event_name == 'workflow_dispatch' }}
+    env:
+      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TOKEN }}    
+    runs-on: macos-12
+    steps:
+      - name: Checkout git tag that got created in previous step 
+        uses: actions/checkout@v3
+        if: ${{ needs.deploy-git-tag.outputs.new_release_published == 'true' }}
+        with:
+          ref: ${{ needs.deploy-git-tag.outputs.new_release_git_head }}
+      - name: Checkout git tag that was previously created 
+        uses: actions/checkout@v3
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        with:
+          ref: ${{ inputs.existing-git-tag }}
+      - name: Install cocoapods 
+        run: gem install cocoapods
+      - name: '⚠️ Note: Pushing to cocoapods is flaky. If you see some errors in these logs while deploying, re-run this GitHub Action to try deployment again and it might fix the issue.'
+        run: echo ''
+      - name: Deploy OrttoSDKCore
+        run: pod trunk push OrttoSDKCore.podspec --allow-warnings --synchronous || true 
+      - name: Deploy OrttoSDKCore
+        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings --synchronous || true 
+      - name: Deploy OrttoSDKCore
+        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings --synchronous || true 

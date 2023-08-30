@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  LinkUtm.swift
+//
 //
 //  Created by Mitch Flindell on 5/1/2023.
 //
@@ -15,8 +15,8 @@ public struct LinkUtm {
     public var term: String?
 
     public init(_ queryItems: [URLQueryItem]?) {
-        queryItems?.forEach({ queryItem in
-            switch (queryItem.name) {
+        queryItems?.forEach { queryItem in
+            switch queryItem.name {
             case "utm_campaign":
                 self.campaign = queryItem.value
             case "utm_content":
@@ -28,8 +28,8 @@ public struct LinkUtm {
             case "utm_term":
                 self.term = queryItem.value
             default:
-                break;
+                break
             }
-        })
+        }
     }
 }
