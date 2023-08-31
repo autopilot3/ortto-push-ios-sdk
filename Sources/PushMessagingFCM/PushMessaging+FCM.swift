@@ -2,17 +2,17 @@
 //  PushMessaging+FCM.swift
 //
 //  Created by Mitch Flindell on 18/11/2022.
-//  Extension for PushSDKOrttoPushSDKCoreCore.PushMessaging class that Ortto customers
+//  Extension for OrttoSDKCore.PushMessaging class that Ortto customers
 //  will use to receive events from firebase messaging
 //
 
 import Foundation
-import OrttoPushSDKCore
+import OrttoSDKCore
 #if canImport(UserNotifications)
     import UserNotifications
 #endif
 
-public typealias PushMessaging = OrttoPushSDKCore.PushMessaging
+public typealias PushMessaging = OrttoSDKCore.PushMessaging
 
 // This will expose FCM pushMessaging class
 // This class extends SDK PushMessaging to interact with firebase properly

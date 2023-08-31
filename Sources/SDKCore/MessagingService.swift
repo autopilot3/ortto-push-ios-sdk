@@ -141,22 +141,6 @@ public class MessagingService: MessagingServiceProtocol {
             }
         }
 
-        private func getMediaAttachment(for urlString: String, completion: @escaping (UIImage?) -> Void) {
-            guard let url = URL(string: urlString) else {
-                completion(nil)
-                return
-            }
-
-            guard let imageData = try? Data(contentsOf: url) else {
-                completion(nil)
-                return
-            }
-
-            let img = UIImage(data: imageData)!
-
-            return completion(img)
-        }
-
         private func sendTrackingEventRequest(_ trackingUrl: String?) {
             guard let trackingUrl = trackingUrl else {
                 return

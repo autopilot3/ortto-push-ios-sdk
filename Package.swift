@@ -28,6 +28,12 @@ let package = Package(
             dependencies: [.product(name: "Alamofire", package: "Alamofire")],
             path: "Sources/SDKCore"
         ),
+        // Tests
+        .testTarget(
+            name: "OrttoSDKTests",
+            dependencies: ["OrttoSDKCore"],
+            path: "Tests/OrttoSDKTests"
+        ),
         // FCM
         .target(
             name: "OrttoPushMessagingFCM",
@@ -39,11 +45,6 @@ let package = Package(
             name: "OrttoPushMessagingAPNS",
             dependencies: ["OrttoSDKCore"],
             path: "Sources/PushMessagingAPNS"
-        ),
-        // Tests
-        .testTarget(
-            name: "ap3-push-ios-sdkTests",
-            dependencies: ["OrttoSDKCore"]
         ),
     ]
 )

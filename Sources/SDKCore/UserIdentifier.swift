@@ -7,13 +7,13 @@
 import Foundation
 
 public struct UserIdentifier: Codable {
-    var contactID: String?
-    var email: String?
-    var phone: String?
-    var externalID: String?
-    var firstName: String?
-    var lastName: String?
-    var acceptsGDPR: Bool = false
+    public var contactID: String?
+    public var email: String?
+    public var phone: String?
+    public var externalID: String?
+    public var firstName: String?
+    public var lastName: String?
+    public var acceptsGDPR: Bool = false
 
     public init(
         contactID: String?,

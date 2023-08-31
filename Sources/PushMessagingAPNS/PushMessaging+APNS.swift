@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import OrttoPushSDKCore
+import OrttoSDKCore
 #if canImport(UserNotifications)
     import UserNotifications
 #endif
 
-public typealias PushMessaging = OrttoPushSDKCore.PushMessaging
+public typealias PushMessaging = OrttoSDKCore.PushMessaging
 
 extension PushMessaging: PushMessagingAPNSInterface {
     public func registerDeviceToken(apnsToken: Data) {

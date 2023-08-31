@@ -1,4 +1,4 @@
-name: Lint
+name: Lint & Tests
 
 on: [pull_request]
 
@@ -11,3 +11,18 @@ jobs:
         run: brew install swiftlint || brew upgrade swiftlint 
       - name: Run linting
         run: swiftlint lint --strict
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: List XCode Schemes
+        run: xcrun xcodebuild -list
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.5
+      - name: Run Tests
+        uses: maierj/fastlane-action@v2.3.0
+        with:
+          lane: 'scan'
+          skip-tracking: true
