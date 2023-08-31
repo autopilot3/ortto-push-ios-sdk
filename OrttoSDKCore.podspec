@@ -6,8 +6,8 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author           = { 'Ortto.com Team' => 'help@ortto.com' }
   s.source           = { :git => 'https://github.com/autopilot3/ortto-push-ios-sdk.git', :tag => s.version.to_s }
-  s.source_files     = 'Sources/PushSDKCore/**/*'
-  s.module_name      = "SDKCore"
+  s.source_files     = 'Sources/SDKCore/**/*'
+  s.module_name      = "OrttoSDKCore"
   s.swift_version    = '5.0'
   s.platform         = :ios
   s.ios.deployment_target = '13.0'
