@@ -1,12 +1,18 @@
 # Created by https://www.toptal.com/developers/gitignore/api/swiftpackagemanager
 # Edit at https://www.toptal.com/developers/gitignore?templates=swiftpackagemanager
 
+.DS_Store
+
 ### SwiftPackageManager ###
 Packages
 .build/
 xcuserdata
 DerivedData/
 *.xcodeproj
+*.xcresult/
 
+# Fastlane
+test-report.xml
+test-report.html
 
 # End of https://www.toptal.com/developers/gitignore/api/swiftpackagemanager

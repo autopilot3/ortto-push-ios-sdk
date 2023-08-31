@@ -1,0 +1,17 @@
+# SwiftLint Configuration File
+
+# Rules to disable
+disabled_rules: 
+  - identifier_name  # Allows any variable names
+  - line_length  # Ignores line length limit
+  - unused_optional_binding  # Ignores unused optional variables
+  - nesting  # Allows deep nesting
+  - trailing_comma # Allow trailing commas
+
+# Files and directories to exclude
+excluded: 
+  - .build  # Excludes .build directory
+  - Package.swift  # Excludes Package.swift file
+
+# Output format for linting report
+reporter: "emoji"  # Uses emoji for lint report

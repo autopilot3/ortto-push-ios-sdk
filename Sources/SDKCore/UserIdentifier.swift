@@ -1,20 +1,20 @@
 //
 //  UserIdentifier.swift
-//  
+//
 //
 //  Created by Mitch Flindell on 18/11/2022.
 
 import Foundation
 
 public struct UserIdentifier: Codable {
-    var contactID: String?
-    var email: String?
-    var phone: String?
-    var externalID: String?
-    var firstName: String?
-    var lastName: String?
-    var acceptsGDPR: Bool = false
-    
+    public var contactID: String?
+    public var email: String?
+    public var phone: String?
+    public var externalID: String?
+    public var firstName: String?
+    public var lastName: String?
+    public var acceptsGDPR: Bool = false
+
     public init(
         contactID: String?,
         email: String?,
@@ -32,11 +32,11 @@ public struct UserIdentifier: Codable {
         self.lastName = lastName
         self.acceptsGDPR = acceptsGDPR
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case contactID = "contact_id"
-        case email = "email"
-        case phone = "phone"
+        case email
+        case phone
         case externalID = "external_id"
         case firstName = "first_name"
         case lastName = "last_name"
