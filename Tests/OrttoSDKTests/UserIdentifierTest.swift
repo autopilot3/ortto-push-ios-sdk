@@ -12,7 +12,7 @@ final class UserIdentifierTest: XCTestCase {
 
     func testInit() {
         let user = UserIdentifier(contactID: "1", email: "email@example.com", phone: "1234567890", externalID: "extID", firstName: "John", lastName: "Doe", acceptsGDPR: true)
-        
+
         XCTAssertEqual(user.contactID, "1")
         XCTAssertEqual(user.email, "email@example.com")
         XCTAssertEqual(user.phone, "1234567890")
@@ -26,7 +26,7 @@ final class UserIdentifierTest: XCTestCase {
         let user = UserIdentifier(contactID: "1", email: "email@example.com", phone: "1234567890", externalID: "extID", firstName: "John", lastName: "Doe", acceptsGDPR: true)
         let jsonData = try JSONEncoder().encode(user)
         let jsonString = String(data: jsonData, encoding: .utf8)
-        
+
         // Assert JSON string is as expected
         XCTAssertNotNil(jsonString)
     }
