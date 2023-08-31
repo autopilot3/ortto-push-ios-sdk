@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoSDKCore", "= #{s.version.to_s}"
-  s.dependency "FirebaseMessaging", "~> 8"
+  s.dependency "FirebaseMessaging", "~> 10"
 end
