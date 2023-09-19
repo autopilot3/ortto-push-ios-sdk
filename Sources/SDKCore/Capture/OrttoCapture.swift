@@ -67,7 +67,6 @@ public class OrttoCapture: ObservableObject, Capture {
         }
     }
 
-
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
