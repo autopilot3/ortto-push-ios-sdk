@@ -9,14 +9,14 @@ This package is meant to help you integrate Push Notification channel from the O
 
 Integration documentation is available at [this link](https://help.ortto.com/developer/latest/)
 
-
+ 
 ## Packges
 
 We support both Firebase and APNS messaging routes. 
 
 | Package | Purpose | Description |
 | :-- | :---: | :--- |
-| OrttoPushSDKCore | Base SDK | Track User identities and register push notification tokens | 
+| OrttoSDKCore | Base SDK | Track User identities and register push notification tokens | 
 | OrttoPushMessagingFCM | Firebase SDK | Send Push messages via Firebase |
 | OrttoPushMessagingAPNS | APNS SDK | Send push messages directly via APNS |
 
@@ -28,4 +28,5 @@ Basically:
 - Drag the folder into your app package
 - It should show up as a folder with a library icon 
 - Go to App -> Build Phases -> Link Binary With Libraries -> + (ADD)
-- Select the packages you want to include (OrttoPushSDKCore) AND (OrttoPushMessagingFCM OR OrttoPushMessagingAPNS)
+- Select the packages you want to include (OrttoSDKCore) AND (OrttoPushMessagingFCM OR OrttoPushMessagingAPNS)
+
