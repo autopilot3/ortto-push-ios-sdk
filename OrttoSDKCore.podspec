@@ -6,12 +6,20 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author           = { 'Ortto.com Team' => 'help@ortto.com' }
   s.source           = { :git => 'https://github.com/autopilot3/ortto-push-ios-sdk.git', :tag => s.version.to_s }
-  s.source_files     = 'Sources/SDKCore/**/*'
-  s.module_name      = "OrttoSDKCore"
+  s.source_files     = 'Sources/PushSDKCore/**/*'
+  s.module_name      = "OrttoPushSDKCore"
   s.swift_version    = '5.0'
   s.platform         = :ios
   s.ios.deployment_target = '13.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
+  
+  s.resource_bundles = {
+    'WebView' => [
+      'Sources/PushSDKCore/Capture/Resources/WebView.bundle/**/*.{html,js,css}'
+    ]
+  }
 
   s.dependency "Alamofire", '5.6.2'
+  s.dependency "SwiftSoup", '2.6.0'
+  s.dependency "ReachabilitySwift", '5.1.0'
 end

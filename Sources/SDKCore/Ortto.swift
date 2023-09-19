@@ -38,9 +38,9 @@ public class Ortto: OrttoInterface {
 
     private var logger: OrttoLogger = PrintLogger()
     public var capture: Capture?
-    
+
     public private(set) var screenName: String?
-    
+
     /**
      Overwrite Logging service
      */
@@ -59,7 +59,7 @@ public class Ortto: OrttoInterface {
             guard let endpoint = endpoint else {
                 return nil
             }
-            
+
             return endpoint.hasSuffix("/") ? String(endpoint.dropLast()) : endpoint
         }()
         shared.appKey = appKey
@@ -100,22 +100,21 @@ public class Ortto: OrttoInterface {
     public func getToken() -> String? {
         return prefsManager.token?.value
     }
-        
+
     public func getSessionId() -> String? {
         prefsManager.sessionID
     }
-    
-    public func setSessionId(_ sessionId: String) -> Void {
+
+    public func setSessionId(_ sessionId: String) {
         prefsManager.setSessionID(sessionId)
     }
-    
+
     /**
      Send push token to Ortto API
      */
-    internal func updatePushToken(token: PushToken, force: Bool = false) {
-        
+    func updatePushToken(token: PushToken, force: Bool = false) {
         // Skip registration of the token if it is the same
-        if (token.value == prefsManager.token?.value && !force) {
+        if token.value == prefsManager.token?.value && !force {
             Ortto.log().info("Ortto@updatePushToken.skip")
             return
         }
@@ -212,8 +211,8 @@ public class Ortto: OrttoInterface {
                 Ortto.log().info("Ortto@trackLinkClick statusCode=\(response.response?.statusCode ?? 0)")
             }
     }
-    
-    public func screen(_ screenName: String) -> Void {
+
+    public func screen(_ screenName: String) {
         self.screenName = screenName
     }
 }

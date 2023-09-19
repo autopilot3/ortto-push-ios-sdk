@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  WidgetsGetRequest.swift
+//
 //
 //  Created by Mitch Flindell on 27/6/2023.
 //
@@ -17,7 +17,7 @@ struct WidgetsGetRequest: Codable {
     let talkToken: String?
     let url: String?
     let ottlk: String
-    
+
     enum CodingKeys: String, CodingKey {
         case sessionId = "s"
         case contactId = "c"
@@ -27,18 +27,18 @@ struct WidgetsGetRequest: Codable {
         case talkEnabled = "tk"
         case talkToken = "tt"
         case url = "u"
-        case ottlk = "ottlk"
+        case ottlk
     }
-    
+
     init(sessionId: String?, applicationKey: String, contactId: String? = nil, emailAddress: String? = nil) {
         self.sessionId = sessionId
         self.applicationKey = applicationKey
         self.contactId = contactId
         self.emailAddress = emailAddress
-        self.phoneNumber = nil
-        self.talkEnabled = false
-        self.talkToken = nil
-        self.url = nil
-        self.ottlk = ""
+        phoneNumber = nil
+        talkEnabled = false
+        talkToken = nil
+        url = nil
+        ottlk = ""
     }
 }

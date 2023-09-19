@@ -7,20 +7,19 @@ let package = Package(
     name: "OrttoSDK",
     platforms: [
         .iOS(.v13),
-        .macOS(.v10_14),
+        .macOS(.v10_14)
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
         .library(name: "OrttoPushMessagingFCM", targets: ["OrttoPushMessagingFCM"]),
-        .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"]),
-        .library(name: "OrttoCaptureSDK", targets: ["OrttoCaptureSDK"])
+        .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
-        .package(url: "https://github.com/ashleymills/Reachability.swift", from: "5.1.0"),
+        .package(url: "https://github.com/ashleymills/Reachability.swift", from: "5.1.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -28,8 +27,11 @@ let package = Package(
         // Push SDK
         .target(
             name: "OrttoSDKCore",
-            dependencies: [.product(name: "Alamofire", package: "Alamofire")],
-            path: "Sources/SDKCore"
+            dependencies: [.product(name: "Alamofire", package: "Alamofire"), "SwiftSoup", .product(name: "Reachability", package: "Reachability.swift")],
+            path: "Sources/SDKCore",
+            resources: [
+                .process("Capture/Resources/WebView.bundle")
+            ]
         ),
         // Tests
         .testTarget(
@@ -49,13 +51,6 @@ let package = Package(
             dependencies: ["OrttoSDKCore"],
             path: "Sources/PushMessagingAPNS"
         ),
-        .target(
-            name: "OrttoCaptureSDK",
-            dependencies: ["OrttoSDKCore", "SwiftSoup", .product(name: "Reachability", package: "Reachability.swift")],
-            path: "Sources/Capture",
-            resources: [
-                .process("Resources/WebView")
-            ]
-        ),
     ]
 )
+

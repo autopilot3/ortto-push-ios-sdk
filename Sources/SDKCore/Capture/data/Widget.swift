@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Widget.swift
+//
 //
 //  Created by Mitch Flindell on 21/6/2023.
 //
@@ -12,7 +12,7 @@ struct Widget: Codable {
     let type: WidgetType
     let page: Page
     let `where`: Where
-    let `when`: When
+    let when: When
     let who: Who
     let trigger: Trigger
     let frequency: String
@@ -30,22 +30,22 @@ struct Widget: Codable {
     let hasRecaptcha: Bool = false
 
     enum CodingKeys: String, CodingKey {
-        case id = "id"
-        case type = "type"
-        case page = "page"
-        case `where` = "where"
-        case `when` = "when"
-        case who = "who"
-        case trigger = "trigger"
-        case frequency = "frequency"
-        case expiry = "expiry"
+        case id
+        case type
+        case page
+        case `where`
+        case when
+        case who
+        case trigger
+        case frequency
+        case expiry
         case isGdpr = "is_gdpr"
-        case style = "style"
-        case html = "html"
+        case style
+        case html
         case useSlot = "use_slot"
-        case font = "font"
+        case font
         case fontUrls = "font_urls"
-        case variables = "variables"
+        case variables
         case talkMessageBody = "talk_message_body"
         case talkMessageAgentId = "talk_message_agent_id"
         case talkMessageAgent = "talk_message_agent"
@@ -54,12 +54,12 @@ struct Widget: Codable {
 }
 
 enum WidgetType: String, Codable {
-    case talk = "talk"
-    case form = "form"
-    case popup = "popup"
-    case bar = "bar"
-    case notification = "notification"
-    case prompt = "prompt"
+    case talk
+    case form
+    case popup
+    case bar
+    case notification
+    case prompt
 }
 
 struct Filter: Codable {
@@ -74,11 +74,11 @@ func decodeFilter<T: CodingKey>(_ container: KeyedDecodingContainer<T>, for key:
     if let filter = try? container.decodeIfPresent(Filter.self, forKey: key) {
         return [filter]
     }
-    
+
     if let filters = try? container.decodeIfPresent([Filter].self, forKey: key) {
         return filters
     }
-    
+
     return []
 }
 
@@ -87,14 +87,14 @@ struct Page: Codable {
     let filter: [Filter]
     let device: String
     let platforms: [String]?
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        self.selection = try container.decode(String.self, forKey: .selection)
-        self.device = try container.decode(String.self, forKey: .device)
-        self.platforms = try container.decode([String]?.self, forKey: .platforms)
-        self.filter = decodeFilter(container, for: .filter)
+
+        selection = try container.decode(String.self, forKey: .selection)
+        device = try container.decode(String.self, forKey: .device)
+        platforms = try container.decode([String]?.self, forKey: .platforms)
+        filter = decodeFilter(container, for: .filter)
     }
 }
 
@@ -111,11 +111,11 @@ struct When: Codable {
 struct Who: Codable {
     let selection: String
     let filter: [Filter]
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.selection = try container.decode(String.self, forKey: .selection)
-        self.filter = decodeFilter(container, for: .filter)
+        selection = try container.decode(String.self, forKey: .selection)
+        filter = decodeFilter(container, for: .filter)
     }
 }
 
@@ -247,8 +247,8 @@ struct WidgetsResponse: Codable {
     let cdnUrl: String
     var expiry: Double = (Date().addingTimeInterval(86400).timeIntervalSince1970 * 1000)
     let sessionId: String?
-    
-    static let `default`: WidgetsResponse = WidgetsResponse(
+
+    static let `default`: WidgetsResponse = .init(
         widgets: [],
         hasLogo: false,
         enabledGdpr: false,
@@ -258,7 +258,7 @@ struct WidgetsResponse: Codable {
         cdnUrl: "",
         sessionId: nil
     )
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         widgets = (try? container.decode([Widget].self, forKey: .widgets)) ?? []
@@ -270,7 +270,7 @@ struct WidgetsResponse: Codable {
         cdnUrl = try container.decode(String.self, forKey: .cdnUrl)
         sessionId = try? container.decode(String?.self, forKey: .sessionId)
     }
-    
+
     init(widgets: [Widget], hasLogo: Bool, enabledGdpr: Bool, recaptchaSiteKey: String?, countryCode: String, serviceWorkerUrl: String?, cdnUrl: String, sessionId: String?) {
         self.widgets = widgets
         self.hasLogo = hasLogo
@@ -281,7 +281,7 @@ struct WidgetsResponse: Codable {
         self.cdnUrl = cdnUrl
         self.sessionId = sessionId
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case widgets
         case hasLogo = "has_logo"

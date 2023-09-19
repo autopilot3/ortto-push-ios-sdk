@@ -15,16 +15,15 @@ public protocol ApiManagerInterface {
     func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String, completion: @escaping (RegistrationResponse?) -> Void)
 }
 
-internal class ApiManager: ApiManagerInterface {
-    
-    internal func debug(name: String, _ model: Codable) {
+class ApiManager: ApiManagerInterface {
+    func debug(name: String, _ model: Codable) {
         do {
             let encoder = JSONEncoder()
             let encoded = try encoder.encode(model)
             let jsonString = String(data: encoded, encoding: .utf8)!
 
             Ortto.log().debug("ApiManager.debug \(name): \(jsonString)")
-        } catch let error {
+        } catch {
             debugPrint(error)
         }
     }
@@ -125,16 +124,16 @@ internal class ApiManager: ApiManagerInterface {
             .validate()
             .responseDecodable(of: RegistrationResponse.self) { response in
                 debugPrint(response)
-                
+
                 guard let statusCode = response.response?.statusCode else { return }
 
                 Ortto.log().info("ApiManager@registerIdentity status=\(statusCode)")
-                
-                switch (response.result) {
-                    case .success(let value):
-                       completion(value)
-                    case .failure(let error):
-                        Ortto.log().error("ApiManager@registerIdentity.request.fail \(error.localizedDescription)")
+
+                switch response.result {
+                case let .success(value):
+                    completion(value)
+                case let .failure(error):
+                    Ortto.log().error("ApiManager@registerIdentity.request.fail \(error.localizedDescription)")
                 }
             }
     }
