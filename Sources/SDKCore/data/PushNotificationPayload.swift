@@ -76,8 +76,7 @@ public class PushNotificationPayload: Codable {
             var primaryAction: ActionItem?
 
             if let primaryActionJson = content.userInfo["primary_action"] as? String,
-               let primaryActionJsonData = primaryActionJson.data(using: .utf8)
-            {
+               let primaryActionJsonData = primaryActionJson.data(using: .utf8) {
                 do {
                     primaryAction = try JSONDecoder().decode(ActionItem.self, from: primaryActionJsonData)
                 } catch {

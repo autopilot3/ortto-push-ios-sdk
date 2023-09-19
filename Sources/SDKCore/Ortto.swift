@@ -10,8 +10,8 @@ import Foundation
 let version: String = "1.3.0"
 
 public protocol Capture {
-    func showWidget(_ id: String) -> Void
-    func queueWidget(_ id: String) -> Void
+    func showWidget(_ id: String)
+    func queueWidget(_ id: String)
 }
 
 public protocol OrttoInterface {

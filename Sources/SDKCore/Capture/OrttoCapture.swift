@@ -13,7 +13,7 @@ public class OrttoCapture: ObservableObject, Capture {
     let dataSourceKey: String
     let captureJsURL: URL?
     let apiHost: URL?
-    let reachability: Reachability
+    var reachability: Reachability?
 
     private var lock = os_unfair_lock()
 
@@ -48,18 +48,25 @@ public class OrttoCapture: ObservableObject, Capture {
         captureJsURL = captureJSURL
         self.apiHost = apiHost
         _queue = WidgetQueue()
-        reachability = try! Reachability()
+
+        do {
+            reachability = try Reachability()
+        } catch {
+            Ortto.log().error("OrttoCapture@init:Failed to initialize Reachability")
+            return
+        }
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 
-        reachability.whenReachable = { _ in
+        reachability?.whenReachable = { _ in
             self.processNextWidgetFromQueue()
         }
 
-        reachability.whenUnreachable = { _ in
+        reachability?.whenUnreachable = { _ in
             self._timer?.invalidate()
         }
     }
+
 
     deinit {
         NotificationCenter.default.removeObserver(self)
