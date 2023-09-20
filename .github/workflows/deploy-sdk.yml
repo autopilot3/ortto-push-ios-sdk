@@ -1,0 +1,33 @@
+name: Deploy SDK
+
+on:  
+  workflow_dispatch: 
+    inputs:
+      git-tag:
+        description: 'Tag'
+        required: true
+        type: string 
+
+permissions:
+  contents: write
+
+deploy-to-cocoapods:
+  name: Deploy to cocoapods 
+  if: ${{ github.event_name == 'workflow_dispatch' }}
+  env:
+    COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}    
+  runs-on: macos-12
+  steps:
+    - name: Checkout git tag that was previously created 
+      uses: actions/checkout@v4
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      with:
+        ref: ${{ inputs.git-tag }}
+    - name: Install cocoapods 
+      run: gem install cocoapods
+    - name: Push SDKCore
+      run: pod trunk push OrttoSDKCore.podspec --allow-warnings
+    - name: Push OrttoPushMessagingFCM
+      run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings
+    - name: Push OrttoPushMessagingAPNS
+      run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings
