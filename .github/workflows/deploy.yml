@@ -13,14 +13,12 @@ permissions:
 
 deploy-to-cocoapods:
   name: Deploy to cocoapods 
-  if: ${{ github.event_name == 'workflow_dispatch' }}
   env:
     COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}    
   runs-on: macos-12
   steps:
     - name: Checkout git tag that was previously created 
       uses: actions/checkout@v4
-      if: ${{ github.event_name == 'workflow_dispatch' }}
       with:
         ref: ${{ inputs.git-tag }}
     - name: Install cocoapods 
