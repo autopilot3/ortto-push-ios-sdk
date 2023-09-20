@@ -11,21 +11,22 @@ on:
 permissions:
   contents: write
 
-deploy-to-cocoapods:
-  name: Deploy to cocoapods 
-  env:
-    COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}    
-  runs-on: macos-12
-  steps:
-    - name: Checkout git tag that was previously created 
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ inputs.git-tag }}
-    - name: Install cocoapods 
-      run: gem install cocoapods
-    - name: Push SDKCore
-      run: pod trunk push OrttoSDKCore.podspec --allow-warnings
-    - name: Push OrttoPushMessagingFCM
-      run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings
-    - name: Push OrttoPushMessagingAPNS
-      run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings
+jobs:
+  deploy-to-cocoapods:
+    name: Deploy to cocoapods 
+    env:
+      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}    
+    runs-on: macos-12
+    steps:
+      - name: Checkout git tag that was previously created 
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git-tag }}
+      - name: Install cocoapods 
+        run: gem install cocoapods
+      - name: Push SDKCore
+        run: pod trunk push OrttoSDKCore.podspec --allow-warnings
+      - name: Push OrttoPushMessagingFCM
+        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings
+      - name: Push OrttoPushMessagingAPNS
+        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings
