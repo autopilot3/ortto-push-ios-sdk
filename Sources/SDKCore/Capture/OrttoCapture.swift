@@ -166,10 +166,15 @@ public class OrttoCapture: ObservableObject, Capture {
         Ortto.shared.capture = shared
     }
 
-    static func getKeyWindow() -> UIWindow? {
-        UIApplication
-            .shared
-            .connectedScenes
+    public static func getKeyWindow() -> UIWindow? {
+        let sel = NSSelectorFromString("sharedApplication")
+        guard UIApplication.responds(to: sel),
+          let rawApplication = UIApplication.perform(sel),
+          let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+            return nil
+        }
+
+        return application.connectedScenes
             .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
             .last { $0.isKeyWindow }
     }

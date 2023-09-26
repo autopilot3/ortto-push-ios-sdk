@@ -6,12 +6,16 @@
 
 import Alamofire
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 let version: String = "1.3.0"
 
 public protocol Capture {
     func showWidget(_ id: String)
     func queueWidget(_ id: String)
+    static func getKeyWindow() -> UIWindow?
 }
 
 public protocol OrttoInterface {

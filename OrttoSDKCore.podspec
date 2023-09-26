@@ -21,5 +21,5 @@ Pod::Spec.new do |s|
 
   s.dependency "Alamofire", '5.6.2'
   s.dependency "SwiftSoup", '2.6.0'
-  s.dependency "ReachabilitySwift", '5.1.0'
+  s.dependency "ReachabilitySwift", '~> 5'
 end

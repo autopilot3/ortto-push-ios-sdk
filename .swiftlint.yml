@@ -20,3 +20,7 @@ reporter: "emoji"  # Uses emoji for lint report
 function_body_length:
   - 200 # warning
   - 300 # error
+
+file_length:
+  - 400 # warning
+  - 1000 #error
