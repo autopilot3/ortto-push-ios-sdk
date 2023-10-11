@@ -7,6 +7,8 @@
 
 import Alamofire
 import Foundation
+import OrttoSDKCore
+
 #if canImport(UserNotifications) && canImport(UIKit)
     import UIKit
     import UserNotifications
@@ -33,7 +35,6 @@ protocol MessagingServiceProtocol {
 public class MessagingService: MessagingServiceProtocol {
     public private(set) static var shared = MessagingService()
 
-    var deviceManager: ApiManager?
     var imageDownloadRequest: DataRequest?
 
     init() {}
@@ -147,14 +148,13 @@ public class MessagingService: MessagingServiceProtocol {
             }
 
             var urlComponents = URLComponents(string: trackingUrl)!
-            for item in Ortto.shared.apiManager.getTrackingQueryItems() {
+            for item in DeviceIdentity.getTrackingQueryItems() {
                 urlComponents.queryItems?.append(item)
             }
 
             AF.request(urlComponents.url!, method: .get)
                 .validate()
                 .responseJSON { response in
-
                     guard let data = response.data else {
                         return
                     }

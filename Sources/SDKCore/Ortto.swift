@@ -7,30 +7,30 @@
 import Alamofire
 import Foundation
 
-let version: String = "1.3.0"
+let version: String = "1.4.0"
 
 public protocol OrttoInterface {
     var appKey: String? { get }
     var apiEndpoint: String? { get }
-
     func identify(_ user: UserIdentifier)
 }
 
-public enum PushPermission: String {
-    case Accept = "accept"
-    case Deny = "deny"
-    case Automatic = "automatic"
+public struct SDKConfiguration {
+}
+public struct PushConfiguration {
 }
 
 public class Ortto: OrttoInterface {
     public var appKey: String?
     public var apiEndpoint: String?
-    public var identifier: UserIdentifier?
 
     public private(set) static var shared = Ortto()
-    var apiManager = ApiManager()
-    var prefsManager = PreferencesManager()
-    public var permission = PushPermission.Automatic
+    
+    private var apiManager = ApiManager()
+    
+    public var preferences: PreferencesManager = OrttoPreferencesManager()
+    public var userStorage: UserStorage
+    
 
     private var logger: OrttoLogger = PrintLogger()
 
@@ -45,9 +45,12 @@ public class Ortto: OrttoInterface {
         return shared.logger
     }
 
-    private init() {}
-
-    public static func initialize(appKey: String, endpoint: String?) {
+    private init() {
+        self.userStorage = OrttoUserStorage(self.preferences)
+    }
+    
+    @available(iOSApplicationExtension, unavailable)
+    public static func initialize(appKey: String, endpoint: String?, completionHandler: ((SDKConfiguration) -> Void)? = nil) {
         if var endpoint = endpoint {
             if endpoint.last == "/" {
                 endpoint = String(endpoint.dropLast())
@@ -56,86 +59,39 @@ public class Ortto: OrttoInterface {
         }
 
         shared.appKey = appKey
+        
+        let sdkConfiguration = SDKConfiguration()
+        completionHandler?(sdkConfiguration)
     }
 
     public func clearData() {
-        prefsManager.clearAll()
+        preferences.clear()
+    }
+    
+    public func setSessionID(_ sessionID: String) -> Void {
+        self.userStorage.session = sessionID
     }
 
     /**
-     Identify the current user via Ortto API
+     Identify user to the Ortto API
+     Endpoint: "/-/events/push-mobile-session"
      */
     public func identify(_ user: UserIdentifier) {
-        prefsManager.setUser(user)
-        identifier = user
+        userStorage.user = user
 
-        apiManager.registerIdentity(
-            user: user,
-            sessionID: prefsManager.sessionID
-        ) { (response: RegistrationResponse?) in
-            guard let sessionID = response?.sessionID else {
-                return
-            }
-            self.logger.info("identify.success \(sessionID)")
-
-            self.prefsManager.setSessionID(sessionID)
+        Task {
+            do {
+                let response = try await apiManager.sendRegisterIdentity(userStorage)
+                guard let sessionID = response?.sessionID else {
+                    return
+                }
+               
+               self.userStorage.session = sessionID
+               self.logger.info("Ortto@identify.success \(sessionID)")
+           } catch {
+               self.logger.info("Ortto@identify.error \(error.localizedDescription)")
+           }
         }
-    }
-
-    /**
-     Set explicit permission to send push notifications
-     */
-    public func setPermission(_ permission: PushPermission) {
-        prefsManager.setPermission(permission)
-        self.permission = permission
-    }
-
-    public func getToken() -> String? {
-        return prefsManager.token?.value
-    }
-
-    /**
-     Send push token to Ortto API
-     */
-    func updatePushToken(token: PushToken, force: Bool = false) {
-        // Skip registration of the token if it is the same
-        if token.value == prefsManager.token?.value && !force {
-            Ortto.log().info("Ortto@updatePushToken.skip")
-            return
-        }
-
-        prefsManager.setToken(token)
-
-        // get the latest token, send it off
-        apiManager.registerDeviceToken(
-            sessionID: prefsManager.sessionID,
-            deviceToken: token.value,
-            tokenType: token.type
-        ) { (response: RegistrationResponse?) in
-            guard let sessionID = response?.sessionID else {
-                return
-            }
-
-            self.prefsManager.setSessionID(sessionID)
-        }
-    }
-
-    /**
-     Update push token
-     */
-    func dispatchPushRequest(_ token: PushToken) {
-        updatePushToken(token: token)
-    }
-
-    /**
-     Update push token
-     */
-    public func dispatchPushRequest() {
-        guard let token = prefsManager.token else {
-            return
-        }
-
-        updatePushToken(token: token, force: true)
     }
 
     /**
@@ -184,16 +140,20 @@ public class Ortto: OrttoInterface {
             return
         }
 
-        for item in apiManager.getTrackingQueryItems() {
+        for item in DeviceIdentity.getTrackingQueryItems() {
             urlComponents.queryItems?.append(item)
         }
 
         guard let finalURL = urlComponents.url else { return }
-
-        AF.request(finalURL, method: .get)
-            .validate()
-            .responseJSON { response in
-                Ortto.log().info("Ortto@trackLinkClick statusCode=\(response.response?.statusCode ?? 0)")
-            }
+        
+        Task {
+            do {
+                try await apiManager.sendLinkTracking(finalURL)
+               self.logger.debug("Ortto@trackLinkClick.success")
+           } catch {
+               self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
+           }
+        }
+       
     }
 }

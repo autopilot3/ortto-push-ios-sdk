@@ -16,7 +16,8 @@ We support both Firebase and APNS messaging routes.
 
 | Package | Purpose | Description |
 | :-- | :---: | :--- |
-| OrttoSDKCore | Base SDK | Track User identities and register push notification tokens | 
+| OrttoSDKCore | Core SDK | Track User identities  |
+| OrttoPushMessaging | Push Notifications | Send Push messages, register push tokens | 
 | OrttoPushMessagingFCM | Firebase SDK | Send Push messages via Firebase |
 | OrttoPushMessagingAPNS | APNS SDK | Send push messages directly via APNS |
 

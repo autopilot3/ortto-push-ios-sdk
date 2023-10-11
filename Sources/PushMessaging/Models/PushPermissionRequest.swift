@@ -24,11 +24,3 @@ struct PushPermissionRequest: Codable {
         case pushTokenType = "ptkt"
     }
 }
-
-public struct RegistrationResponse: Codable {
-    let sessionID: String
-
-    enum CodingKeys: String, CodingKey {
-        case sessionID = "session_id"
-    }
-}

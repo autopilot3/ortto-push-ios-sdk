@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import OrttoSDKCore
+
 #if canImport(UserNotifications) && canImport(UIKit)
     import UIKit
     import UserNotifications
