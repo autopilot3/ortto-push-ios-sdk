@@ -15,22 +15,20 @@ public protocol OrttoInterface {
     func identify(_ user: UserIdentifier)
 }
 
-public struct SDKConfiguration {
-}
-public struct PushConfiguration {
-}
+public struct SDKConfiguration {}
+
+public struct PushConfiguration {}
 
 public class Ortto: OrttoInterface {
     public var appKey: String?
     public var apiEndpoint: String?
 
     public private(set) static var shared = Ortto()
-    
+
     private var apiManager = ApiManager()
-    
+
     public var preferences: PreferencesManager = OrttoPreferencesManager()
     public var userStorage: UserStorage
-    
 
     private var logger: OrttoLogger = PrintLogger()
 
@@ -46,9 +44,9 @@ public class Ortto: OrttoInterface {
     }
 
     private init() {
-        self.userStorage = OrttoUserStorage(self.preferences)
+        userStorage = OrttoUserStorage(preferences)
     }
-    
+
     @available(iOSApplicationExtension, unavailable)
     public static func initialize(appKey: String, endpoint: String?, completionHandler: ((SDKConfiguration) -> Void)? = nil) {
         if var endpoint = endpoint {
@@ -59,7 +57,7 @@ public class Ortto: OrttoInterface {
         }
 
         shared.appKey = appKey
-        
+
         let sdkConfiguration = SDKConfiguration()
         completionHandler?(sdkConfiguration)
     }
@@ -67,9 +65,9 @@ public class Ortto: OrttoInterface {
     public func clearData() {
         preferences.clear()
     }
-    
-    public func setSessionID(_ sessionID: String) -> Void {
-        self.userStorage.session = sessionID
+
+    public func setSessionID(_ sessionID: String) {
+        userStorage.session = sessionID
     }
 
     /**
@@ -85,12 +83,12 @@ public class Ortto: OrttoInterface {
                 guard let sessionID = response?.sessionID else {
                     return
                 }
-               
-               self.userStorage.session = sessionID
-               self.logger.info("Ortto@identify.success \(sessionID)")
-           } catch {
-               self.logger.info("Ortto@identify.error \(error.localizedDescription)")
-           }
+
+                self.userStorage.session = sessionID
+                self.logger.info("Ortto@identify.success \(sessionID)")
+            } catch {
+                self.logger.info("Ortto@identify.error \(error.localizedDescription)")
+            }
         }
     }
 
@@ -145,15 +143,14 @@ public class Ortto: OrttoInterface {
         }
 
         guard let finalURL = urlComponents.url else { return }
-        
+
         Task {
             do {
                 try await apiManager.sendLinkTracking(finalURL)
-               self.logger.debug("Ortto@trackLinkClick.success")
-           } catch {
-               self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
-           }
+                self.logger.debug("Ortto@trackLinkClick.success")
+            } catch {
+                self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
+            }
         }
-       
     }
 }

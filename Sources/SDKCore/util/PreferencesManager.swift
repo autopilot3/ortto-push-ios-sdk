@@ -12,7 +12,7 @@ public protocol PreferencesManager {
     func setString(_ value: String, key: String)
     func getObject<T: Codable>(key: String, type: T.Type) -> T?
     func setObject(object: Codable, key: String)
-    func clear() -> Void
+    func clear()
 }
 
 public protocol UserStorage {
@@ -22,22 +22,20 @@ public protocol UserStorage {
 
 class OrttoUserStorage: UserStorage {
     private let preferences: PreferencesManager
-    
+
     init(_ preferences: PreferencesManager) {
         self.preferences = preferences
     }
-    
+
     public var user: UserIdentifier? {
         get {
             preferences.getObject(key: "user", type: UserIdentifier.self)
-            
         }
         set {
             preferences.setObject(object: newValue, key: "user")
-            
         }
     }
-    
+
     public var session: String? {
         get { preferences.getString("sessionID") }
         set { preferences.setString(newValue!, key: "sessionID") }
@@ -45,23 +43,21 @@ class OrttoUserStorage: UserStorage {
 }
 
 public class OrttoPreferencesManager: PreferencesManager {
-
     private var defaults: UserDefaults? {
         UserDefaults.standard
     }
-    
-    init() {
-    }
+
+    init() {}
 
     public func getString(_ key: String) -> String? {
         return defaults?.string(forKey: key)
     }
-    
+
     public func setString(_ value: String, key: String) {
         defaults?.set(value, forKey: key)
     }
-    
-    public func getObject<T: Codable>(key: String, type: T.Type) -> T? {
+
+    public func getObject<T: Codable>(key: String, type _: T.Type) -> T? {
         if let encodedObject = defaults?.object(forKey: key) as? Data {
             let decoder = JSONDecoder()
             if let loadedObject = try? decoder.decode(T.self, from: encodedObject) {
@@ -70,8 +66,8 @@ public class OrttoPreferencesManager: PreferencesManager {
         }
         return nil
     }
-    
-    public func setObject(object: Codable, key: String) -> Void {
+
+    public func setObject(object: Codable, key: String) {
         let encoder = JSONEncoder()
         do {
             let encoded = try encoder.encode(object)

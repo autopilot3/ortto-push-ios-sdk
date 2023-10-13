@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  IdentityRegistrationResponse.swift
+//
 //
 //  Created by Mitch Flindell on 11/10/2023.
 //

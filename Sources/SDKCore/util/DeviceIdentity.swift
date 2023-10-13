@@ -1,15 +1,14 @@
 //
-//  File.swift
-//  
+//  DeviceIdentity.swift
+//
 //
 //  Created by Mitch Flindell on 6/10/2023.
 //
 
 import Foundation
 
-public class DeviceIdentity {
-    
-    static public func getOs() -> String {
+public enum DeviceIdentity {
+    public static func getOs() -> String {
         return {
             let osName: String = {
                 #if os(iOS)
@@ -37,13 +36,13 @@ public class DeviceIdentity {
         }()
     }
 
-    static public func getVersion() -> String {
+    public static func getVersion() -> String {
         let version = ProcessInfo.processInfo.operatingSystemVersion
 
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
 
-    static public func getTrackingQueryItems() -> [URLQueryItem] {
+    public static func getTrackingQueryItems() -> [URLQueryItem] {
         var systemInfo = utsname()
         uname(&systemInfo)
         let modelCode = withUnsafePointer(to: &systemInfo.machine) {
@@ -69,5 +68,4 @@ public class DeviceIdentity {
             URLQueryItem(name: "dc", value: modelCode),
         ]
     }
-
 }

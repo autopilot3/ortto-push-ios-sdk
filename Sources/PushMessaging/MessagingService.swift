@@ -87,7 +87,7 @@ public class MessagingService: MessagingServiceProtocol {
             sendTrackingEventRequest(pushPayload.eventTrackingUrl)
 
             Task {
-                let _ = await setCategories(newCategory: category)
+                _ = await setCategories(newCategory: category)
 
                 contentHandler(content)
             }
@@ -154,7 +154,7 @@ public class MessagingService: MessagingServiceProtocol {
 
             AF.request(urlComponents.url!, method: .get)
                 .validate()
-                .response { response in
+                .response { _ in
                 }
         }
 

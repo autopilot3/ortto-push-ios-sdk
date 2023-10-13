@@ -5,9 +5,9 @@
 //  Created by Mitch Flindell on 18/11/2022.
 //
 
+import Alamofire
 import Foundation
 import OrttoSDKCore
-import Alamofire
 
 #if canImport(UserNotifications) && canImport(UIKit)
     import UIKit
@@ -41,9 +41,8 @@ public protocol PushMessagingInterface {
 }
 
 public class PushMessaging {
-    
     public static var shared = PushMessaging()
-    
+
     public var permission: PushPermission {
         get {
             if let value = Ortto.shared.preferences.getString("pushmessaging:permission") {
@@ -55,7 +54,7 @@ public class PushMessaging {
             Ortto.shared.preferences.setString(newValue.rawValue, key: "pushmessaging:permission")
         }
     }
-    
+
     public var token: PushToken? {
         get {
             Ortto.shared.preferences.getObject(key: "pushmessaging:token", type: PushToken.self)
@@ -64,10 +63,10 @@ public class PushMessaging {
             guard let newToken = newValue else {
                 return
             }
-            
+
             Ortto.shared.preferences.setObject(object: newValue, key: "pushmessaging:token")
 
-            self.registerDeviceToken(
+            registerDeviceToken(
                 sessionID: Ortto.shared.userStorage.session,
                 deviceToken: newToken.value,
                 tokenType: newToken.type
@@ -80,8 +79,8 @@ public class PushMessaging {
             }
         }
     }
-    
-    internal func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String = "apn", completion: @escaping (PushRegistrationResponse?) -> Void) {
+
+    func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String = "apn", completion: @escaping (PushRegistrationResponse?) -> Void) {
         guard let endpoint = Ortto.shared.apiEndpoint else {
             return
         }
@@ -132,6 +131,6 @@ public class PushMessaging {
     }
 
     private func getPermission() -> Bool {
-        return self.permission.isAllowed()
+        return permission.isAllowed()
     }
 }

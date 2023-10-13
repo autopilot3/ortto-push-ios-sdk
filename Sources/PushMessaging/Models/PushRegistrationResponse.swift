@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  PushRegistrationResponse.swift
+//
 //
 //  Created by Mitch Flindell on 6/10/2023.
 //
