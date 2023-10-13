@@ -47,26 +47,26 @@ public class PushMessaging {
 
     public var permission: PushPermission {
         get {
-            if let value = Ortto.shared.preferences.getString("pushmessaging:permission") {
+            if let value = Ortto.shared.preferences.getString("pushPermission") {
                 return PushPermission(rawValue: value)!
             }
             return PushPermission.Automatic
         }
         set {
-            Ortto.shared.preferences.setString(newValue.rawValue, key: "pushmessaging:permission")
+            Ortto.shared.preferences.setString(newValue.rawValue, key: "pushPermission")
         }
     }
 
     public var token: PushToken? {
         get {
-            Ortto.shared.preferences.getObject(key: "pushmessaging:token", type: PushToken.self)
+            Ortto.shared.preferences.getObject(key: "token", type: PushToken.self)
         }
         set {
             guard let newToken = newValue else {
                 return
             }
 
-            Ortto.shared.preferences.setObject(object: newValue, key: "pushmessaging:token")
+            Ortto.shared.preferences.setObject(object: newValue, key: "token")
 
             registerDeviceToken(
                 sessionID: Ortto.shared.userStorage.session,
