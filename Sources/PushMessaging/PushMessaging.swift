@@ -14,7 +14,9 @@ import OrttoSDKCore
     import UserNotifications
 #endif
 
-struct DecodableType: Decodable { let url: String }
+struct DecodableType: Decodable {
+    let session_id: String
+}
 
 public protocol PushMessagingInterface {
     func registerDeviceToken(_ deviceToken: String)
@@ -113,7 +115,7 @@ public class PushMessaging {
                 guard let statusCode = response.response?.statusCode else { return }
 
                 let json = String(data: data, encoding: String.Encoding.utf8) ?? "none"
-                Ortto.log().info("ApiManager@registerDeviceToken status=\(statusCode) body=\(json)")
+                Ortto.log().info("PushMessaging@registerDeviceToken status=\(statusCode) body=\(json)")
 
                 switch response.result {
                 case .success:
@@ -122,10 +124,10 @@ public class PushMessaging {
                         let registration = try decoder.decode(PushRegistrationResponse.self, from: data)
                         completion(registration)
                     } catch {
-                        Ortto.log().error("ApiManager@registerDeviceToken.decode.error \(error.localizedDescription)")
+                        Ortto.log().error("PushMessaging@registerDeviceToken.decode.error \(error.localizedDescription)")
                     }
                 case let .failure(error):
-                    Ortto.log().error("ApiManager@registerDeviceToken.request.fail \(error.localizedDescription)")
+                    Ortto.log().error("PushMessaging@registerDeviceToken.request.fail \(error.localizedDescription)")
                 }
             }
     }
