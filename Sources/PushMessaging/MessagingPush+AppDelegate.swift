@@ -1,6 +1,6 @@
 //
 //  MessagingPush+AppDelegate.swift
-//  demo-app
+//  Extension to the PushMessaging class when UIKit is available which handles deep links
 //
 //  Created by Mitch Flindell on 18/11/2022.
 //

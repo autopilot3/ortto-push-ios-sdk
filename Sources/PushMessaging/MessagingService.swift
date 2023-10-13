@@ -1,6 +1,6 @@
 //
 //  MessagingService.swift
-//  demo-app
+//  Central Push Messaging service implementation class. Handles Push notification requests
 //
 //  Created by Mitch Flindell on 18/11/2022.
 //
@@ -86,8 +86,8 @@ public class MessagingService: MessagingServiceProtocol {
 
             sendTrackingEventRequest(pushPayload.eventTrackingUrl)
 
-            Task.init {
-                let handled: Bool = await setCategories(newCategory: category)
+            Task {
+                let _ = await setCategories(newCategory: category)
 
                 contentHandler(content)
             }
@@ -154,10 +154,7 @@ public class MessagingService: MessagingServiceProtocol {
 
             AF.request(urlComponents.url!, method: .get)
                 .validate()
-                .responseJSON { response in
-                    guard let data = response.data else {
-                        return
-                    }
+                .response { response in
                 }
         }
 

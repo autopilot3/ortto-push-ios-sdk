@@ -7,7 +7,7 @@ Customer Data, Messaging & Analytics Working Together
 
 This package is meant to help you integrate Push Notification channel from the Ortto service in your iOS applications. 
 
-Integration documentation is available at [this link](https://help.ortto.com/developer/latest/)
+Integration documentation is available at [this link](https://help.ortto.com/developer/latest/developer-guide/push-sdks/ios-sdk.html)
 
  
 ## Packges

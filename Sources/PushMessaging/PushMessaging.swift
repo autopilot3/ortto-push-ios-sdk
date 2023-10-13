@@ -14,6 +14,8 @@ import Alamofire
     import UserNotifications
 #endif
 
+struct DecodableType: Decodable { let url: String }
+
 public protocol PushMessagingInterface {
     func registerDeviceToken(_ deviceToken: String)
 
@@ -79,10 +81,7 @@ public class PushMessaging {
         }
     }
     
-    
-    
-    // device token
-    public func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String = "apn", completion: @escaping (PushRegistrationResponse?) -> Void) {
+    internal func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String = "apn", completion: @escaping (PushRegistrationResponse?) -> Void) {
         guard let endpoint = Ortto.shared.apiEndpoint else {
             return
         }
@@ -110,7 +109,7 @@ public class PushMessaging {
 
         AF.request(components.url!, method: .post, parameters: tokenRegistration, encoder: JSONParameterEncoder.default, headers: headers)
             .validate()
-            .responseJSON { response in
+            .responseDecodable(of: DecodableType.self) { response in
                 guard let data = response.data else { return }
                 guard let statusCode = response.response?.statusCode else { return }
 
@@ -135,5 +134,4 @@ public class PushMessaging {
     private func getPermission() -> Bool {
         return self.permission.isAllowed()
     }
-
 }

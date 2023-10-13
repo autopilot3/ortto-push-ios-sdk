@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import OrttoSDKCore
+import OrttoPushMessaging
+
 #if canImport(UserNotifications)
     import UserNotifications
 #endif
 
-public typealias PushMessaging = OrttoSDKCore.PushMessaging
+public typealias PushMessaging = OrttoPushMessaging.PushMessaging
 
 // This will expose FCM pushMessaging class
 // This class extends SDK PushMessaging to interact with firebase properly

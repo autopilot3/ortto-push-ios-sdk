@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import OrttoSDKCore
+import OrttoPushMessaging
 
 #if canImport(UserNotifications)
     import UserNotifications
@@ -54,7 +54,6 @@ public class PushMessagingFCM: PushMessagingFCMInterface {
 
     public func registerDeviceToken(fcmToken: String?) {
         guard let deviceToken = fcmToken else {
-            Ortto.log().info("PushMessagingFCM.registerDeviceToken.fail token=nil")
             return
         }
 
