@@ -15,9 +15,10 @@ public protocol OrttoInterface {
     func identify(_ user: UserIdentifier)
 }
 
-public struct SDKConfiguration {}
-
-public struct PushConfiguration {}
+public struct SDKConfiguration {
+    var appKey: String?
+    var apiEndpoint: String?
+}
 
 public class Ortto: OrttoInterface {
     public var appKey: String?
@@ -58,7 +59,7 @@ public class Ortto: OrttoInterface {
 
         shared.appKey = appKey
 
-        let sdkConfiguration = SDKConfiguration()
+        let sdkConfiguration = SDKConfiguration(appKey: appKey, apiEndpoint: endpoint)
         completionHandler?(sdkConfiguration)
     }
 
