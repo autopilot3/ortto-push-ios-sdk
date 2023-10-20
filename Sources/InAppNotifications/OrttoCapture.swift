@@ -16,6 +16,16 @@ public protocol Capture {
     static func getKeyWindow() -> UIWindow?
 }
 
+enum Ap3cConfigResult {
+    case success(_ config: WebViewConfig)
+    case fail(_ error: Ap3cConfigError)
+}
+
+enum Ap3cConfigError: Error {
+    case captureJsURLMissing
+    case apiHostMissing
+}
+
 public class OrttoCapture: ObservableObject, Capture {
     let dataSourceKey: String
     let captureJsURL: URL?
@@ -182,4 +192,95 @@ public class OrttoCapture: ObservableObject, Capture {
             .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
             .last { $0.isKeyWindow }
     }
+
+    internal static func getWebViewBundle() -> Bundle {
+        #if SWIFT_PACKAGE
+            Bundle.module
+        #else
+            let rootBundle = Bundle(for: WidgetView.self)
+
+            guard let webViewBundleUrl = rootBundle.url(forResource: "WebView", withExtension: "bundle") else {
+                fatalError("Cannot access WebView bundle.")
+            }
+
+            guard let webViewBundle = Bundle(url: webViewBundleUrl) else {
+                fatalError("Cannot create WebView bundle")
+            }
+
+            return webViewBundle
+        #endif
+    }
+
+    func getAp3cConfig(widgetId: String?, completion: @escaping (Ap3cConfigResult) -> Void) {
+        guard let captureJsURL = OrttoCapture.shared.captureJsURL else {
+            completion(.fail(.captureJsURLMissing))
+            return
+        }
+
+        guard let apiHost = OrttoCapture.shared.apiHost else {
+            completion(.fail(.apiHostMissing))
+            return
+        }
+
+        fetchWidgets(widgetId) { data in
+            let config = WebViewConfig(
+                token: OrttoCapture.shared.dataSourceKey,
+                endpoint: apiHost.absoluteString,
+                captureJsUrl: captureJsURL.absoluteString,
+                data: data,
+                context: getPageContext()
+            )
+
+            completion(.success(config))
+        }
+    }
+
+    internal func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
+        let user = Ortto.shared.userStorage.user
+
+        let request = WidgetsGetRequest(
+            sessionId: OrttoCapture.shared.sessionId,
+            applicationKey: OrttoCapture.shared.dataSourceKey,
+            contactId: user?.contactID,
+            emailAddress: user?.email
+        )
+
+        CaptureAPI.fetchWidgets(request) { widgetsResponse in
+            let data: WidgetsResponse = {
+                if let widgetId = widgetId {
+                    return WidgetsResponse(
+                        widgets: widgetsResponse.widgets
+                            .filter { widget in
+                                widget.id == widgetId && widget.type == WidgetType.popup
+                            }
+                            .filter { widget in
+                                if let expiry = widget.expiry {
+                                    let diff = expiry.timeIntervalSinceNow
+
+                                    return !diff.isLess(than: 0)
+                                }
+
+                                return true
+                            },
+                        hasLogo: widgetsResponse.hasLogo,
+                        enabledGdpr: widgetsResponse.enabledGdpr,
+                        recaptchaSiteKey: widgetsResponse.recaptchaSiteKey,
+                        countryCode: widgetsResponse.countryCode,
+                        serviceWorkerUrl: widgetsResponse.serviceWorkerUrl,
+                        cdnUrl: widgetsResponse.cdnUrl,
+                        sessionId: widgetsResponse.sessionId
+                    )
+                } else {
+                    return widgetsResponse
+                }
+            }()
+
+            if let sessionId = data.sessionId {
+                Ortto.shared.userStorage.session = sessionId
+            }
+
+            completion(data)
+        }
+    }
+
 }

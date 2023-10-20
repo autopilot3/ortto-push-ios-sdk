@@ -10,23 +10,7 @@ import SwiftUI
 import WebKit
 import OrttoSDKCore
 
-func getWebViewBundle() -> Bundle {
-    #if SWIFT_PACKAGE
-        Bundle.module
-    #else
-        let rootBundle = Bundle(for: WidgetView.self)
-
-        guard let webViewBundleUrl = rootBundle.url(forResource: "WebView", withExtension: "bundle") else {
-            fatalError("Cannot access WebView bundle.")
-        }
-
-        guard let webViewBundle = Bundle(url: webViewBundleUrl) else {
-            fatalError("Cannot create WebView bundle")
-        }
-
-        return webViewBundle
-    #endif
-}
+class WidgetViewUIDelegate: NSObject, WKUIDelegate {}
 
 class WidgetView {
     private static var htmlString: String = ""
@@ -82,7 +66,7 @@ class WidgetView {
                 }
             }
 
-            let webViewBundle = getWebViewBundle()
+            let webViewBundle = OrttoCapture.getWebViewBundle()
 
             let htmlString = try {
                 if WidgetView.htmlString.isEmpty {
@@ -185,7 +169,7 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
         // loading app.js from the script tag will fail due to CORS
         // so we evaluate it manually here
         do {
-            let appJs = getWebViewBundle().url(forResource: "app", withExtension: "js")!
+            let appJs = OrttoCapture.getWebViewBundle().url(forResource: "app", withExtension: "js")!
             try webView.evaluateJavaScript(String(contentsOf: appJs)) { _, error in
                 if let error = error {
                     Ortto.log().debug("Error evaluating app.js: \(error)")
@@ -204,7 +188,7 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
             return
         }
 
-        getAp3cConfig(widgetId: widgetId) { result in
+        OrttoCapture.shared.getAp3cConfig(widgetId: widgetId) { result in
             switch result {
             case let .success(config):
                 DispatchQueue.main.async {
@@ -260,12 +244,6 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
     }
 }
 
-class WidgetViewUIDelegate: NSObject, WKUIDelegate {}
-
-enum LoadWidgetResult: Error {
-    case success, fail
-}
-
 extension WKWebView {
     func setAp3cConfig(_ config: WebViewConfig, completionHandler: ((Bool?, Error?) -> Void)? = nil) throws {
         let encoder = JSONEncoder()
@@ -289,52 +267,8 @@ extension WKWebView {
     }
 }
 
-func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
-    let user = Ortto.shared.userStorage.user
-
-    let request = WidgetsGetRequest(
-        sessionId: OrttoCapture.shared.sessionId,
-        applicationKey: OrttoCapture.shared.dataSourceKey,
-        contactId: user?.contactID,
-        emailAddress: user?.email
-    )
-
-    CaptureAPI.fetchWidgets(request) { widgetsResponse in
-        let data: WidgetsResponse = {
-            if let widgetId = widgetId {
-                return WidgetsResponse(
-                    widgets: widgetsResponse.widgets
-                        .filter { widget in
-                            widget.id == widgetId && widget.type == WidgetType.popup
-                        }
-                        .filter { widget in
-                            if let expiry = widget.expiry {
-                                let diff = expiry.timeIntervalSinceNow
-
-                                return !diff.isLess(than: 0)
-                            }
-
-                            return true
-                        },
-                    hasLogo: widgetsResponse.hasLogo,
-                    enabledGdpr: widgetsResponse.enabledGdpr,
-                    recaptchaSiteKey: widgetsResponse.recaptchaSiteKey,
-                    countryCode: widgetsResponse.countryCode,
-                    serviceWorkerUrl: widgetsResponse.serviceWorkerUrl,
-                    cdnUrl: widgetsResponse.cdnUrl,
-                    sessionId: widgetsResponse.sessionId
-                )
-            } else {
-                return widgetsResponse
-            }
-        }()
-
-        if let sessionId = data.sessionId {
-            Ortto.shared.userStorage.session = sessionId
-        }
-
-        completion(data)
-    }
+enum LoadWidgetResult: Error {
+    case success, fail
 }
 
 func getScreenName() -> String? {
@@ -364,38 +298,4 @@ func getPageContext() -> [String: String] {
     context.updateValue(shownOnScreen, forKey: "shown_on_screen")
 
     return context
-}
-
-enum Ap3cConfigResult {
-    case success(_ config: WebViewConfig)
-    case fail(_ error: Ap3cConfigError)
-}
-
-enum Ap3cConfigError: Error {
-    case captureJsURLMissing
-    case apiHostMissing
-}
-
-func getAp3cConfig(widgetId: String?, completion: @escaping (Ap3cConfigResult) -> Void) {
-    guard let captureJsURL = OrttoCapture.shared.captureJsURL else {
-        completion(.fail(.captureJsURLMissing))
-        return
-    }
-
-    guard let apiHost = OrttoCapture.shared.apiHost else {
-        completion(.fail(.apiHostMissing))
-        return
-    }
-
-    fetchWidgets(widgetId) { data in
-        let config = WebViewConfig(
-            token: OrttoCapture.shared.dataSourceKey,
-            endpoint: apiHost.absoluteString,
-            captureJsUrl: captureJsURL.absoluteString,
-            data: data,
-            context: getPageContext()
-        )
-
-        completion(.success(config))
-    }
 }
