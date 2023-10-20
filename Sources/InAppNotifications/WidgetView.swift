@@ -351,7 +351,6 @@ func getAppName() -> String? {
 
 func getPageContext() -> [String: String] {
     var context = [String: String]()
-
     let shownOnScreen = {
         if let screenName = getScreenName() {
             return screenName

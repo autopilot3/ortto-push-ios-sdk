@@ -21,9 +21,11 @@ public class OrttoCapture: ObservableObject, Capture {
     let captureJsURL: URL?
     let apiHost: URL?
     var reachability: Reachability?
-
+    public var isWidgetActive: Bool = false
+    private var _queue: WidgetQueue
+    private var _timer: Timer?
+    private var _widgetView: WidgetView?
     private var lock = os_unfair_lock()
-
     private static let orttoWidgetQueueKey = "ortto_widgets_queue"
 
     var sessionId: String? {
@@ -34,10 +36,6 @@ public class OrttoCapture: ObservableObject, Capture {
         Self.getKeyWindow()
     }
 
-    public var isWidgetActive: Bool = false
-
-    private var _widgetView: WidgetView?
-    
     var widgetView: WidgetView {
         if _widgetView == nil {
             _widgetView = WidgetView(closeWidgetRequestHandler: hideWidget)
@@ -45,9 +43,6 @@ public class OrttoCapture: ObservableObject, Capture {
 
         return _widgetView!
     }
-
-    private var _queue: WidgetQueue
-    private var _timer: Timer?
 
     public private(set) static var shared: OrttoCapture!
 
@@ -74,11 +69,10 @@ public class OrttoCapture: ObservableObject, Capture {
             self._timer?.invalidate()
         }
     }
-    
+
     public static func initialize(dataSourceKey: String, captureJsURL: String, apiHost: String) throws {
         try initialize(dataSourceKey: dataSourceKey, captureJsURL: URL(string: captureJsURL), apiHost: URL(string: apiHost))
     }
-
 
     public static func initialize(dataSourceKey: String, captureJsURL: URL?, apiHost: URL?) throws {
         shared = OrttoCapture(
@@ -98,7 +92,6 @@ public class OrttoCapture: ObservableObject, Capture {
 
     public func processNextWidgetFromQueue() {
         _timer?.invalidate()
-
         _timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
             if let widgetId = self._queue.peekLast() {
                 self.showWidget(widgetId)
