@@ -12,4 +12,11 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '13.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoSDKCore", "= #{s.version.to_s}"
+  s.dependency "SwiftSoup", '2.6.0'
+  s.dependency "ReachabilitySwift", '~> 5'
+  s.resource_bundles = {
+    'WebView' => [
+      'Sources/InAppNotifications/Resources/WebView.bundle/**/*.{html,js,css}'
+    ]
+  }
 end

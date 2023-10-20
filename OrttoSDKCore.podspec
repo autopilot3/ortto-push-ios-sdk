@@ -12,14 +12,5 @@ Pod::Spec.new do |s|
   s.platform         = :ios
   s.ios.deployment_target = '13.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
-  
-  s.resource_bundles = {
-    'WebView' => [
-      'Sources/SDKCore/Capture/Resources/WebView.bundle/**/*.{html,js,css}'
-    ]
-  }
-
   s.dependency "Alamofire", '5.6.2'
-  s.dependency "SwiftSoup", '2.6.0'
-  s.dependency "ReachabilitySwift", '~> 5'
 end

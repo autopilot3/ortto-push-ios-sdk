@@ -229,15 +229,13 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
                 return .allow
             }
 
-            if let application = UIApplication.value(forKeyPath: "sharedApplication") as? UIApplication,
-               await application.canOpenURL(url) {
-                let sel = Selector("open:")
-                if application.responds(to: sel) {
-                    application.perform(sel, with: url)
+            if await UIApplication.shared.canOpenURL(url) {
+                DispatchQueue.main.async {
+                    UIApplication.shared.open(url)
                 }
-            }
 
-            return .cancel
+                return .cancel
+            }
         }
 
         return .allow
