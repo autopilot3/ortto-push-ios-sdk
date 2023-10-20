@@ -7,14 +7,11 @@
 
 import Foundation
 
-struct PushToken: Codable {
-    var value: String
-    var type: String
+public struct PushToken: Codable, Equatable {
+    public var value: String
+    public var type: String
 
-    public init(
-        value: String,
-        type: String
-    ) {
+    public init(value: String, type: String) {
         self.value = value
         self.type = type
     }

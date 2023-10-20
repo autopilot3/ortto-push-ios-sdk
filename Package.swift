@@ -11,6 +11,7 @@ let package = Package(
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
+        .library(name: "OrttoPushMessaging", targets: ["OrttoPushMessaging"]),
         .library(name: "OrttoPushMessagingFCM", targets: ["OrttoPushMessagingFCM"]),
         .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"]),
     ],
@@ -28,6 +29,11 @@ let package = Package(
             dependencies: [.product(name: "Alamofire", package: "Alamofire")],
             path: "Sources/SDKCore"
         ),
+        .target(
+            name: "OrttoPushMessaging",
+            dependencies: ["OrttoSDKCore", .product(name: "Alamofire", package: "Alamofire")],
+            path: "Sources/PushMessaging"
+        ),
         // Tests
         .testTarget(
             name: "OrttoSDKTests",
@@ -37,13 +43,13 @@ let package = Package(
         // FCM
         .target(
             name: "OrttoPushMessagingFCM",
-            dependencies: ["OrttoSDKCore", .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")],
+            dependencies: ["OrttoPushMessaging", .product(name: "FirebaseMessaging", package: "firebase-ios-sdk")],
             path: "Sources/PushMessagingFCM"
         ),
         // PNS
         .target(
             name: "OrttoPushMessagingAPNS",
-            dependencies: ["OrttoSDKCore"],
+            dependencies: ["OrttoPushMessaging"],
             path: "Sources/PushMessagingAPNS"
         ),
     ]

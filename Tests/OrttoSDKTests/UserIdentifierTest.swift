@@ -1,15 +1,14 @@
 //
 //  UserIdentifierTest.swift
-//  
+//
 //
 //  Created by Mitch Flindell on 31/8/2023.
 //
 
-import XCTest
 @testable import OrttoSDKCore
+import XCTest
 
 final class UserIdentifierTest: XCTestCase {
-
     func testInit() {
         let user = UserIdentifier(contactID: "1", email: "email@example.com", phone: "1234567890", externalID: "extID", firstName: "John", lastName: "Doe", acceptsGDPR: true)
 
@@ -45,5 +44,4 @@ final class UserIdentifierTest: XCTestCase {
         XCTAssertEqual(user.lastName, "Doe")
         XCTAssertEqual(user.acceptsGDPR, true)
     }
-
 }

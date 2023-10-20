@@ -7,7 +7,7 @@ Customer Data, Messaging & Analytics Working Together
 
 This package is meant to help you integrate Push Notification channel from the Ortto service in your iOS applications. 
 
-Integration documentation is available at [this link](https://help.ortto.com/developer/latest/)
+Integration documentation is available at [this link](https://help.ortto.com/developer/latest/developer-guide/push-sdks/ios-sdk.html)
 
  
 ## Packges
@@ -16,7 +16,8 @@ We support both Firebase and APNS messaging routes.
 
 | Package | Purpose | Description |
 | :-- | :---: | :--- |
-| OrttoSDKCore | Base SDK | Track User identities and register push notification tokens | 
+| OrttoSDKCore | Core SDK | Track User identities  |
+| OrttoPushMessaging | Push Notifications | Send Push messages, register push tokens | 
 | OrttoPushMessagingFCM | Firebase SDK | Send Push messages via Firebase |
 | OrttoPushMessagingAPNS | APNS SDK | Send push messages directly via APNS |
 
