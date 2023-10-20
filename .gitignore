@@ -11,6 +11,7 @@ xcuserdata
 DerivedData/
 *.xcodeproj
 *.xcresult/
+.swiftpm/
 
 # Fastlane
 test-report.xml

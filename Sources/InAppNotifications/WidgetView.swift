@@ -8,12 +8,13 @@
 import SwiftSoup
 import SwiftUI
 import WebKit
+import OrttoSDKCore
 
 func getWebViewBundle() -> Bundle {
     #if SWIFT_PACKAGE
         Bundle.module
     #else
-        let rootBundle = Bundle(for: OrttoWidgetView.self)
+        let rootBundle = Bundle(for: WidgetView.self)
 
         guard let webViewBundleUrl = rootBundle.url(forResource: "WebView", withExtension: "bundle") else {
             fatalError("Cannot access WebView bundle.")
@@ -27,7 +28,7 @@ func getWebViewBundle() -> Bundle {
     #endif
 }
 
-class OrttoWidgetView {
+class WidgetView {
     private static var htmlString: String = ""
 
     private let closeWidgetRequestHandler: () -> Void
@@ -84,7 +85,7 @@ class OrttoWidgetView {
             let webViewBundle = getWebViewBundle()
 
             let htmlString = try {
-                if OrttoWidgetView.htmlString.isEmpty {
+                if WidgetView.htmlString.isEmpty {
                     let htmlFile = webViewBundle.url(forResource: "index", withExtension: "html")!
 
                     // need to remove script tag, as it will fail to load due to CORS
@@ -95,10 +96,10 @@ class OrttoWidgetView {
                     let scriptEl = try? head.select("script[src='app.js']").first()
                     try scriptEl?.remove()
 
-                    OrttoWidgetView.htmlString = try doc.outerHtml()
+                    WidgetView.htmlString = try doc.outerHtml()
                 }
 
-                return OrttoWidgetView.htmlString
+                return WidgetView.htmlString
             }()
 
             webView.loadHTMLString(htmlString, baseURL: webViewBundle.bundleURL)
@@ -289,7 +290,7 @@ extension WKWebView {
 }
 
 func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
-    let user = Ortto.shared.identifier
+    let user = Ortto.shared.userStorage.user
 
     let request = WidgetsGetRequest(
         sessionId: OrttoCapture.shared.sessionId,
@@ -329,7 +330,7 @@ func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -
         }()
 
         if let sessionId = data.sessionId {
-            Ortto.shared.setSessionId(sessionId)
+            Ortto.shared.userStorage.session = sessionId
         }
 
         completion(data)

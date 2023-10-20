@@ -8,6 +8,13 @@
 import Foundation
 import Reachability
 import SwiftUI
+import OrttoSDKCore
+
+public protocol Capture {
+    func showWidget(_ id: String)
+    func queueWidget(_ id: String)
+    static func getKeyWindow() -> UIWindow?
+}
 
 public class OrttoCapture: ObservableObject, Capture {
     let dataSourceKey: String
@@ -20,7 +27,7 @@ public class OrttoCapture: ObservableObject, Capture {
     private static let orttoWidgetQueueKey = "ortto_widgets_queue"
 
     var sessionId: String? {
-        Ortto.shared.getSessionId()
+        Ortto.shared.userStorage.session
     }
 
     var keyWindow: UIWindow? {
@@ -29,10 +36,11 @@ public class OrttoCapture: ObservableObject, Capture {
 
     public var isWidgetActive: Bool = false
 
-    private var _widgetView: OrttoWidgetView?
-    var widgetView: OrttoWidgetView {
+    private var _widgetView: WidgetView?
+    
+    var widgetView: WidgetView {
         if _widgetView == nil {
-            _widgetView = OrttoWidgetView(closeWidgetRequestHandler: hideWidget)
+            _widgetView = WidgetView(closeWidgetRequestHandler: hideWidget)
         }
 
         return _widgetView!
@@ -65,6 +73,19 @@ public class OrttoCapture: ObservableObject, Capture {
         reachability?.whenUnreachable = { _ in
             self._timer?.invalidate()
         }
+    }
+    
+    public static func initialize(dataSourceKey: String, captureJsURL: String, apiHost: String) throws {
+        try initialize(dataSourceKey: dataSourceKey, captureJsURL: URL(string: captureJsURL), apiHost: URL(string: apiHost))
+    }
+
+
+    public static func initialize(dataSourceKey: String, captureJsURL: URL?, apiHost: URL?) throws {
+        shared = OrttoCapture(
+            dataSourceKey: dataSourceKey,
+            captureJSURL: captureJsURL,
+            apiHost: apiHost
+        )
     }
 
     deinit {
@@ -154,16 +175,6 @@ public class OrttoCapture: ObservableObject, Capture {
             self.isWidgetActive = false
             self.processNextWidgetFromQueue()
         }
-    }
-
-    public static func initialize(dataSourceKey: String, captureJsURL: URL?, apiHost: URL?) throws {
-        shared = OrttoCapture(
-            dataSourceKey: dataSourceKey,
-            captureJSURL: captureJsURL,
-            apiHost: apiHost
-        )
-
-        Ortto.shared.capture = shared
     }
 
     public static func getKeyWindow() -> UIWindow? {

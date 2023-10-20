@@ -7,6 +7,7 @@
 
 import Alamofire
 import Foundation
+import OrttoSDKCore
 
 struct CaptureAPI {
     static func fetchWidgets(_ body: WidgetsGetRequest, completion: @escaping (WidgetsResponse) -> Void) {
@@ -20,7 +21,7 @@ struct CaptureAPI {
         ]
 
         let dateFormatter = DateFormatter()
-        // 2023-07-17T15:30:00.652Z
+        // date format example: 2023-07-17T15:30:00.652Z
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 
         let decoder = JSONDecoder()

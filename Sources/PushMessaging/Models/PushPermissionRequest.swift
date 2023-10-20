@@ -1,9 +1,9 @@
 //
 //  PushPermissionRequest.swift
-//
+//  Registration class adapter for the Ortto API
 //
 //  Created by Mitch Flindell on 25/11/2022.
-// Registration class adapter for the Ortto API
+//
 
 import Foundation
 
@@ -22,13 +22,5 @@ struct PushPermissionRequest: Codable {
         case sessionID = "s"
         case deviceToken = "ptk"
         case pushTokenType = "ptkt"
-    }
-}
-
-public struct RegistrationResponse: Codable {
-    let sessionID: String
-
-    enum CodingKeys: String, CodingKey {
-        case sessionID = "session_id"
     }
 }

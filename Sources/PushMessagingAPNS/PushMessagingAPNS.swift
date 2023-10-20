@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OrttoPushMessaging
 import OrttoSDKCore
 
 #if canImport(UserNotifications)

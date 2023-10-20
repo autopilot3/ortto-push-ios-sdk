@@ -6,12 +6,13 @@
 //
 
 import Foundation
-import OrttoSDKCore
+import OrttoPushMessaging
+
 #if canImport(UserNotifications)
     import UserNotifications
 #endif
 
-public typealias PushMessaging = OrttoSDKCore.PushMessaging
+public typealias PushMessaging = OrttoPushMessaging.PushMessaging
 
 extension PushMessaging: PushMessagingAPNSInterface {
     public func registerDeviceToken(apnsToken: Data) {
@@ -27,7 +28,7 @@ extension PushMessaging: PushMessagingAPNSInterface {
             return PushMessagingAPNS.shared.didReceive(request, withContentHandler: contentHandler)
         }
 
-        func serviceExtensionTimeWillExpire() {
+        public func serviceExtensionTimeWillExpire() {
             PushMessagingAPNS.shared.serviceExtensionTimeWillExpire()
         }
     #endif
