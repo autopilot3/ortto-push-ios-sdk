@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import OrttoSDKCore
+@testable import OrttoPushMessaging
 
 final class PushNotificationPayloadTests: XCTestCase {
 
