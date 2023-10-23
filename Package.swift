@@ -44,7 +44,7 @@ let package = Package(
         // Tests
         .testTarget(
             name: "OrttoSDKTests",
-            dependencies: ["OrttoSDKCore"],
+            dependencies: ["OrttoSDKCore", "OrttoPushMessaging"],
             path: "Tests/OrttoSDKTests"
         ),
         // FCM
