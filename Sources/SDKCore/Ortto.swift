@@ -6,6 +6,9 @@
 
 import Alamofire
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 let version: String = "1.4.0"
 
@@ -33,6 +36,8 @@ public class Ortto: OrttoInterface {
 
     private var logger: OrttoLogger = PrintLogger()
 
+    public private(set) var screenName: String?
+
     /**
      Overwrite Logging service
      */
@@ -50,12 +55,13 @@ public class Ortto: OrttoInterface {
 
     @available(iOSApplicationExtension, unavailable)
     public static func initialize(appKey: String, endpoint: String?, completionHandler: ((SDKConfiguration) -> Void)? = nil) {
-        if var endpoint = endpoint {
-            if endpoint.last == "/" {
-                endpoint = String(endpoint.dropLast())
+        shared.apiEndpoint = {
+            guard let endpoint = endpoint else {
+                return nil
             }
-            shared.apiEndpoint = endpoint
-        }
+
+            return endpoint.hasSuffix("/") ? String(endpoint.dropLast()) : endpoint
+        }()
 
         shared.appKey = appKey
 
@@ -153,5 +159,9 @@ public class Ortto: OrttoInterface {
                 self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
             }
         }
+    }
+
+    public func screen(_ screenName: String) {
+        self.screenName = screenName
     }
 }
