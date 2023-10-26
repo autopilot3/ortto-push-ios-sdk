@@ -7,14 +7,14 @@ let package = Package(
     name: "OrttoSDK",
     platforms: [
         .iOS(.v13),
-        .macOS(.v10_14)
+        .macOS(.v10_14),
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
         .library(name: "OrttoPushMessaging", targets: ["OrttoPushMessaging"]),
         .library(name: "OrttoPushMessagingFCM", targets: ["OrttoPushMessagingFCM"]),
         .library(name: "OrttoPushMessagingAPNS", targets: ["OrttoPushMessagingAPNS"]),
-        .library(name: "OrttoInAppNotifications", targets: ["OrttoInAppNotifications"])
+        .library(name: "OrttoInAppNotifications", targets: ["OrttoInAppNotifications"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
@@ -32,7 +32,7 @@ let package = Package(
             dependencies: ["OrttoSDKCore", .product(name: "Alamofire", package: "Alamofire")],
             path: "Sources/InAppNotifications",
             resources: [
-                .process("Resources/WebView.bundle")
+                .process("Resources/WebView.bundle"),
             ]
         ),
         .target(
@@ -60,4 +60,3 @@ let package = Package(
         ),
     ]
 )
-
