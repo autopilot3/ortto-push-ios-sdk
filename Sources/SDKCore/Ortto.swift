@@ -7,7 +7,7 @@
 import Alamofire
 import Foundation
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 let version: String = "1.5.0"

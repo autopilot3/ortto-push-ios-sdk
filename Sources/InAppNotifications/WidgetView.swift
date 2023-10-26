@@ -1,14 +1,14 @@
 //
-//  OrttoWidgetView.swift
+//  WidgetView.swift
 //
 //
 //  Created by Mitch Flindell on 7/6/2023.
 //
 
+import OrttoSDKCore
 import SwiftSoup
 import SwiftUI
 import WebKit
-import OrttoSDKCore
 
 class WidgetViewUIDelegate: NSObject, WKUIDelegate {}
 

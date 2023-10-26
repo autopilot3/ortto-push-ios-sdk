@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import Reachability
-import SwiftUI
 import OrttoSDKCore
+import SwiftUI
 
 public protocol Capture {
     func showWidget(_ id: String)
@@ -188,7 +187,7 @@ public class OrttoCapture: ObservableObject, Capture {
             .last { $0.isKeyWindow }
     }
 
-    internal static func getWebViewBundle() -> Bundle {
+    static func getWebViewBundle() -> Bundle {
         #if SWIFT_PACKAGE
             Bundle.module
         #else
@@ -230,7 +229,7 @@ public class OrttoCapture: ObservableObject, Capture {
         }
     }
 
-    internal func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
+    func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
         let user = Ortto.shared.userStorage.user
 
         let request = WidgetsGetRequest(
@@ -277,5 +276,4 @@ public class OrttoCapture: ObservableObject, Capture {
             completion(data)
         }
     }
-
 }
