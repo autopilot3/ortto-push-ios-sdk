@@ -21,7 +21,8 @@ enum APIResponseError: Error {
     case notSuccessful
 }
 
-class ApiManager: ApiManagerInterface {
+public class ApiManager: ApiManagerInterface {
+    
     /**
      Send an Identify request to Ortto
      */
