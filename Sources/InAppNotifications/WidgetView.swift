@@ -88,7 +88,7 @@ class WidgetView {
 
             webView.loadHTMLString(htmlString, baseURL: webViewBundle.bundleURL)
         } catch {
-            print("Error loading HTML: \(error)")
+            Ortto.log().error("WidgetView@load.fail \(error)")
         }
     }
 }

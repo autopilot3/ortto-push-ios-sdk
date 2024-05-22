@@ -176,9 +176,6 @@ public class MessagingService: MessagingServiceProtocol {
         for item in DeviceIdentity.getTrackingQueryItems() {
             urlComponents.queryItems?.append(item)
         }
-        
-        // todo :move to api manager
-        
 
         AF.request(urlComponents.url!, method: .get)
             .validate()
