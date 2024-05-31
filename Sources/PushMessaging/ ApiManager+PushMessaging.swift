@@ -46,7 +46,7 @@ public extension ApiManager {
                 guard let json = String(data: data, encoding: .utf8) else {
                     return
                 }
-                
+
                 Ortto.log().info("PushMessaging@registerDeviceToken status=\(statusCode) body=\(json)")
 
                 switch response.result {

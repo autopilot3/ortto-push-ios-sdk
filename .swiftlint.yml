@@ -7,7 +7,7 @@ disabled_rules:
   - unused_optional_binding  # Ignores unused optional variables
   - nesting  # Allows deep nesting
   - trailing_comma # Allow trailing commas
-
+  - non_optional_string_data_conversion # allow unsafe json utf8
 # Files and directories to exclude
 excluded: 
   - .build  # Excludes .build directory
