@@ -15,11 +15,11 @@ public extension ApiManager {
         guard let endpoint = Ortto.shared.apiEndpoint else {
             return
         }
-        
+
         var components = URLComponents(string: endpoint)!
         components.path = "/-/events/push-permission"
         components.queryItems = DeviceIdentity.getTrackingQueryItems()
-        
+
         let tokenRegistration = PushPermissionRequest(
             appKey: Ortto.shared.appKey!,
             permission: permission,

@@ -55,7 +55,7 @@ public class PushMessaging {
         }
         set {
             Ortto.shared.preferences.setString(newValue.rawValue, key: "pushPermission")
-        
+
         }
     }
 
@@ -83,11 +83,11 @@ public class PushMessaging {
             }
         }
     }
-    
+
     func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
         MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
     }
-   
+
     func deregisterDevice() {
         //
     }

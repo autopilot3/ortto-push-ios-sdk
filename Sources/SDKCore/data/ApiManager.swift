@@ -22,7 +22,7 @@ enum APIResponseError: Error {
 }
 
 public class ApiManager: ApiManagerInterface {
-    
+
     /**
      Send an Identify request to Ortto
      */

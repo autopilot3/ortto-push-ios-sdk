@@ -68,7 +68,7 @@ public class OrttoPreferencesManager: PreferencesInterface {
         }
         return nil
     }
-    
+
     public func setObject(object: Codable, key: String) {
         let encoder = JSONEncoder()
         do {

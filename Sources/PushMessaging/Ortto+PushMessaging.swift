@@ -9,7 +9,7 @@ import Foundation
 import OrttoSDKCore
 
 public extension Ortto {
-    
+
     /**
      Set explicit permission to send push notifications
      */
@@ -20,7 +20,7 @@ public extension Ortto {
     internal func getToken() -> String? {
         PushMessaging.shared.token?.value
     }
-    
+
     func clearIdentity(_ completion: @escaping (PushRegistrationResponse?) -> Void) {
         MessagingService.shared.clearIdentity(completion: completion)
     }

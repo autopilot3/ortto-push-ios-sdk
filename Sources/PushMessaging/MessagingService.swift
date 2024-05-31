@@ -42,12 +42,12 @@ public class MessagingService: MessagingServiceProtocol {
             PushToken(value: token, type: tokenType)
         )
     }
-    
+
     public func clearIdentity(completion: @escaping (PushRegistrationResponse?) -> Void) {
         guard let sessionID = Ortto.shared.userStorage.session, let token = PushMessaging.shared.token else {
             return
         }
-        
+
         Ortto.shared.apiManager.sendPushPermission(
             sessionID: sessionID,
             token: token,
