@@ -91,7 +91,9 @@ public class ApiManager: ApiManagerInterface {
         do {
             let encoder = JSONEncoder()
             let encoded = try encoder.encode(model)
-            let jsonString = String(data: encoded, encoding: .utf8)!
+            guard let jsonString = String(data: encoded, encoding: .utf8) else {
+                return
+            }
 
             print("ApiManager.debug \(name): \(jsonString)")
         } catch {

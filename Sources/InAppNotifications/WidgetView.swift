@@ -247,7 +247,9 @@ extension WKWebView {
     func setAp3cConfig(_ config: WebViewConfig, completionHandler: ((Bool?, Error?) -> Void)? = nil) throws {
         let encoder = JSONEncoder()
         let data = try encoder.encode(config)
-        let json = String(data: data, encoding: .utf8)!
+        guard let json = String(data: data, encoding: .utf8) else {
+            return
+        }
 
         evaluateJavaScript("ap3cWebView.setConfig(\(json)); ap3cWebView.hasConfig()") { result, error in
 

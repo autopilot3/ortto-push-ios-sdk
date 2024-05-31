@@ -34,7 +34,7 @@ public class Ortto: OrttoInterface {
     public var userStorage: UserStorage
     private var logger: OrttoLogger = PrintLogger()
     public private(set) var screenName: String?
-    
+
     /**
      Overwrite Logging service
      */
@@ -157,7 +157,7 @@ public class Ortto: OrttoInterface {
             }
         }
     }
-    
+
     public func screen(_ screenName: String) {
         self.screenName = screenName
     }
