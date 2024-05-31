@@ -33,7 +33,8 @@ public class Ortto: OrttoInterface {
     public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
     private var logger: OrttoLogger = PrintLogger()
-
+    public private(set) var screenName: String?
+    
     /**
      Overwrite Logging service
      */
@@ -155,5 +156,9 @@ public class Ortto: OrttoInterface {
                 self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
             }
         }
+    }
+    
+    public func screen(_ screenName: String) {
+        self.screenName = screenName
     }
 }
