@@ -14,13 +14,13 @@ jobs:
   test:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: List XCode Schemes
-        run: xcrun xcodebuild -list
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-          bundler-cache: true
+      - uses: actions/checkout@v4
+      # - name: List XCode Schemes
+      #   run: xcrun xcodebuild -list
+      # - name: Install Ruby
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: '3.0'
+      #     bundler-cache: true
       - name: Run Tests
-        run: fastlane scan
+        run: bundle exec fastlane scan
