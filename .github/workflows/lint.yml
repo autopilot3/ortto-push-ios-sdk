@@ -17,17 +17,23 @@ jobs:
     permissions:
       checks: write
     steps:
-      - uses: actions/checkout@v3
-      # - name: Install XCode
-        # uses: maxim-lobanov/setup-xcode@v1
-        # with:
-        #   xcode-version: "15"
+      - uses: actions/checkout@v4
+      
+      - name: Install XCode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "15"
+      
+      - name: Get XCode schemes 
+        run: xcrun xcodebuild -list
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3'
+          ruby-version: '3.0'
           bundler-cache: true
-      - name: Install dependencies
-        run: bundle install
-      - name: Run Tests
-        run: bundle exec fastlane scan
+
+      - name: Run tests 
+        uses: maierj/fastlane-action@v3.1.0
+        with:
+          lane: 'scan'
