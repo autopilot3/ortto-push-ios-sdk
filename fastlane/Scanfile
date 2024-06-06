@@ -4,6 +4,7 @@ devices([
   "iPhone 7 (15.5)"
 ])
 
+xcodebuild_formatter('xcpretty')
 output_types("html,junit")
 output_files("test-report.html,test-report.xml")
 output_directory(".")

@@ -37,6 +37,4 @@ jobs:
           bundler-cache: true
 
       - name: Run tests 
-        uses: maierj/fastlane-action@v3.1.0
-        with:
-          lane: 'scan'
+        run: bundle exec fastlane scan --verbose
