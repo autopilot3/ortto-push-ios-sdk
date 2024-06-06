@@ -25,7 +25,7 @@ final class PushNotificationPayloadTests: XCTestCase {
 
         // Check JSON encoding
         if let jsonString = String(data: encodedData, encoding: .utf8) {
-            let expectedJsonString = #"{"link":"deeplink:\/\/some-domain.xyz","title":"testTitle","action":"testAction"}"#
+            let expectedJsonString = #"{"title":"testTitle","action":"testAction","link":"deeplink:\/\/some-domain.xyz"}"#
             XCTAssertEqual(jsonString, expectedJsonString)
         } else {
             XCTFail("Failed to convert encoded data to string")
