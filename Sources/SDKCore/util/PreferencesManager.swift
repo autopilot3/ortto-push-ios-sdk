@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol PreferencesManager {
+public protocol PreferencesInterface {
     func getString(_ key: String) -> String?
     func setString(_ value: String, key: String)
     func getObject<T: Codable>(key: String, type: T.Type) -> T?
@@ -21,9 +21,9 @@ public protocol UserStorage {
 }
 
 class OrttoUserStorage: UserStorage {
-    private let preferences: PreferencesManager
+    private let preferences: PreferencesInterface
 
-    init(_ preferences: PreferencesManager) {
+    init(_ preferences: PreferencesInterface) {
         self.preferences = preferences
     }
 
@@ -42,7 +42,9 @@ class OrttoUserStorage: UserStorage {
     }
 }
 
-public class OrttoPreferencesManager: PreferencesManager {
+public class OrttoPreferencesManager: PreferencesInterface {
+    private let keyPrefix = "com.ortto.sdk"
+
     private var defaults: UserDefaults? {
         UserDefaults.standard
     }
@@ -71,7 +73,7 @@ public class OrttoPreferencesManager: PreferencesManager {
         let encoder = JSONEncoder()
         do {
             let encoded = try encoder.encode(object)
-            defaults?.set(encoded, forKey: key)
+            defaults?.set(encoded, forKey: "\(keyPrefix):\(key)")
         } catch {
             Ortto.log().info("PreferencesManager@setObject.fail message=\(error.localizedDescription)")
         }
@@ -81,6 +83,9 @@ public class OrttoPreferencesManager: PreferencesManager {
      Remove all internal data used by SDK
      */
     public func clear() {
-        UserDefaults.resetStandardUserDefaults()
+        let keysToRemove = ["user", "sessionID"]
+        keysToRemove.forEach { key in
+            defaults?.removeObject(forKey: "\(keyPrefix):\(key)")
+        }
     }
 }

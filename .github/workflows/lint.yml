@@ -7,23 +7,34 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install swiftlint 
+
         run: brew install swiftlint || brew upgrade swiftlint 
+
       - name: Run linting
         run: swiftlint lint --strict
+
   test:
-    runs-on: macos-latest
+    runs-on: macos-14
+    permissions:
+      checks: write
     steps:
-      - uses: actions/checkout@v2
-      - name: List XCode Schemes
+      - uses: actions/checkout@v4
+      
+      - name: Install XCode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "15"
+      
+      - name: Get XCode schemes 
         run: xcrun xcodebuild -list
-      - name: Install Ruby
+
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
           bundler-cache: true
-      - name: Run Tests
-        uses: maierj/fastlane-action@v3.0.0
-        with:
-          lane: 'scan'
-          skip-tracking: true
+
+      - name: Run tests 
+        run: bundle exec fastlane scan --verbose

@@ -1,17 +1,19 @@
 scheme("OrttoSDK-Package")
 
 devices([
-  "iPhone 8"
+  "iPhone 7 (15.5)"
 ])
 
+xcodebuild_formatter('xcpretty')
 output_types("html,junit")
 output_files("test-report.html,test-report.xml")
 output_directory(".")
+disable_slide_to_type(true)
 
-code_coverage(true)
-result_bundle(true) # required to get code coverage report 
-derived_data_path(".build/derivedData")
+code_coverage(false)
+result_bundle(true)
+derived_data_path("~/Library/Developer/Xcode/DerivedData")
 
-skip_build(true) # speed up testing 
+skip_build(true)
 
 package_path("./")

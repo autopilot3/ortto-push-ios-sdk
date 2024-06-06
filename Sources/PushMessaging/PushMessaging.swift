@@ -43,6 +43,7 @@ public protocol PushMessagingInterface {
 }
 
 public class PushMessaging {
+
     public static var shared = PushMessaging()
 
     public var permission: PushPermission {
@@ -54,6 +55,7 @@ public class PushMessaging {
         }
         set {
             Ortto.shared.preferences.setString(newValue.rawValue, key: "pushPermission")
+
         }
     }
 
@@ -62,6 +64,7 @@ public class PushMessaging {
             Ortto.shared.preferences.getObject(key: "token", type: PushToken.self)
         }
         set {
+            // todo:
             guard let newToken = newValue else {
                 return
             }
@@ -70,8 +73,7 @@ public class PushMessaging {
 
             registerDeviceToken(
                 sessionID: Ortto.shared.userStorage.session,
-                deviceToken: newToken.value,
-                tokenType: newToken.type
+                token: newToken
             ) { (response: PushRegistrationResponse?) in
                 guard let sessionID = response?.sessionID else {
                     return
@@ -82,57 +84,11 @@ public class PushMessaging {
         }
     }
 
-    func registerDeviceToken(sessionID: String?, deviceToken: String, tokenType: String = "apn", completion: @escaping (PushRegistrationResponse?) -> Void) {
-        guard let endpoint = Ortto.shared.apiEndpoint else {
-            return
-        }
-
-        var components = URLComponents(string: endpoint)!
-        components.path = "/-/events/push-permission"
-        components.queryItems = DeviceIdentity.getTrackingQueryItems()
-
-        let tokenRegistration = PushPermissionRequest(
-            appKey: Ortto.shared.appKey!,
-            permission: getPermission(),
-            sessionID: sessionID,
-            deviceToken: deviceToken,
-            pushTokenType: tokenType
-        )
-
-        let headers: HTTPHeaders = [
-            .accept("application/json"),
-            .userAgent(Alamofire.HTTPHeader.defaultUserAgent.value),
-        ]
-
-        #if DEBUG
-            debugPrint(tokenRegistration)
-        #endif
-
-        AF.request(components.url!, method: .post, parameters: tokenRegistration, encoder: JSONParameterEncoder.default, headers: headers)
-            .validate()
-            .responseDecodable(of: DecodableType.self) { response in
-                guard let data = response.data else { return }
-                guard let statusCode = response.response?.statusCode else { return }
-
-                let json = String(data: data, encoding: String.Encoding.utf8) ?? "none"
-                Ortto.log().info("PushMessaging@registerDeviceToken status=\(statusCode) body=\(json)")
-
-                switch response.result {
-                case .success:
-                    let decoder = JSONDecoder()
-                    do {
-                        let registration = try decoder.decode(PushRegistrationResponse.self, from: data)
-                        completion(registration)
-                    } catch {
-                        Ortto.log().error("PushMessaging@registerDeviceToken.decode.error \(error.localizedDescription)")
-                    }
-                case let .failure(error):
-                    Ortto.log().error("PushMessaging@registerDeviceToken.request.fail \(error.localizedDescription)")
-                }
-            }
+    func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
+        MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
     }
 
-    private func getPermission() -> Bool {
-        return permission.isAllowed()
+    func deregisterDevice() {
+        //
     }
 }

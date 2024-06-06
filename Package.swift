@@ -6,8 +6,7 @@ import PackageDescription
 let package = Package(
     name: "OrttoSDK",
     platforms: [
-        .iOS(.v13),
-        .macOS(.v10_14),
+        .iOS(.v13)
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),

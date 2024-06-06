@@ -29,13 +29,10 @@ public class Ortto: OrttoInterface {
 
     public private(set) static var shared = Ortto()
 
-    private var apiManager = ApiManager()
-
-    public var preferences: PreferencesManager = OrttoPreferencesManager()
+    public var apiManager = ApiManager()
+    public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
-
     private var logger: OrttoLogger = PrintLogger()
-
     public private(set) var screenName: String?
 
     /**

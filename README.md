@@ -31,3 +31,10 @@ Basically:
 - Go to App -> Build Phases -> Link Binary With Libraries -> + (ADD)
 - Select the packages you want to include (OrttoSDKCore) AND (OrttoPushMessagingFCM OR OrttoPushMessagingAPNS)
 
+## 
+Register
+Ortto.shared.identify()
+
+PushMessaging.shared.registerDevice(token)
+
+// 
