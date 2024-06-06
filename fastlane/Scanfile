@@ -11,7 +11,7 @@ output_directory(".")
 code_coverage(true)
 result_bundle(true)
 derived_data_path(".build/derivedData")
-
+skip_package_dependencies_resolution(true)
 skip_build(true)
 
 package_path("./")

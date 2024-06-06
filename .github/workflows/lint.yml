@@ -7,8 +7,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install swiftlint 
+
         run: brew install swiftlint || brew upgrade swiftlint 
+
       - name: Run linting
         run: swiftlint lint --strict
 
