@@ -7,11 +7,12 @@ devices([
 output_types("html,junit")
 output_files("test-report.html,test-report.xml")
 output_directory(".")
+disable_slide_to_type(true)
 
-code_coverage(true)
-result_bundle(true)
+code_coverage(false)
+result_bundle(false)
 derived_data_path(".build/derivedData")
-skip_package_dependencies_resolution(true)
+# skip_package_dependencies_resolution(true)
 
 skip_build(true)
 
