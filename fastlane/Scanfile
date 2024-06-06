@@ -10,7 +10,7 @@ output_directory(".")
 disable_slide_to_type(true)
 
 code_coverage(false)
-result_bundle(false)
+result_bundle(true)
 derived_data_path("~/Library/Developer/Xcode/DerivedData")
 
 skip_build(true)
