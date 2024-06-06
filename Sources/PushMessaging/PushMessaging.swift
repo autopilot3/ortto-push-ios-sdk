@@ -75,7 +75,7 @@ public class PushMessaging {
                 sessionID: Ortto.shared.userStorage.session,
                 token: newToken
             ) { (response: PushRegistrationResponse?) in
-                guard let sessionID = response?.sessionID else {
+                guard let sessionID = response?.sessionId else {
                     return
                 }
 

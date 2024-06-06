@@ -10,7 +10,7 @@ import Foundation
     import UIKit
 #endif
 
-let version: String = "1.5.5"
+let version: String = "1.5.6"
 
 public protocol OrttoInterface {
     var appKey: String? { get }

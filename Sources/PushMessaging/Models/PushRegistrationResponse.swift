@@ -8,9 +8,9 @@
 import Foundation
 
 public struct PushRegistrationResponse: Codable {
-    let sessionID: String
+    public let sessionId: String
 
     enum CodingKeys: String, CodingKey {
-        case sessionID = "session_id"
+        case sessionId = "session_id"
     }
 }
