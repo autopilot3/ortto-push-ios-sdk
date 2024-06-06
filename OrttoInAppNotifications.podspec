@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoInAppNotifications'
-  s.version          = '1.5.3'
+  s.version          = '1.5.4'
   s.summary          = 'OrttoSDK In-App Notifications Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author           = { 'Ortto.com Team' => 'help@ortto.com' }
-  s.source           = { :git => 'https://github.com/autopilot3/ortto-push-ios-sdk.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/autopilot3/ortto-push-ios-sdk.git', :tag => "v#{s.version}" }
   s.source_files     = 'Sources/InAppNotifications/**/*'
   s.swift_version    = '5.0'
   s.platform         = :ios
