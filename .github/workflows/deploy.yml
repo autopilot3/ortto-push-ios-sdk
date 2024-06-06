@@ -22,15 +22,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git-tag }}
+
       - name: Install cocoapods 
         run: gem install cocoapods
+
       - name: Push OrttoSDKCore
-        run: pod trunk push OrttoSDKCore.podspec --allow-warnings
+        run: pod trunk push OrttoSDKCore.podspec --allow-warnings --synchronous || true 
+
       - name: Push OrttoPushMessaging
-        run: pod trunk push OrttoPushMessaging.podspec --allow-warnings
+        run: pod trunk push OrttoPushMessaging.podspec --allow-warnings --synchronous || true 
+
       - name: Push OrttoPushMessagingFCM
-        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings
+        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings --synchronous || true 
+
       - name: Push OrttoPushMessagingAPNS
-        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings
+        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings --synchronous || true 
+
       - name: Push OrttoInAppNotifications
-        run: pod trunk push OrttoInAppNotifications.podspec --allow-warnings
+        run: pod trunk push OrttoInAppNotifications.podspec --allow-warnings --synchronous || true 
