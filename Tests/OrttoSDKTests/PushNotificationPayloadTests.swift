@@ -23,12 +23,16 @@ final class PushNotificationPayloadTests: XCTestCase {
         XCTAssertEqual(actionItem.title, decodedActionItem.title)
         XCTAssertEqual(actionItem.link, decodedActionItem.link)
 
-        // Check JSON encoding
-        if let jsonString = String(data: encodedData, encoding: .utf8) {
-            let expectedJsonString = #"{"title":"testTitle","action":"testAction","link":"deeplink:\/\/some-domain.xyz"}"#
-            XCTAssertEqual(jsonString, expectedJsonString)
+        // Convert encoded data to a dictionary for comparison
+        if let jsonDictionary = try JSONSerialization.jsonObject(with: encodedData, options: []) as? [String: Any] {
+            let expectedJsonDictionary: [String: Any] = [
+                "title": "testTitle",
+                "action": "testAction",
+                "link": "deeplink://some-domain.xyz"
+            ]
+            XCTAssertEqual(jsonDictionary as NSDictionary, expectedJsonDictionary as NSDictionary)
         } else {
-            XCTFail("Failed to convert encoded data to string")
+            XCTFail("Failed to convert encoded data to dictionary")
         }
     }
 

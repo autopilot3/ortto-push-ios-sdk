@@ -4,14 +4,14 @@ devices([
   "iPhone 7 (15.5)"
 ])
 
-output_types("html,junit")
-output_files("test-report.html,test-report.xml")
-output_directory(".")
+output_types("html")
+output_files("test-report.html")
+
+output_directory("./build")
 disable_slide_to_type(true)
 
 code_coverage(false)
-result_bundle(false)
-derived_data_path("~/Library/Developer/Xcode/DerivedData")
+result_bundle(true)
 
 skip_build(true)
 
