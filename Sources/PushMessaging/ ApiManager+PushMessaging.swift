@@ -13,6 +13,7 @@ public extension ApiManager {
 
     func sendPushPermission(sessionID: String, token: PushToken, permission: Bool, completion: @escaping (PushRegistrationResponse?) -> Void) {
         guard let endpoint = Ortto.shared.apiEndpoint else {
+            completion(nil)
             return
         }
 
@@ -40,10 +41,13 @@ public extension ApiManager {
         AF.request(components.url!, method: .post, parameters: tokenRegistration, encoder: JSONParameterEncoder.default, headers: headers)
             .validate()
             .responseDecodable(of: DecodableType.self) { response in
-                guard let data = response.data else { return }
-                guard let statusCode = response.response?.statusCode else { return }
+                guard let data = response.data, let statusCode = response.response?.statusCode else {
+                    completion(nil)
+                    return
+                }
 
                 guard let json = String(data: data, encoding: .utf8) else {
+                    completion(nil)
                     return
                 }
 
@@ -57,9 +61,11 @@ public extension ApiManager {
                         completion(registration)
                     } catch {
                         Ortto.log().error("PushMessaging@registerDeviceToken.decode.error \(error.localizedDescription)")
+                        completion(nil)
                     }
                 case let .failure(error):
                     Ortto.log().error("PushMessaging@registerDeviceToken.request.fail \(error.localizedDescription)")
+                    completion(nil)
                 }
             }
     }
