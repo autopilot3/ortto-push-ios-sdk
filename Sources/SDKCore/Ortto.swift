@@ -29,7 +29,7 @@ public class Ortto: OrttoInterface {
 
     public private(set) static var shared = Ortto()
 
-    public var apiManager = ApiManager()
+    public var apiManager: ApiManagerInterface
     public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
     private var logger: OrttoLogger = PrintLogger()
@@ -48,6 +48,7 @@ public class Ortto: OrttoInterface {
 
     private init() {
         userStorage = OrttoUserStorage(preferences)
+        apiManager = ApiManager()
     }
 
     @available(iOSApplicationExtension, unavailable)
@@ -113,27 +114,54 @@ public class Ortto: OrttoInterface {
         return utm
     }
 
+    func base64UrlDecode(_ base64Url: String) -> Data? {
+        var base64 = base64Url
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        
+        let paddingLength = (4 - (base64.count % 4)) % 4
+        base64.append(contentsOf: repeatElement("=", count: paddingLength))
+        
+        return Data(base64Encoded: base64)
+    }
+    
+    func base64urlToBase64(base64url: String) -> String {
+        var base64 = base64url
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        if base64.count % 4 != 0 {
+            base64.append(String(repeating: "=", count: 4 - base64.count % 4))
+        }
+        return base64
+    }
+    
     /**
      Track the clicking of a link and return the utm values for the developer to use for marketing
      */
-    public func trackLinkClick(_ encodedUrl: String, completion _: @escaping () -> Void) {
+    public func trackLinkClick(_ encodedUrl: String, completion: @escaping () -> Void) {
+
         guard let url = URL(string: encodedUrl) else {
             Ortto.log().error("could not decode tracking_url: \(encodedUrl)")
             return
         }
 
         guard let components = URLComponents(string: url.absoluteString),
-              let queryItems = components.queryItems
-        else {
+              let queryItems = components.queryItems else {
             return
         }
 
         let items = queryItems.reduce(into: [String: String]()) { result, item in
             result[item.name] = item.value
         }
+    
+        
+        guard let trackingUrl = items["tracking_url"] else {
+            return
+        }
+        
+        let trackingUrlDecoded = base64urlToBase64(base64url: trackingUrl)
 
-        guard let trackingUrl = items["tracking_url"],
-              let burl = URL(string: "data:application/octet-stream;base64," + trackingUrl),
+        guard let burl = URL(string: "data:application/octet-stream;base64," + trackingUrlDecoded),
               let data = try? Data(contentsOf: burl),
               let trackingUrlFinal = String(data: data, encoding: .utf8),
               var urlComponents = URLComponents(string: trackingUrlFinal)
@@ -152,6 +180,7 @@ public class Ortto: OrttoInterface {
             do {
                 try await apiManager.sendLinkTracking(finalURL)
                 self.logger.debug("Ortto@trackLinkClick.success")
+                completion()
             } catch {
                 self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")
             }
