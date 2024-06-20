@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MockApiManager.swift
 //  
 //
 //  Created by Mitchell Flindell on 20/6/2024.

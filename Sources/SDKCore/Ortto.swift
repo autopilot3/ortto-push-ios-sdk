@@ -114,17 +114,6 @@ public class Ortto: OrttoInterface {
         return utm
     }
 
-    func base64UrlDecode(_ base64Url: String) -> Data? {
-        var base64 = base64Url
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-        
-        let paddingLength = (4 - (base64.count % 4)) % 4
-        base64.append(contentsOf: repeatElement("=", count: paddingLength))
-        
-        return Data(base64Encoded: base64)
-    }
-    
     func base64urlToBase64(base64url: String) -> String {
         var base64 = base64url
             .replacingOccurrences(of: "-", with: "+")
