@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct IdentityRegistrationResponse: Codable {
+public struct IdentityRegistrationResponse: Codable {
     let sessionID: String
 
     enum CodingKeys: String, CodingKey {

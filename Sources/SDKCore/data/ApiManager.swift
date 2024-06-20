@@ -8,7 +8,7 @@ import Alamofire
 import Foundation
 import UserNotifications
 
-protocol ApiManagerInterface {
+public protocol ApiManagerInterface {
     /**
      Register a new device with Orttos API
      */
@@ -26,7 +26,7 @@ public class ApiManager: ApiManagerInterface {
     /**
      Send an Identify request to Ortto
      */
-    func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse? {
+    public func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse? {
         var components = URLComponents(string: Ortto.shared.apiEndpoint!)!
         components.path = "/-/events/push-mobile-session"
         components.queryItems = DeviceIdentity.getTrackingQueryItems()
@@ -72,7 +72,7 @@ public class ApiManager: ApiManagerInterface {
         return value
     }
 
-    func sendLinkTracking(_ trackingUrl: URL) async throws {
+    public func sendLinkTracking(_ trackingUrl: URL) async throws {
         let dataTask = AF
             .request(trackingUrl, method: .get)
             .validate()
