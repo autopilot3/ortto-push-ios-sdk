@@ -123,7 +123,7 @@ public class Ortto: OrttoInterface {
         }
         return base64
     }
-    
+
     /**
      Track the clicking of a link and return the utm values for the developer to use for marketing
      */
@@ -142,12 +142,11 @@ public class Ortto: OrttoInterface {
         let items = queryItems.reduce(into: [String: String]()) { result, item in
             result[item.name] = item.value
         }
-    
-        
+
         guard let trackingUrl = items["tracking_url"] else {
             return
         }
-        
+
         let trackingUrlDecoded = base64urlToBase64(base64url: trackingUrl)
 
         guard let burl = URL(string: "data:application/octet-stream;base64," + trackingUrlDecoded),
