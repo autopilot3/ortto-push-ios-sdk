@@ -64,7 +64,6 @@ public class PushMessaging {
             Ortto.shared.preferences.getObject(key: "token", type: PushToken.self)
         }
         set {
-            // todo:
             guard let newToken = newValue else {
                 return
             }
@@ -85,10 +84,10 @@ public class PushMessaging {
     }
 
     func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
-        MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
-    }
+        guard let sessionID = sessionID else {
+            return
+        }
 
-    func deregisterDevice() {
-        //
+        MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
     }
 }
