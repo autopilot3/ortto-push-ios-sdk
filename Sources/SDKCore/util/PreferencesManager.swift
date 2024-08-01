@@ -51,16 +51,20 @@ public class OrttoPreferencesManager: PreferencesInterface {
 
     init() {}
 
+    private func prefixedKey(_ key: String) -> String {
+        return "\(keyPrefix):\(key)"
+    }
+
     public func getString(_ key: String) -> String? {
-        return defaults?.string(forKey: key)
+        return defaults?.string(forKey: prefixedKey(key))
     }
 
     public func setString(_ value: String, key: String) {
-        defaults?.set(value, forKey: key)
+        defaults?.set(value, forKey: prefixedKey(key))
     }
 
     public func getObject<T: Codable>(key: String, type _: T.Type) -> T? {
-        if let encodedObject = defaults?.object(forKey: key) as? Data {
+        if let encodedObject = defaults?.object(forKey: prefixedKey(key)) as? Data {
             let decoder = JSONDecoder()
             if let loadedObject = try? decoder.decode(T.self, from: encodedObject) {
                 return loadedObject
@@ -73,7 +77,7 @@ public class OrttoPreferencesManager: PreferencesInterface {
         let encoder = JSONEncoder()
         do {
             let encoded = try encoder.encode(object)
-            defaults?.set(encoded, forKey: "\(keyPrefix):\(key)")
+            defaults?.set(encoded, forKey: prefixedKey(key))
         } catch {
             Ortto.log().info("PreferencesManager@setObject.fail message=\(error.localizedDescription)")
         }
@@ -83,9 +87,12 @@ public class OrttoPreferencesManager: PreferencesInterface {
      Remove all internal data used by SDK
      */
     public func clear() {
-        let keysToRemove = ["user", "sessionID"]
-        keysToRemove.forEach { key in
-            defaults?.removeObject(forKey: "\(keyPrefix):\(key)")
+        if let defaults = defaults {
+            let allKeys = defaults.dictionaryRepresentation().keys
+            let sdkKeys = allKeys.filter { $0.hasPrefix(keyPrefix) }
+            sdkKeys.forEach { key in
+                defaults.removeObject(forKey: key)
+            }
         }
     }
 }
