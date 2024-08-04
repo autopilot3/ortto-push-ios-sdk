@@ -49,6 +49,10 @@ public class ApiManager: ApiManagerInterface {
             acceptGDPR: user.acceptsGDPR
         )
 
+        #if DEBUG
+            debugPrint(identityRegistration)
+        #endif
+
         let headers: HTTPHeaders = [
             .accept("application/json"),
             .userAgent(Alamofire.HTTPHeader.defaultUserAgent.value),

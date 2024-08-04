@@ -26,7 +26,7 @@ public enum PushPermission: String {
             return false
 
         default:
-            return false
+            return true
         }
     }
 
