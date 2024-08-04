@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoPushMessagingFCM'
-  s.version          = '1.5.9'
+  s.version          = '1.5.11'
   s.summary          = 'OrttoSDK Push Messaging Firebase Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
