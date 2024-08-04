@@ -48,7 +48,7 @@ public class ApiManager: ApiManagerInterface {
             lastName: user.lastName,
             acceptGDPR: user.acceptsGDPR
         )
-        
+
         #if DEBUG
             debugPrint(identityRegistration)
         #endif

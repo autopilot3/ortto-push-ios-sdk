@@ -70,7 +70,7 @@ public class PushMessaging {
                 Ortto.log().info("PushMessaging@token.set removing token")
                 return
             }
-            
+
             if let existingToken = Ortto.shared.preferences.getObject(key: "token", type: PushToken.self),
                existingToken == newToken {
                 Ortto.log().info("PushMessaging@token.set res returned no session_id")
@@ -82,7 +82,7 @@ public class PushMessaging {
                 token: newToken
             ) { (response: PushRegistrationResponse?) in
                 Ortto.shared.preferences.setObject(object: newToken, key: "token")
-                
+
                 guard let sessionID = response?.sessionId else {
                     Ortto.log().info("PushMessaging@token.set res returned no session_id")
                     return

@@ -96,7 +96,7 @@ public class Ortto: OrttoInterface {
 
                 self.userStorage.session = sessionID
                 self.logger.info("Ortto@identify.success \(sessionID)")
-                
+
                 DispatchQueue.main.async {
                     completion?(.success(sessionID))
                 }
