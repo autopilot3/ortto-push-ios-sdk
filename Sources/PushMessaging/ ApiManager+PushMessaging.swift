@@ -10,7 +10,8 @@ import Alamofire
 import OrttoSDKCore
 
 extension ApiManagerInterface {
-    func sendPushPermission(sessionID: String, token: PushToken, permission: Bool, completion: @escaping (PushRegistrationResponse?) -> Void) {
+
+    func sendPushPermission(sessionID: String?, token: PushToken, permission: Bool, completion: @escaping (PushRegistrationResponse?) -> Void) {
         guard let endpoint = Ortto.shared.apiEndpoint else {
             completion(nil)
             return

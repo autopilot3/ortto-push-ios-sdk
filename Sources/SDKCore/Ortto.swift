@@ -10,12 +10,12 @@ import Foundation
     import UIKit
 #endif
 
-let version: String = "1.5.9"
+let version: String = "1.5.11"
 
 public protocol OrttoInterface {
     var appKey: String? { get }
     var apiEndpoint: String? { get }
-    func identify(_ user: UserIdentifier)
+    func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)?)
 }
 
 public struct SDKConfiguration {
@@ -79,20 +79,32 @@ public class Ortto: OrttoInterface {
      Identify user to the Ortto API
      Endpoint: "/-/events/push-mobile-session"
      */
-    public func identify(_ user: UserIdentifier) {
+    public func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)? = nil) {
         userStorage.user = user
 
         Task {
             do {
                 let response = try await apiManager.sendRegisterIdentity(userStorage)
                 guard let sessionID = response?.sessionID else {
+                    let error = NSError(domain: "com.ortto", code: 1, userInfo: [NSLocalizedDescriptionKey: "No session ID returned"])
+                    self.logger.info("Ortto@identify.error No session ID returned")
+                    DispatchQueue.main.async {
+                        completion?(.failure(error))
+                    }
                     return
                 }
 
                 self.userStorage.session = sessionID
                 self.logger.info("Ortto@identify.success \(sessionID)")
+                
+                DispatchQueue.main.async {
+                    completion?(.success(sessionID))
+                }
             } catch {
                 self.logger.info("Ortto@identify.error \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion?(.failure(error))
+                }
             }
         }
     }

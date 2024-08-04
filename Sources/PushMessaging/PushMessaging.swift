@@ -65,16 +65,26 @@ public class PushMessaging {
         }
         set {
             guard let newToken = newValue else {
+                // If new value is nil, remove the existing token
+                Ortto.shared.preferences.setObject(object: nil as PushToken?, key: "token")
+                Ortto.log().info("PushMessaging@token.set removing token")
                 return
             }
-
-            Ortto.shared.preferences.setObject(object: newValue, key: "token")
+            
+            if let existingToken = Ortto.shared.preferences.getObject(key: "token", type: PushToken.self),
+               existingToken == newToken {
+                Ortto.log().info("PushMessaging@token.set res returned no session_id")
+                return
+            }
 
             registerDeviceToken(
                 sessionID: Ortto.shared.userStorage.session,
                 token: newToken
             ) { (response: PushRegistrationResponse?) in
+                Ortto.shared.preferences.setObject(object: newToken, key: "token")
+                
                 guard let sessionID = response?.sessionId else {
+                    Ortto.log().info("PushMessaging@token.set res returned no session_id")
                     return
                 }
 
@@ -84,10 +94,6 @@ public class PushMessaging {
     }
 
     func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
-        guard let sessionID = sessionID else {
-            return
-        }
-
         MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
     }
 }

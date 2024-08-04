@@ -60,7 +60,7 @@ public class MessagingService: MessagingServiceProtocol {
 
     func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
         Ortto.shared.apiManager.sendPushPermission(
-            sessionID: sessionID!,
+            sessionID: sessionID,
             token: token,
             permission: getPermission(),
             completion: completion
