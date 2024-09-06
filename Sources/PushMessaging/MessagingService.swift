@@ -125,12 +125,12 @@ public class MessagingService: MessagingServiceProtocol {
 
                 return
             }
-            
+
             let imageAttachment = try? UNNotificationAttachment(
                 identifier: "image",
                 url: fileURL,
                 options: nil)
-            
+
             if let imageAttachment = imageAttachment {
                 content.attachments = [imageAttachment]
             }
