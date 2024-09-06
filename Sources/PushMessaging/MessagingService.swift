@@ -113,6 +113,29 @@ public class MessagingService: MessagingServiceProtocol {
 
         sendTrackingEventRequest(pushPayload.eventTrackingUrl)
 
+        getMediaAttachment(for: pushPayload.image!) { [weak self] image in
+            guard
+                let self = self,
+                let image = image,
+                let fileURL = self.saveImageAttachment(
+                    image: image,
+                    forIdentifier: "attachment.png"
+                ) else {
+                Ortto.log().debug("MessagingService@didReceive.image.fail message=no-image")
+
+                return
+            }
+
+            let imageAttachment = try? UNNotificationAttachment(
+                identifier: "image",
+                url: fileURL,
+                options: nil)
+
+            if let imageAttachment = imageAttachment {
+                content.attachments = [imageAttachment]
+            }
+        }
+
         Task {
             _ = await setCategories(newCategory: category)
 
