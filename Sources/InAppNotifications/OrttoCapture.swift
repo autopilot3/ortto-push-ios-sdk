@@ -282,8 +282,6 @@ public class OrttoCapture: ObservableObject, Capture {
             contactId: user?.contactID,
             emailAddress: user?.email
         )
-        
-        debugPrint(request)
 
         CaptureAPI.fetchWidgets(request) { widgetsResponse in
             let data: WidgetsResponse = {

@@ -202,19 +202,6 @@ public class Ortto: OrttoInterface {
                 completionHandler(success)
             }
         }
-        #else
-        // For non-iOS platforms
-        DispatchQueue.main.async {
-            self.logger.info("Attempting to open URL on non-iOS platform: \(url)")
-            // Implement your custom URL opening logic here
-            // For now, we'll just call the completion handler with success
-            completionHandler(true)
-        }
         #endif
-    }
-
-    // Add a new method for app extensions
-    public func logURLOpen(_ url: URL) {
-        self.logger.info("URL open requested in app extension context: \(url)")
     }
 }

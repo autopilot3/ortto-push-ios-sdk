@@ -104,13 +104,10 @@ class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
     public func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "log", let messageBody = message.body as? String {
             Ortto.log().debug("JavaScript console.log: \(messageBody)")
-            
         } else if message.name == "messageHandler" {
             let messageBody = message.body as? [String: Any]
-            
-            
+
             if let type = messageBody?["type"] as? String {
-                Ortto.log().debug("MESSAGE: \(type)")
                 switch type {
                 case "widget-close":
                     closeWidgetRequestHandler()
@@ -265,11 +262,8 @@ extension WKWebView {
         guard let json = String(data: data, encoding: .utf8) else {
             return
         }
-        
-        print(json)
 
         evaluateJavaScript("ap3cWebView.setConfig(\(json)); ap3cWebView.hasConfig()") { result, error in
-
             if let intResult = result as? Int {
                 completionHandler?(Bool(intResult > 0), error)
             } else {
