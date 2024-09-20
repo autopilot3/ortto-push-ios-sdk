@@ -8,9 +8,10 @@
 import Foundation
 import OrttoSDKCore
 import SwiftUI
+import UIKit
 
 public protocol Capture {
-    func showWidget(_ id: String)
+    func showWidget(_ id: String) -> Promise<Result<Void, Error>>
     func queueWidget(_ id: String)
     static func getKeyWindow() -> UIWindow?
 }
@@ -51,6 +52,16 @@ public class OrttoCapture: ObservableObject, Capture {
         }
 
         return _widgetView!
+    }
+
+    private var retainedWebViewController: UIViewController?
+
+    private func retainWebViewController(_ viewController: UIViewController) {
+        retainedWebViewController = viewController
+    }
+
+    private func releaseWebViewController() {
+        retainedWebViewController = nil
     }
 
     public private(set) static var shared: OrttoCapture!
@@ -112,31 +123,47 @@ public class OrttoCapture: ObservableObject, Capture {
         _queue.queue(id)
     }
 
-    public func showWidget(_ id: String) {
-        let canShowWidget = {
-            os_unfair_lock_lock(&lock)
-
-            var canShowWidget = false
-
-            if !isWidgetActive {
-                isWidgetActive = true
-                canShowWidget = true
+    public func showWidget(_ id: String) -> Promise<Result<Void, Error>> {
+        return Promise { resolver in
+            // Check if we're on the main thread
+            guard Thread.isMainThread else {
+                DispatchQueue.main.async {
+                    self.showWidget(id).then { result in
+                        resolver(result)
+                    }
+                }
+                return
             }
 
-            os_unfair_lock_unlock(&lock)
+            // Check if widget can be shown
+            let canShowWidget = {
+                os_unfair_lock_lock(&self.lock)
+                defer { os_unfair_lock_unlock(&self.lock) }
 
-            return canShowWidget
-        }()
+                if !self.isWidgetActive {
+                    self.isWidgetActive = true
+                    return true
+                }
+                return false
+            }()
 
-        if !canShowWidget {
-            return
-        }
+            if !canShowWidget {
+                resolver(.failure(WidgetError.alreadyActive))
+                return
+            }
 
-        DispatchQueue.main.async {
             self._queue.remove(id)
+
+            // Check for keyWindow and rootViewController
+            guard let keyWindow = self.keyWindow,
+                  let rootViewController = keyWindow.rootViewController else {
+                resolver(.failure(WidgetError.noKeyWindowOrRootViewController))
+                return
+            }
 
             self.widgetView.setWidgetId(id)
             self.widgetView.load { webView in
+
                 let webViewController = UIViewController()
                 webViewController.edgesForExtendedLayout = .all
                 webViewController.extendedLayoutIncludesOpaqueBars = true
@@ -146,22 +173,39 @@ public class OrttoCapture: ObservableObject, Capture {
                 webViewController.view.addSubview(webView)
                 webView.translatesAutoresizingMaskIntoConstraints = false
 
-                NSLayoutConstraint.activate([
-                    webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
-                    webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
-                    webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
-                    webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
-                ])
+                do {
+                    try NSLayoutConstraint.activate([
+                        webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
+                        webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
+                        webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
+                        webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
+                    ])
+                } catch {
+                    resolver(.failure(WidgetError.constraintActivationFailed(error)))
+                    return
+                }
 
                 webViewController.modalPresentationStyle = .overFullScreen
                 webViewController.modalTransitionStyle = .crossDissolve
 
-                let rootViewController = self.keyWindow?.rootViewController
+                // Hide keyboard if it's open
+                rootViewController.view.endEditing(true)
 
-                // this is to hide the keyboard in the case that it is currently open
-                rootViewController?.view.endEditing(true)
+                // Retain webViewController to prevent deallocation
+                self.retainWebViewController(webViewController)
 
-                rootViewController?.present(webViewController, animated: true)
+                // Set a timeout for presentation
+                let timeout = DispatchWorkItem {
+                    resolver(.failure(WidgetError.presentationTimeout))
+                    self.releaseWebViewController()
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: timeout)
+
+                rootViewController.present(webViewController, animated: true) {
+                    timeout.cancel()
+                    self.releaseWebViewController()
+                    resolver(.success(()))
+                }
             }
         }
     }
@@ -274,6 +318,51 @@ public class OrttoCapture: ObservableObject, Capture {
             }
 
             completion(data)
+        }
+    }
+}
+
+public enum WidgetError: LocalizedError {
+    case alreadyActive
+    case noKeyWindowOrRootViewController
+    case webViewLoadFailed
+    case constraintActivationFailed(Error)
+    case presentationTimeout
+
+    public var errorDescription: String? {
+        switch self {
+        case .alreadyActive:
+            return "A widget is already active and cannot be shown at this time."
+        case .noKeyWindowOrRootViewController:
+            return "Unable to find the key window or root view controller."
+        case .webViewLoadFailed:
+            return "Failed to load the web view for the widget."
+        case .constraintActivationFailed(let error):
+            return "Failed to activate layout constraints: \(error.localizedDescription)"
+        case .presentationTimeout:
+            return "Widget presentation timed out."
+        }
+    }
+}
+
+// Simple Promise implementation
+public class Promise<T> {
+    private var result: T?
+    private var completionHandlers: [(T) -> Void] = []
+
+    public init(_ closure: (@escaping (T) -> Void) -> Void) {
+        closure { result in
+            self.result = result
+            self.completionHandlers.forEach { $0(result) }
+            self.completionHandlers.removeAll()
+        }
+    }
+
+    public func then(_ handler: @escaping (T) -> Void) {
+        if let result = result {
+            handler(result)
+        } else {
+            completionHandlers.append(handler)
         }
     }
 }

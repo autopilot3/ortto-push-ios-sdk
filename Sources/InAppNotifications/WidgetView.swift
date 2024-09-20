@@ -230,16 +230,28 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
                 return .allow
             }
 
-            if await UIApplication.shared.canOpenURL(url) {
-                DispatchQueue.main.async {
-                    UIApplication.shared.open(url)
-                }
-
-                return .cancel
+            // Use a more generic approach to handle URL opening
+            DispatchQueue.main.async {
+                self.openURL(url)
             }
+
+            return .cancel
         }
 
         return .allow
+    }
+
+    // Add this helper method to handle URL opening
+    private func openURL(_ url: URL) {
+        // Use a completion handler to open the URL
+        let completionHandler: (Bool) -> Void = { success in
+            if success {
+                Ortto.log().debug("URL opened successfully: \(url)")
+            } else {
+                Ortto.log().error("Failed to open URL: \(url)")
+            }
+        }
+        Ortto.shared.openURL(url, completionHandler: completionHandler)
     }
 }
 
@@ -252,7 +264,6 @@ extension WKWebView {
         }
 
         evaluateJavaScript("ap3cWebView.setConfig(\(json)); ap3cWebView.hasConfig()") { result, error in
-
             if let intResult = result as? Int {
                 completionHandler?(Bool(intResult > 0), error)
             } else {

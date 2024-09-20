@@ -190,4 +190,18 @@ public class Ortto: OrttoInterface {
     public func screen(_ screenName: String) {
         self.screenName = screenName
     }
+
+    @available(iOSApplicationExtension, unavailable)
+    public func openURL(_ url: URL, completionHandler: @escaping (Bool) -> Void) {
+        #if os(iOS)
+        DispatchQueue.main.async {
+            if #available(iOS 10.0, *) {
+                UIApplication.shared.open(url, options: [:], completionHandler: completionHandler)
+            } else {
+                let success = UIApplication.shared.openURL(url)
+                completionHandler(success)
+            }
+        }
+        #endif
+    }
 }
