@@ -104,10 +104,13 @@ class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
     public func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "log", let messageBody = message.body as? String {
             Ortto.log().debug("JavaScript console.log: \(messageBody)")
+            
         } else if message.name == "messageHandler" {
             let messageBody = message.body as? [String: Any]
-
+            
+            
             if let type = messageBody?["type"] as? String {
+                Ortto.log().debug("MESSAGE: \(type)")
                 switch type {
                 case "widget-close":
                     closeWidgetRequestHandler()
@@ -230,16 +233,28 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
                 return .allow
             }
 
-            if await UIApplication.shared.canOpenURL(url) {
-                DispatchQueue.main.async {
-                    UIApplication.shared.open(url)
-                }
-
-                return .cancel
+            // Use a more generic approach to handle URL opening
+            DispatchQueue.main.async {
+                self.openURL(url)
             }
+
+            return .cancel
         }
 
         return .allow
+    }
+
+    // Add this helper method to handle URL opening
+    private func openURL(_ url: URL) {
+        // Use a completion handler to open the URL
+        let completionHandler: (Bool) -> Void = { success in
+            if success {
+                Ortto.log().debug("URL opened successfully: \(url)")
+            } else {
+                Ortto.log().error("Failed to open URL: \(url)")
+            }
+        }
+        Ortto.shared.openURL(url, completionHandler: completionHandler)
     }
 }
 
@@ -250,6 +265,8 @@ extension WKWebView {
         guard let json = String(data: data, encoding: .utf8) else {
             return
         }
+        
+        print(json)
 
         evaluateJavaScript("ap3cWebView.setConfig(\(json)); ap3cWebView.hasConfig()") { result, error in
 
