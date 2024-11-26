@@ -21,7 +21,7 @@ public protocol OrttoInterface {
 public struct SDKConfiguration {
     var appKey: String?
     var apiEndpoint: String?
-    var shouldSkipNonExistingContacts: Bool = false;
+    var shouldSkipNonExistingContacts: Bool = false
 }
 
 public class Ortto: OrttoInterface {
