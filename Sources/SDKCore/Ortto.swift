@@ -21,6 +21,7 @@ public protocol OrttoInterface {
 public struct SDKConfiguration {
     var appKey: String?
     var apiEndpoint: String?
+    var shouldSkipNonExistingContacts: Bool = false;
 }
 
 public class Ortto: OrttoInterface {
@@ -32,6 +33,7 @@ public class Ortto: OrttoInterface {
     public var apiManager: ApiManagerInterface
     public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
+    public var shouldSkipNonExistingContacts: Bool = false
     private var logger: OrttoLogger = PrintLogger()
     public private(set) var screenName: String?
 
@@ -52,7 +54,12 @@ public class Ortto: OrttoInterface {
     }
 
     @available(iOSApplicationExtension, unavailable)
-    public static func initialize(appKey: String, endpoint: String?, completionHandler: ((SDKConfiguration) -> Void)? = nil) {
+    public static func initialize(
+        appKey: String,
+        endpoint: String?,
+        shouldSkipNonExistingContacts: Bool = false,
+        completionHandler: ((SDKConfiguration) -> Void)? = nil
+    ) {
         shared.apiEndpoint = {
             guard let endpoint = endpoint else {
                 return nil
@@ -60,10 +67,10 @@ public class Ortto: OrttoInterface {
 
             return endpoint.hasSuffix("/") ? String(endpoint.dropLast()) : endpoint
         }()
-
+        shared.shouldSkipNonExistingContacts = shouldSkipNonExistingContacts
         shared.appKey = appKey
 
-        let sdkConfiguration = SDKConfiguration(appKey: appKey, apiEndpoint: endpoint)
+        let sdkConfiguration = SDKConfiguration(appKey: appKey, apiEndpoint: endpoint, shouldSkipNonExistingContacts: shouldSkipNonExistingContacts)
         completionHandler?(sdkConfiguration)
     }
 

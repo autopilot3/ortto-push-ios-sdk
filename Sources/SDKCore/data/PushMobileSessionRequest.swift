@@ -17,7 +17,8 @@ struct PushMobileSessionRequest: Codable {
     let firstName: String?
     let lastName: String?
     let acceptGDPR: Bool
-    let platform: String = "ios"
+    let platform: String
+    let shouldSkipNonExistingContacts: Bool
 
     enum CodingKeys: String, CodingKey {
         case appKey = "appk"
@@ -30,6 +31,7 @@ struct PushMobileSessionRequest: Codable {
         case lastName = "last"
         case acceptGDPR = "ag"
         case platform = "pl"
+        case shouldSkipNonExistingContacts = "sne"
     }
 }
 
