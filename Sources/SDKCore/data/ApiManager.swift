@@ -46,7 +46,9 @@ public class ApiManager: ApiManagerInterface {
             sessionID: storage.session,
             firstName: user.firstName,
             lastName: user.lastName,
-            acceptGDPR: user.acceptsGDPR
+            acceptGDPR: user.acceptsGDPR,
+            platform: "ios",
+            shouldSkipNonExistingContacts: Ortto.shared.shouldSkipNonExistingContacts
         )
 
         #if DEBUG
