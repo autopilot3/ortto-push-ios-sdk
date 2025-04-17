@@ -403,8 +403,9 @@ public class OrttoCapture: ObservableObject, Capture {
 
         // If we received the confirmation log, do nothing and let it stay open.
         if didReceiveShownOnScreenLog {
-            return 
+            return
         }
+
         // Otherwise, log the timeout and proceed to close.
         Ortto.log().warn("OrttoCapture@handleJsTimeout: No JS interaction detected within 1 second. Closing widget.")
 
@@ -416,7 +417,6 @@ public class OrttoCapture: ObservableObject, Capture {
         }
     }
 
-    /// Called by WidgetView when a script message is received
     // Update signature to accept Any? message body
     private func handleScriptMessage(messageBody: Any?) {
         // Ortto.log().info("OrttoCapture@handleScriptMessage: JS interaction detected. Cancelling timeout timer.") // Removed log
