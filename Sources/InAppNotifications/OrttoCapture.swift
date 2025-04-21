@@ -37,6 +37,10 @@ public class OrttoCapture: ObservableObject, Capture {
     private var _widgetView: WidgetView?
     private var lock = os_unfair_lock()
     private static let orttoWidgetQueueKey = "ortto_widgets_queue"
+    private var jsInteractionTimer: Timer? // Timer for JS interaction timeout
+    private var currentWidgetResolver: ((Result<Void, Error>) -> Void)?
+    private var didReceiveShownOnScreenLog: Bool = false // Flag for confirmation log
+    private var retainedWebViewController: UIViewController?
 
     var sessionId: String? {
         Ortto.shared.userStorage.session
@@ -48,13 +52,15 @@ public class OrttoCapture: ObservableObject, Capture {
 
     var widgetView: WidgetView {
         if _widgetView == nil {
-            _widgetView = WidgetView(closeWidgetRequestHandler: hideWidget)
+            _widgetView = WidgetView(
+                closeWidgetRequestHandler: hideWidget,
+                onScriptMessage: handleScriptMessage,
+                onWidgetCloseSuccess: handleWidgetCloseSuccess
+            )
         }
 
         return _widgetView!
     }
-
-    private var retainedWebViewController: UIViewController?
 
     private func retainWebViewController(_ viewController: UIViewController) {
         retainedWebViewController = viewController
@@ -153,16 +159,50 @@ public class OrttoCapture: ObservableObject, Capture {
             }
 
             self._queue.remove(id)
+            // Ensure previous promise is cleaned up if exists (e.g., rapid calls)
+            currentWidgetResolver?(.failure(WidgetError.superseded))
+            currentWidgetResolver = nil
+            jsInteractionTimer?.invalidate() // Invalidate any previous timer
+
+            // Store the resolver for the current operation
+            currentWidgetResolver = resolver
+
+            // Reset confirmation flag for new widget session
+            didReceiveShownOnScreenLog = false
 
             // Check for keyWindow and rootViewController
             guard let keyWindow = self.keyWindow,
                   let rootViewController = keyWindow.rootViewController else {
+                self.isWidgetActive = false
+                currentWidgetResolver?(.failure(WidgetError.noKeyWindowOrRootViewController))
+                currentWidgetResolver = nil
                 resolver(.failure(WidgetError.noKeyWindowOrRootViewController))
                 return
             }
 
             self.widgetView.setWidgetId(id)
-            self.widgetView.load { webView in
+
+            // Handle the result from WidgetView.load
+            let loadCompletionHandler: (LoadWidgetResult, Error?) -> Void = { [weak self] result, error in
+                guard let self = self else { return }
+
+                if result == .fail {
+                    Ortto.log().error("OrttoCapture@showWidget: WidgetView load failed. Error: \(error?.localizedDescription ?? "Unknown")")
+                    self.isWidgetActive = false
+                    self.currentWidgetResolver?(.failure(WidgetError.webViewLoadFailed(underlyingError: error)))
+                    self.currentWidgetResolver = nil
+                    self.hideWidget() // Attempt cleanup
+                    return
+                }
+
+                // --- Load Success: Proceed to Presentation ---
+                // Ortto.log().info("OrttoCapture@showWidget: WidgetView load successful for ID \(id). Proceeding to present.") // Removed log
+
+                // Check if resolver still exists (might have failed during load)
+                guard self.currentWidgetResolver != nil else {
+                    Ortto.log().warn("OrttoCapture@showWidget: Resolver was nil after successful load. Widget might have been closed prematurely.")
+                    return
+                }
 
                 let webViewController = UIViewController()
                 webViewController.edgesForExtendedLayout = .all
@@ -170,17 +210,21 @@ public class OrttoCapture: ObservableObject, Capture {
                 webViewController.view.backgroundColor = .clear
                 webViewController.view.isOpaque = false
 
-                webViewController.view.addSubview(webView)
-                webView.translatesAutoresizingMaskIntoConstraints = false
+                webViewController.view.addSubview(self.widgetView.webView)
+                self.widgetView.webView.translatesAutoresizingMaskIntoConstraints = false
 
                 do {
                     try NSLayoutConstraint.activate([
-                        webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
-                        webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
-                        webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
-                        webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
+                        self.widgetView.webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
+                        self.widgetView.webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
+                        self.widgetView.webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
+                        self.widgetView.webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
                     ])
                 } catch {
+                    Ortto.log().error("OrttoCapture@showWidget: Constraint activation failed. Error: \(error)")
+                    self.isWidgetActive = false
+                    self.currentWidgetResolver?(.failure(WidgetError.constraintActivationFailed(error)))
+                    self.currentWidgetResolver = nil
                     resolver(.failure(WidgetError.constraintActivationFailed(error)))
                     return
                 }
@@ -196,6 +240,14 @@ public class OrttoCapture: ObservableObject, Capture {
 
                 // Set a timeout for presentation
                 let timeout = DispatchWorkItem {
+                    Ortto.log().error("OrttoCapture@showWidget: Presentation timed out for ID \(id).")
+                    // Only resolve if the promise hasn't been resolved already
+                    if self.currentWidgetResolver != nil {
+                        self.isWidgetActive = false
+                        self.currentWidgetResolver?(.failure(WidgetError.presentationTimeout))
+                        self.currentWidgetResolver = nil
+                        self.hideWidget() // Attempt cleanup
+                    }
                     resolver(.failure(WidgetError.presentationTimeout))
                     self.releaseWebViewController()
                 }
@@ -204,18 +256,39 @@ public class OrttoCapture: ObservableObject, Capture {
                 rootViewController.present(webViewController, animated: true) {
                     timeout.cancel()
                     self.releaseWebViewController()
-                    resolver(.success(()))
+
+                    // Start JS interaction timer *after* successful presentation
+                    // Only start timer if promise is still pending
+                    if self.currentWidgetResolver != nil {
+                        self.jsInteractionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+                            self?.handleJsTimeout()
+                        }
+                    }
                 }
             }
+
+            // Initiate the load process with the defined handler
+            self.widgetView.load(loadCompletionHandler)
         }
     }
 
     public func hideWidget() {
+        // Resolve pending promise as failure if widget is hidden prematurely
+        if let resolver = currentWidgetResolver {
+            Ortto.log().warn("OrttoCapture@hideWidget: Hiding widget while promise is still pending. Resolving as failure.")
+            resolver(.failure(WidgetError.widgetDismissedPrematurely))
+            currentWidgetResolver = nil
+        }
+
         // add timer to give animation time to play and modal to fade out
         _ = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
             DispatchQueue.main.async {
+                self.jsInteractionTimer?.invalidate() // Stop interaction timer
                 self.widgetView.setWidgetId(nil)
-                self.keyWindow?.rootViewController?.dismiss(animated: true)
+                // Check if the view controller is still presented before dismissing
+                if self.keyWindow?.rootViewController?.presentedViewController != nil {
+                     self.keyWindow?.rootViewController?.dismiss(animated: true)
+                }
             }
 
             self.isWidgetActive = false
@@ -285,6 +358,7 @@ public class OrttoCapture: ObservableObject, Capture {
 
         CaptureAPI.fetchWidgets(request) { widgetsResponse in
             let data: WidgetsResponse = {
+
                 if let widgetId = widgetId {
                     return WidgetsResponse(
                         widgets: widgetsResponse.widgets
@@ -320,14 +394,69 @@ public class OrttoCapture: ObservableObject, Capture {
             completion(data)
         }
     }
+
+    // MARK: - Widget Lifecycle Handlers
+
+    /// Called when the JS interaction timer fires (1 second after presentation without interaction).
+    private func handleJsTimeout() {
+        jsInteractionTimer?.invalidate()
+
+        // If we received the confirmation log, do nothing and let it stay open.
+        if didReceiveShownOnScreenLog {
+            return
+        }
+
+        // Otherwise, log the timeout and proceed to close.
+        Ortto.log().warn("OrttoCapture@handleJsTimeout: No JS interaction detected within 1 second. Closing widget.")
+
+        // Only resolve if the promise hasn't been resolved already
+        if let resolver = currentWidgetResolver {
+            resolver(.failure(WidgetError.jsInteractionTimeout))
+            currentWidgetResolver = nil
+            hideWidget() // Close the widget view
+        }
+    }
+
+    // Update signature to accept Any? message body
+    private func handleScriptMessage(messageBody: Any?) {
+        // Ortto.log().info("OrttoCapture@handleScriptMessage: JS interaction detected. Cancelling timeout timer.") // Removed log
+        jsInteractionTimer?.invalidate() // Always cancel the timeout timer
+
+        // Check if this is the confirmation log message by converting body to string
+        if let body = messageBody {
+            let bodyString = String(describing: body)
+            if bodyString.contains("shown_on_screen") {
+                // Ortto.log().info("OrttoCapture@handleScriptMessage: Received 'shown_on_screen' confirmation content.") // Removed log
+                didReceiveShownOnScreenLog = true
+            }
+        }
+
+        // DO NOT resolve promise here. Only cancel timer.
+        // Promise is resolved on timeout, error, or explicit widget-close.
+    }
+
+    /// Called by WidgetViewMessageHandler when the 'widget-close' message is received.
+    private func handleWidgetCloseSuccess() {
+        jsInteractionTimer?.invalidate() // Ensure timer is stopped
+
+        // Resolve the promise successfully if it's still pending
+        if let resolver = currentWidgetResolver {
+            resolver(.success(()))
+            currentWidgetResolver = nil
+            // hideWidget() will be called separately by the message handler's closeWidgetRequestHandler
+        }
+    }
 }
 
 public enum WidgetError: LocalizedError {
     case alreadyActive
     case noKeyWindowOrRootViewController
-    case webViewLoadFailed
+    case webViewLoadFailed(underlyingError: Error?)
     case constraintActivationFailed(Error)
     case presentationTimeout
+    case jsInteractionTimeout
+    case widgetDismissedPrematurely
+    case superseded
 
     public var errorDescription: String? {
         switch self {
@@ -335,12 +464,18 @@ public enum WidgetError: LocalizedError {
             return "A widget is already active and cannot be shown at this time."
         case .noKeyWindowOrRootViewController:
             return "Unable to find the key window or root view controller."
-        case .webViewLoadFailed:
-            return "Failed to load the web view for the widget."
+        case .webViewLoadFailed(let error):
+            return "Failed to load the web view for the widget. Underlying error: \(error?.localizedDescription ?? "Unknown")"
         case .constraintActivationFailed(let error):
             return "Failed to activate layout constraints: \(error.localizedDescription)"
         case .presentationTimeout:
             return "Widget presentation timed out."
+        case .jsInteractionTimeout:
+            return "Widget closed due to no JavaScript interaction within the timeout period."
+        case .widgetDismissedPrematurely:
+            return "Widget was dismissed before completing its lifecycle (e.g. timeout or interaction)."
+        case .superseded:
+            return "A new request to show a widget was made before this one completed."
         }
     }
 }

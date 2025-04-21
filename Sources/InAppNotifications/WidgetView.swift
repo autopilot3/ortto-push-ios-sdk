@@ -21,10 +21,16 @@ class WidgetView {
     private let uiDelegate: WidgetViewUIDelegate
     let webView: WKWebView
     var widgetId: String?
+    private let onScriptMessage: ((Any?) -> Void)?
+    private let onWidgetCloseSuccess: (() -> Void)?
 
-    public init(closeWidgetRequestHandler: @escaping () -> Void) {
+    public init(closeWidgetRequestHandler: @escaping () -> Void,
+                onScriptMessage: ((Any?) -> Void)? = nil,
+                onWidgetCloseSuccess: (() -> Void)? = nil) {
         self.closeWidgetRequestHandler = closeWidgetRequestHandler
-        messageHandler = WidgetViewMessageHandler(closeWidgetRequestHandler)
+        self.onScriptMessage = onScriptMessage
+        self.onWidgetCloseSuccess = onWidgetCloseSuccess
+        messageHandler = WidgetViewMessageHandler(closeWidgetRequestHandler, onScriptMessage: onScriptMessage, onWidgetCloseSuccess: onWidgetCloseSuccess)
         navigationDelegate = WidgetViewNavigationDelegate(closeWidgetRequestHandler)
         uiDelegate = WidgetViewUIDelegate()
 
@@ -54,17 +60,9 @@ class WidgetView {
         navigationDelegate.widgetId = id
     }
 
-    public func load(_ completionHandler: @escaping (_ webView: WKWebView) -> Void) {
+    public func load(_ completionHandler: @escaping (_ result: LoadWidgetResult, _ error: Error?) -> Void) {
         do {
-            navigationDelegate.setCompletionHandler { result, error in
-                if result == .success {
-                    completionHandler(self.webView)
-                }
-
-                if let error = error {
-                    Ortto.log().error("Error loading widget: \(error)")
-                }
-            }
+            navigationDelegate.setCompletionHandler(completionHandler)
 
             let webViewBundle = OrttoCapture.getWebViewBundle()
 
@@ -89,27 +87,34 @@ class WidgetView {
             webView.loadHTMLString(htmlString, baseURL: webViewBundle.bundleURL)
         } catch {
             Ortto.log().error("WidgetView@load.fail \(error)")
-
+            completionHandler(.fail, error)
         }
     }
 }
 
 class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
     let closeWidgetRequestHandler: () -> Void
+    let onScriptMessage: ((Any?) -> Void)?
+    let onWidgetCloseSuccess: (() -> Void)?
 
-    init(_ closeWidgetRequestHandler: @escaping () -> Void) {
+    init(_ closeWidgetRequestHandler: @escaping () -> Void, onScriptMessage: ((Any?) -> Void)?, onWidgetCloseSuccess: (() -> Void)?) {
         self.closeWidgetRequestHandler = closeWidgetRequestHandler
+        self.onScriptMessage = onScriptMessage
+        self.onWidgetCloseSuccess = onWidgetCloseSuccess
     }
 
     public func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "log", let messageBody = message.body as? String {
-            Ortto.log().debug("JavaScript console.log: \(messageBody)")
+        onScriptMessage?(message.body)
+
+        if message.name == "log", let messageBodyString = message.body as? String {
+            Ortto.log().debug("JavaScript console.log: \(messageBodyString)")
         } else if message.name == "messageHandler" {
             let messageBody = message.body as? [String: Any]
 
             if let type = messageBody?["type"] as? String {
                 switch type {
                 case "widget-close":
+                    onWidgetCloseSuccess?()
                     closeWidgetRequestHandler()
                 case "ap3c-track":
                     guard let payload = messageBody?["payload"] as? [String: Any] else {
@@ -133,14 +138,14 @@ class WidgetViewMessageHandler: NSObject, WKScriptMessageHandler {
 
 class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
     let closeWidgetRequestHandler: () -> Void
-    var completionHandler: ((_ result: (LoadWidgetResult, error: (any Error)?)) -> Void)?
+    var completionHandler: ((_ result: LoadWidgetResult, _ error: Error?) -> Void)?
     var widgetId: String?
 
     init(_ closeWidgetRequestHandler: @escaping () -> Void) {
         self.closeWidgetRequestHandler = closeWidgetRequestHandler
     }
 
-    func setCompletionHandler(_ completionHandler: @escaping ((LoadWidgetResult, (any Error)?)) -> Void) {
+    func setCompletionHandler(_ completionHandler: @escaping (_ result: LoadWidgetResult, _ error: Error?) -> Void) {
         self.completionHandler = completionHandler
     }
 
@@ -161,7 +166,7 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
             webView.evaluateJavaScript(consoleLogScript) { _, error in
                 if let error = error {
                     Ortto.log().debug("Error setting console.log: \(error)")
-                    self.completionHandler?((.fail, error))
+                    self.completionHandler?(.fail, error)
                     return
                 }
             }
@@ -174,18 +179,18 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
             try webView.evaluateJavaScript(String(contentsOf: appJs)) { _, error in
                 if let error = error {
                     Ortto.log().debug("Error evaluating app.js: \(error)")
-                    self.completionHandler?((.fail, error))
+                    self.completionHandler?(.fail, error)
                     return
                 }
             }
         } catch {
             Ortto.log().debug("Error evaluating app.js: \(error)")
-            completionHandler?((.fail, error))
+            completionHandler?(.fail, error)
             return
         }
 
         if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            completionHandler?((.fail, nil))
+            completionHandler?(.fail, nil)
             return
         }
 
@@ -197,31 +202,43 @@ class WidgetViewNavigationDelegate: NSObject, WKNavigationDelegate {
                         try webView.setAp3cConfig(config) { result, error in
                             if let result = result {
                                 Ortto.log().debug("Ap3c config loaded: \(result)")
-                                self.completionHandler?((.success, nil))
+                                self.completionHandler?(.success, nil)
                             }
 
                             if let error = error {
-                                self.completionHandler?((.fail, error))
+                                self.completionHandler?(.fail, error)
                             }
                         }
                     } catch {
                         Ortto.log().error("Error evaluating start script: \(error)")
-                        self.completionHandler?((.fail, error))
+                        self.completionHandler?(.fail, error)
                     }
 
                     webView.ap3cStart { _, error in
                         if let error = error {
                             Ortto.log().error("Error evaluating start script: \(error)")
-                            self.completionHandler?((.fail, error))
+                            self.completionHandler?(.fail, error)
                             return
                         }
                     }
                 }
             case let .fail(error):
                 Ortto.log().error("Could not get config: \(error)")
-                self.completionHandler?((.fail, nil))
+                self.completionHandler?(.fail, error)
             }
         }
+    }
+
+    // Called when an error occurs during provisional navigation
+    public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        Ortto.log().error("WidgetView: didFailProvisionalNavigation: \(error.localizedDescription)")
+        completionHandler?(.fail, error)
+    }
+
+    // Called when an error occurs during committed navigation
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        Ortto.log().error("WidgetView: didFail: \(error.localizedDescription)")
+        completionHandler?(.fail, error)
     }
 
     func webView(_: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {

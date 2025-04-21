@@ -8,6 +8,9 @@ disabled_rules:
   - nesting  # Allows deep nesting
   - trailing_comma # Allow trailing commas
   - non_optional_string_data_conversion # allow unsafe json utf8
+  - file_length # Ignore file length
+  - type_body_length # Ignore type body length
+
 # Files and directories to exclude
 excluded: 
   - .build  # Excludes .build directory
