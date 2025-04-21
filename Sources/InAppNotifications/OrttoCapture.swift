@@ -358,7 +358,7 @@ public class OrttoCapture: ObservableObject, Capture {
 
         CaptureAPI.fetchWidgets(request) { widgetsResponse in
             let data: WidgetsResponse = {
-                
+
                 if let widgetId = widgetId {
                     return WidgetsResponse(
                         widgets: widgetsResponse.widgets
