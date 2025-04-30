@@ -32,7 +32,9 @@ import OrttoSDKCore
             }
 
             if !UIApplication.shared.canOpenURL(url) {
-                completionHandler()
+                DispatchQueue.main.async {
+                    completionHandler()
+                }
                 return false
             }
 
@@ -43,7 +45,9 @@ import OrttoSDKCore
             }
 
             Ortto.shared.trackLinkClick(deepLink) {
-                completionHandler()
+                DispatchQueue.main.async {
+                    completionHandler()
+                }
             }
 
             return true
