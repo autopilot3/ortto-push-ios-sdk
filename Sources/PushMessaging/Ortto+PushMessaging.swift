@@ -56,7 +56,7 @@ public extension Ortto {
 
     // Backward compatible version
     func dispatchPushRequest(completion: ((Result<PushRegistrationResponse?, Error>) -> Void)? = nil) {
-        guard let token = PushMessaging.shared.token else {
+        guard PushMessaging.shared.token != nil else {
             Ortto.log().info("Ortto+PushMessaging@dispatchPushRequest.cancel")
             completion?(.success(nil))
             return

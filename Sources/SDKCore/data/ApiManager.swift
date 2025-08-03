@@ -152,7 +152,7 @@ public class ApiManager: ApiManagerInterface {
                     .responseDecodable(of: MobileScreenViewResponse.self) { response in
                         let statusCode = response.response?.statusCode
                         let responseBody = response.data.flatMap { String(data: $0, encoding: .utf8) }
-                        
+
                         // Log the response details
                         if let statusCode = statusCode {
                             Ortto.log().info("ApiManager@sendScreenView status=\(statusCode) body=\(responseBody ?? "nil")")

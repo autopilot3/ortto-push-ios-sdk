@@ -31,7 +31,7 @@ extension ApiManagerInterface {
                 debugPrint(tokenRegistration)
             #endif
 
-            Ortto.log().info("PushMessaging@sendPushPermission sending SessionID: \(tokenRegistration.sessionID)")
+            Ortto.log().info("PushMessaging@sendPushPermission sending SessionID: \(tokenRegistration.sessionID ?? "nil")")
 
             return try await withCheckedThrowingContinuation { continuation in
                 AF.request(components.url!, method: .post, parameters: tokenRegistration, encoder: JSONParameterEncoder.default, headers: headers)

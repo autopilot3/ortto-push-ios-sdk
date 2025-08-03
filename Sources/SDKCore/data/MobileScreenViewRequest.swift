@@ -60,4 +60,4 @@ public struct MobileScreenViewResponse: Codable {
     var success: Bool {
         return known
     }
-} 
+}
