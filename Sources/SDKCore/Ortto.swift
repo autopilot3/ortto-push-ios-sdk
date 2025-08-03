@@ -36,6 +36,7 @@ public class Ortto: OrttoInterface {
     public var shouldSkipNonExistingContacts: Bool = false
     private var logger: OrttoLogger = PrintLogger()
     public private(set) var screenName: String?
+    public let requestQueue = OrttoRequestQueue.shared
 
     /**
      Overwrite Logging service
@@ -79,6 +80,7 @@ public class Ortto: OrttoInterface {
     }
 
     public func setSessionID(_ sessionID: String) {
+        Ortto.log().info("Ortto@setSessionID \(sessionID)")
         userStorage.session = sessionID
     }
 
@@ -86,24 +88,26 @@ public class Ortto: OrttoInterface {
      Identify user to the Ortto API
      Endpoint: "/-/events/push-mobile-session"
      */
-    public func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)? = nil) {
-        userStorage.user = user
+    public func identify(_ user: UserIdentifier) async throws -> String {
+        return try await requestQueue.enqueue {
+            self.userStorage.user = user
+            let response = try await self.apiManager.sendRegisterIdentity(self.userStorage)
+            guard let sessionID = response?.sessionID else {
+                let error = NSError(domain: "com.ortto", code: 1, userInfo: [NSLocalizedDescriptionKey: "No session ID returned"])
+                self.logger.info("Ortto@identify.error No session ID returned")
+                throw error
+            }
+            self.userStorage.session = sessionID
+            self.logger.info("Ortto@identify.success \(sessionID)")
+            return sessionID
+        }
+    }
 
+    // Backward compatible version
+    public func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)? = nil) {
         Task {
             do {
-                let response = try await apiManager.sendRegisterIdentity(userStorage)
-                guard let sessionID = response?.sessionID else {
-                    let error = NSError(domain: "com.ortto", code: 1, userInfo: [NSLocalizedDescriptionKey: "No session ID returned"])
-                    self.logger.info("Ortto@identify.error No session ID returned")
-                    DispatchQueue.main.async {
-                        completion?(.failure(error))
-                    }
-                    return
-                }
-
-                self.userStorage.session = sessionID
-                self.logger.info("Ortto@identify.success \(sessionID)")
-
+                let sessionID = try await identify(user)
                 DispatchQueue.main.async {
                     completion?(.success(sessionID))
                 }
@@ -194,8 +198,32 @@ public class Ortto: OrttoInterface {
         }
     }
 
-    public func screen(_ screenName: String) {
+    /**
+     Track screen view (async version)
+     */
+    public func screen(_ screenName: String) async throws -> MobileScreenViewResponse? {
         self.screenName = screenName
+        return try await apiManager.sendScreenView(screenName)
+    }
+
+    /**
+     Track screen view (completion handler version for backward compatibility)
+     */
+    public func screen(_ screenName: String, completion: ((Result<MobileScreenViewResponse?, Error>) -> Void)? = nil) {
+        self.screenName = screenName
+        Task {
+            do {
+                let response = try await screen(screenName)
+                DispatchQueue.main.async {
+                    completion?(.success(response))
+                }
+            } catch {
+                Ortto.log().error("Ortto@screen.error \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion?(.failure(error))
+                }
+            }
+        }
     }
 
     @available(iOSApplicationExtension, unavailable)

@@ -120,7 +120,7 @@ public class OrttoCapture: ObservableObject, Capture {
         _timer?.invalidate()
         _timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
             if let widgetId = self._queue.peekLast() {
-                self.showWidget(widgetId)
+                _ = self.showWidget(widgetId)
             }
         }
     }
@@ -213,21 +213,12 @@ public class OrttoCapture: ObservableObject, Capture {
                 webViewController.view.addSubview(self.widgetView.webView)
                 self.widgetView.webView.translatesAutoresizingMaskIntoConstraints = false
 
-                do {
-                    try NSLayoutConstraint.activate([
-                        self.widgetView.webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
-                        self.widgetView.webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
-                        self.widgetView.webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
-                        self.widgetView.webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
-                    ])
-                } catch {
-                    Ortto.log().error("OrttoCapture@showWidget: Constraint activation failed. Error: \(error)")
-                    self.isWidgetActive = false
-                    self.currentWidgetResolver?(.failure(WidgetError.constraintActivationFailed(error)))
-                    self.currentWidgetResolver = nil
-                    resolver(.failure(WidgetError.constraintActivationFailed(error)))
-                    return
-                }
+                NSLayoutConstraint.activate([
+                    self.widgetView.webView.topAnchor.constraint(equalTo: webViewController.view.topAnchor),
+                    self.widgetView.webView.bottomAnchor.constraint(equalTo: webViewController.view.bottomAnchor),
+                    self.widgetView.webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
+                    self.widgetView.webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor),
+                ])
 
                 webViewController.modalPresentationStyle = .overFullScreen
                 webViewController.modalTransitionStyle = .crossDissolve
@@ -388,7 +379,7 @@ public class OrttoCapture: ObservableObject, Capture {
             }()
 
             if let sessionId = data.sessionId {
-                Ortto.shared.userStorage.session = sessionId
+                Ortto.shared.setSessionID(sessionId)
             }
 
             completion(data)

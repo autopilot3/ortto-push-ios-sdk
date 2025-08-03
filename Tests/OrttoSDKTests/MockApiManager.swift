@@ -22,4 +22,11 @@ class MockApiManager: ApiManagerInterface {
             throw APIResponseError.notSuccessful
         }
     }
+    
+    func sendScreenView(_ screenName: String) async throws -> MobileScreenViewResponse? {
+        if !shouldSucceed {
+            throw APIResponseError.notSuccessful
+        }
+        return MobileScreenViewResponse(known: true, sessionId: "mock-session-id")
+    }
 }

@@ -83,12 +83,14 @@ public class PushMessaging {
             ) { (response: PushRegistrationResponse?) in
                 Ortto.shared.preferences.setObject(object: newToken, key: "token")
 
-                guard let sessionID = response?.sessionId else {
+                if let returnedSessionID = response?.sessionId {
+                    Ortto.log().info("PushMessaging@token.set push API returned session: \(returnedSessionID), keeping current session: \(Ortto.shared.userStorage.session ?? "nil")")
+
+                    Ortto.shared.setSessionID(returnedSessionID)
+                } else {
                     Ortto.log().info("PushMessaging@token.set res returned no session_id")
                     return
                 }
-
-                Ortto.shared.setSessionID(sessionID)
             }
         }
     }
