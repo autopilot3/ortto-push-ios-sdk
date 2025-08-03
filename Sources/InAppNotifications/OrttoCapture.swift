@@ -388,7 +388,7 @@ public class OrttoCapture: ObservableObject, Capture {
             }()
 
             if let sessionId = data.sessionId {
-                Ortto.shared.userStorage.session = sessionId
+                Ortto.shared.setSessionID(sessionId)
             }
 
             completion(data)

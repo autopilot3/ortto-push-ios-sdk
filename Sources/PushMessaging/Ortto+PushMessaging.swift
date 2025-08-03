@@ -43,14 +43,37 @@ public extension Ortto {
     }
 
     /**
-     Update push token
+     Update push token (async version that returns result)
      */
-    func dispatchPushRequest() {
+    func dispatchPushRequest() async throws -> PushRegistrationResponse? {
         guard let token = PushMessaging.shared.token else {
             Ortto.log().info("Ortto+PushMessaging@dispatchPushRequest.cancel")
+            return nil
+        }
+        
+        return try await self.apiManager.sendPushPermission(sessionID: self.userStorage.session, token: token, permission: true)
+    }
+
+    // Backward compatible version
+    func dispatchPushRequest(completion: ((Result<PushRegistrationResponse?, Error>) -> Void)? = nil) {
+        guard let token = PushMessaging.shared.token else {
+            Ortto.log().info("Ortto+PushMessaging@dispatchPushRequest.cancel")
+            completion?(.success(nil))
             return
         }
-
-        updatePushToken(token: token, force: true)
+        
+        Task {
+            do {
+                let result = try await dispatchPushRequest()
+                DispatchQueue.main.async {
+                    completion?(.success(result))
+                }
+            } catch {
+                Ortto.log().error("PushMessaging@dispatchPushRequest.error \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion?(.failure(error))
+                }
+            }
+        }
     }
 }
