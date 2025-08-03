@@ -47,7 +47,9 @@ Ortto.shared.identify(user) { result in
 do {
     let response = try await Ortto.shared.screen("HomeScreen")
     if let response = response {
-        print("Screen tracking successful: \(response.success)")
+        print("Screen tracking successful: \(response.known)")
+        // Or use the backward-compatible property:
+        // print("Screen tracking successful: \(response.success)")
     } else {
         print("Screen tracking completed but no response")
     }
@@ -62,7 +64,9 @@ Ortto.shared.screen("HomeScreen") { result in
     switch result {
     case .success(let response):
         if let response = response {
-            print("Screen tracking successful: \(response.success)")
+            print("Screen tracking successful: \(response.known)")
+            // Or use the backward-compatible property:
+            // print("Screen tracking successful: \(response.success)")
         } else {
             print("Screen tracking completed but no response")
         }
@@ -74,12 +78,22 @@ Ortto.shared.screen("HomeScreen") { result in
 
 ### Register Push Token
 
+#### Setting Token First (Required)
+Before dispatching push requests, you need to set the token:
+```swift
+let token = PushToken(value: "device-token-string", type: "apns") // or "fcm"
+PushMessaging.shared.token = token
+```
+
 #### Async/Await
 ```swift
-let token = PushToken(value: "...", type: .apns)
 do {
-    let response = try await Ortto.shared.apiManager.sendPushPermission(sessionID: Ortto.shared.userStorage.session, token: token, permission: true)
-    print("Push registration response: \(String(describing: response))")
+    let response = try await Ortto.shared.dispatchPushRequest()
+    if let response = response {
+        print("Push registration successful: \(response)")
+    } else {
+        print("Push registration completed but no response")
+    }
 } catch {
     print("Failed to register push token: \(error)")
 }
@@ -87,16 +101,31 @@ do {
 
 #### Completion Handler
 ```swift
-let token = PushToken(value: "...", type: .apns)
-Ortto.shared.apiManager.sendPushPermission(sessionID: Ortto.shared.userStorage.session, token: token, permission: true) { response in
-    print("Push registration response: \(String(describing: response))")
+Ortto.shared.dispatchPushRequest { result in
+    switch result {
+    case .success(let response):
+        if let response = response {
+            print("Push registration successful: \(response)")
+        } else {
+            print("Push registration completed but no response")
+        }
+    case .failure(let error):
+        print("Failed to register push token: \(error)")
+    }
 }
 ```
 
-### Dispatch Push Request
+### Complete Push Token Registration Flow
+
+Here's the complete flow for registering a push token:
 
 #### Async/Await
 ```swift
+// 1. Set the token
+let token = PushToken(value: "device-token-string", type: "apns")
+PushMessaging.shared.token = token
+
+// 2. Dispatch the push request
 do {
     let response = try await Ortto.shared.dispatchPushRequest()
     if let response = response {
@@ -111,6 +140,11 @@ do {
 
 #### Completion Handler
 ```swift
+// 1. Set the token
+let token = PushToken(value: "device-token-string", type: "apns")
+PushMessaging.shared.token = token
+
+// 2. Dispatch the push request
 Ortto.shared.dispatchPushRequest { result in
     switch result {
     case .success(let response):
@@ -131,3 +165,5 @@ Ortto.shared.dispatchPushRequest { result in
 - For best results, use the async/await APIs in modern Swift code.
 - All methods now properly propagate success/failure results from the queue processing.
 - Screen tracking requests are also queued to ensure proper session usage.
+- Push token registration requires setting `PushMessaging.shared.token` before calling `dispatchPushRequest()`.
+- The `MobileScreenViewResponse` uses `known` property (with a backward-compatible `success` computed property).
