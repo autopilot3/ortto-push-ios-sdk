@@ -48,11 +48,16 @@ struct MobileScreenViewRequest: Codable {
 }
 
 public struct MobileScreenViewResponse: Codable {
-    let success: Bool
+    let known: Bool  // Changed from 'success' to match server response
     let sessionId: String?
-    
+
     enum CodingKeys: String, CodingKey {
-        case success
+        case known
         case sessionId = "session_id"
+    }
+
+    // Convenience property to maintain backward compatibility
+    var success: Bool {
+        return known
     }
 } 

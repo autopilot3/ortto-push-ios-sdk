@@ -50,7 +50,7 @@ public extension Ortto {
             Ortto.log().info("Ortto+PushMessaging@dispatchPushRequest.cancel")
             return nil
         }
-        
+
         return try await self.apiManager.sendPushPermission(sessionID: self.userStorage.session, token: token, permission: true)
     }
 
@@ -61,7 +61,7 @@ public extension Ortto {
             completion?(.success(nil))
             return
         }
-        
+
         Task {
             do {
                 let result = try await dispatchPushRequest()

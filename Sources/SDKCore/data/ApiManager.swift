@@ -20,6 +20,27 @@ public protocol ApiManagerInterface {
 enum APIResponseError: Error {
     case noStatusCode
     case notSuccessful
+    case screenViewFailed(statusCode: Int, response: String?, underlyingError: Error?)
+}
+
+extension APIResponseError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .noStatusCode:
+            return "No status code received from server"
+        case .notSuccessful:
+            return "Request was not successful"
+        case .screenViewFailed(let statusCode, let response, let underlyingError):
+            var description = "Screen view failed with status code \(statusCode)"
+            if let response = response {
+                description += ". Server response: \(response)"
+            }
+            if let underlyingError = underlyingError {
+                description += ". Underlying error: \(underlyingError.localizedDescription)"
+            }
+            return description
+        }
+    }
 }
 
 public class ApiManager: ApiManagerInterface {
@@ -100,7 +121,7 @@ public class ApiManager: ApiManagerInterface {
                 pushToken: "",
                 pushTokenType: "",
                 title: nil,
-                sessionKey: Ortto.shared.userStorage.session,
+                sessionKey: nil,
                 url: screenName,
                 contactId: Ortto.shared.userStorage.user?.contactID,
                 associationEmail: Ortto.shared.userStorage.user?.email,
@@ -129,24 +150,31 @@ public class ApiManager: ApiManagerInterface {
                 AF.request(components.url!, method: .post, parameters: screenViewRequest, encoder: JSONParameterEncoder.default, headers: headers)
                     .validate()
                     .responseDecodable(of: MobileScreenViewResponse.self) { response in
-                        guard let data = response.data, let statusCode = response.response?.statusCode else {
-                            continuation.resume(returning: nil)
-                            return
+                        let statusCode = response.response?.statusCode
+                        let responseBody = response.data.flatMap { String(data: $0, encoding: .utf8) }
+                        
+                        // Log the response details
+                        if let statusCode = statusCode {
+                            Ortto.log().info("ApiManager@sendScreenView status=\(statusCode) body=\(responseBody ?? "nil")")
                         }
-
-                        guard let json = String(data: data, encoding: .utf8) else {
-                            continuation.resume(returning: nil)
-                            return
-                        }
-
-                        Ortto.log().info("ApiManager@sendScreenView status=\(statusCode) body=\(json)")
 
                         switch response.result {
                         case .success(let screenViewResponse):
                             continuation.resume(returning: screenViewResponse)
                         case let .failure(error):
-                            Ortto.log().error("ApiManager@sendScreenView.request.fail \(error.localizedDescription)")
-                            continuation.resume(throwing: error)
+                            // Create detailed error with status code and response
+                            if let statusCode = statusCode {
+                                let detailedError = APIResponseError.screenViewFailed(
+                                    statusCode: statusCode,
+                                    response: responseBody,
+                                    underlyingError: error
+                                )
+                                Ortto.log().error("ApiManager@sendScreenView.request.fail status=\(statusCode) error=\(error.localizedDescription) response=\(responseBody ?? "nil")")
+                                continuation.resume(throwing: detailedError)
+                            } else {
+                                Ortto.log().error("ApiManager@sendScreenView.request.fail \(error.localizedDescription)")
+                                continuation.resume(throwing: error)
+                            }
                         }
                     }
             }
