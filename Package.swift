@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "OrttoSDK",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v15)
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "10.4.0"..<"13.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
     ],
     targets: [
