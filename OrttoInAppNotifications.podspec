@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoInAppNotifications'
-  s.version          = '1.8.0'
+  s.version          = '1.8.1'
   s.summary          = 'OrttoSDK In-App Notifications Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
