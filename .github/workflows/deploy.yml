@@ -23,6 +23,10 @@ jobs:
         with:
           ref: ${{ inputs.git-tag }}
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2.0'
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
