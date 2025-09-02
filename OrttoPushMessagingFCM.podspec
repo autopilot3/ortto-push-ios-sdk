@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoPushMessaging", "= #{s.version.to_s}"
   s.dependency 'FirebaseMessaging',   '~> 11.15.0'
-  s.dependency 'FirebaseCore',        '~> 11.0'
-  s.dependency 'FirebaseCoreInternal','~> 11.0'
-  s.dependency 'FirebaseInstallations','~> 11.0'
+  # s.dependency 'FirebaseCore',        '~> 11.0'
+  # s.dependency 'FirebaseCoreInternal','~> 11.0'
+  # s.dependency 'FirebaseInstallations','~> 11.0'
 end

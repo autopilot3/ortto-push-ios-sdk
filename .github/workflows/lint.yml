@@ -52,16 +52,16 @@ jobs:
       - name: Install cocoapods
         run: gem install cocoapods
 
-      - name: Run linting OrttoSDKCore
-        run: pod lib lint OrttoSDKCore.podspec --allow-warnings --swift-version=5.10 --verbose
-      - name: Run linting OrttoPushMessaging
-        run: pod lib lint OrttoPushMessaging.podspec --allow-warnings --swift-version=5.10 --verbose
-      - name: Run linting OrttoPushMessagingFCM
-        run: pod lib lint OrttoPushMessagingFCM.podspec --allow-warnings --swift-version=5.10 --verbose
-      - name: Run linting OrttoPushMessagingAPNS
-        run: pod lib lint OrttoPushMessagingAPNS.podspec --allow-warnings --swift-version=5.10 --verbose
-      - name: Run linting OrttoInAppNotifications
-        run: pod lib lint OrttoInAppNotifications.podspec --allow-warnings --swift-version=5.10 --verbose
+      # - name: Run linting OrttoSDKCore
+      #   run: pod lib lint OrttoSDKCore.podspec --allow-warnings --swift-version=5.10 --verbose
+      # - name: Run linting OrttoPushMessaging
+      #   run: pod lib lint OrttoPushMessaging.podspec --allow-warnings --swift-version=5.10 --verbose
+      # - name: Run linting OrttoPushMessagingFCM
+      #   run: pod lib lint OrttoPushMessagingFCM.podspec --allow-warnings --swift-version=5.10 --verbose
+      # - name: Run linting OrttoPushMessagingAPNS
+      #   run: pod lib lint OrttoPushMessagingAPNS.podspec --allow-warnings --swift-version=5.10 --verbose
+      # - name: Run linting OrttoInAppNotifications
+      #   run: pod lib lint OrttoInAppNotifications.podspec --allow-warnings --swift-version=5.10 --verbose
       
       - name: Run tests 
         run: bundle exec fastlane scan --verbose

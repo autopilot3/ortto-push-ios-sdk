@@ -8,7 +8,6 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/autopilot3/ortto-push-ios-sdk.git', :tag => "v#{s.version}" }
   s.source_files     = 'Sources/SDKCore/**/*'
   s.module_name      = "OrttoSDKCore"
-  s.static_framework = true
   s.swift_version   = '5.10'
   s.platform         = :ios
   s.ios.deployment_target = '13.0'
