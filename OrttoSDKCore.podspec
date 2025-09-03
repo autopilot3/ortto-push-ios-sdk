@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoSDKCore'
-  s.version          = '1.8.2'
+  s.version          = '1.8.3'
   s.summary          = 'OrttoSDK'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.module_name      = "OrttoSDKCore"
   s.swift_version   = '5.10'
   s.platform         = :ios
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '15.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "Alamofire", '5.6.2'
 end

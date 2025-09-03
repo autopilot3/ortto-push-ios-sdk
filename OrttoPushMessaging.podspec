@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoPushMessaging'
-  s.version          = '1.8.2'
+  s.version          = '1.8.3'
   s.summary          = 'OrttoSDK Push Messaging Core Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source_files     = 'Sources/PushMessaging/**/*'
   s.swift_version   = '5.10'            
   s.platform         = :ios
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '15.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoSDKCore", "= #{s.version.to_s}"
 end
