@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoPushMessaging'
-  s.version          = '1.8.3'
+  s.version          = '1.8.4'
   s.summary          = 'OrttoSDK Push Messaging Core Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }

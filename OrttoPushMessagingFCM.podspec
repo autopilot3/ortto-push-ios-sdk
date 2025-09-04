@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoPushMessagingFCM'
-  s.version          = '1.8.3'
+  s.version          = '1.8.4'
   s.summary          = 'OrttoSDK Push Messaging Firebase Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
@@ -10,7 +10,6 @@ Pod::Spec.new do |s|
   s.swift_version    = '5.10'
   s.platform         = :ios
   s.ios.deployment_target = '15.0'
-  s.static_framework = true
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoPushMessaging", "= #{s.version.to_s}"
   s.dependency 'FirebaseMessaging',   '~> 11.15.0'
