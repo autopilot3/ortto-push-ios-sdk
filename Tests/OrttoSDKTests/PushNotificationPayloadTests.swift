@@ -9,7 +9,7 @@
 @testable import OrttoSDKCore
 import XCTest
 
-final class PushNotificationPayloadTests: XCTestCase {
+final class PushNotificationPayloadTests: OrttoTestCase {
     func testActionItemEncodingAndDecoding() throws {
         let actionItem = ActionItem(action: "testAction", title: "testTitle", link: "deeplink://some-domain.xyz")
         let encoder = JSONEncoder()

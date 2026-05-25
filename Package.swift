@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "OrttoSDK",
     platforms: [
-        .iOS(.v15)
+        .iOS(.v15),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "OrttoSDKCore", targets: ["OrttoSDKCore"]),
@@ -16,19 +17,18 @@ let package = Package(
         .library(name: "OrttoInAppNotifications", targets: ["OrttoInAppNotifications"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", "10.4.0"..<"12.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
     ],
     targets: [
         .target(
             name: "OrttoSDKCore",
-            dependencies: [.product(name: "Alamofire", package: "Alamofire"), "SwiftSoup"],
+            dependencies: ["SwiftSoup"],
             path: "Sources/SDKCore"
         ),
         .target(
             name: "OrttoInAppNotifications",
-            dependencies: ["OrttoSDKCore", .product(name: "Alamofire", package: "Alamofire")],
+            dependencies: ["OrttoSDKCore"],
             path: "Sources/InAppNotifications",
             resources: [
                 .process("Resources/WebView.bundle"),
@@ -36,13 +36,13 @@ let package = Package(
         ),
         .target(
             name: "OrttoPushMessaging",
-            dependencies: ["OrttoSDKCore", .product(name: "Alamofire", package: "Alamofire")],
+            dependencies: ["OrttoSDKCore"],
             path: "Sources/PushMessaging"
         ),
         // Tests
         .testTarget(
             name: "OrttoSDKTests",
-            dependencies: ["OrttoSDKCore", "OrttoPushMessaging"],
+            dependencies: ["OrttoSDKCore", "OrttoPushMessaging", "OrttoInAppNotifications"],
             path: "Tests/OrttoSDKTests"
         ),
         // FCM

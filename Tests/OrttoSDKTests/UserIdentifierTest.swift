@@ -8,7 +8,7 @@
 @testable import OrttoSDKCore
 import XCTest
 
-final class UserIdentifierTest: XCTestCase {
+final class UserIdentifierTest: OrttoTestCase {
     func testInit() {
         let user = UserIdentifier(contactID: "1", email: "email@example.com", phone: "1234567890", externalID: "extID", firstName: "John", lastName: "Doe", acceptsGDPR: true)
 

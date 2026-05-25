@@ -1,109 +1,88 @@
 //
 //  ApiManager.swift
+//  Thin wrapper around OrttoAPIConnector. Each public method guards preconditions
+//  (SDK initialized, user identified) then delegates to the connector for
+//  URL-building, encoding, sending, and error-wrapping.
 //
 //  Created by Mitch Flindell on 18/11/2022.
 //
 
-import Alamofire
 import Foundation
-import UserNotifications
 
 public protocol ApiManagerInterface {
-    /**
-     Register a new device with Orttos API
-     */
+    /// Registers the current user identity and returns the Ortto session ID.
     func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse?
-    func sendLinkTracking(_ trackingUrl: URL) async throws
-}
 
-enum APIResponseError: Error {
-    case noStatusCode
-    case notSuccessful
+    /// Fires a GET tracking request to a pre-built URL (e.g. link-click tracking).
+    func sendLinkTracking(_ trackingUrl: URL) async throws
+
+    /// The app key this manager was configured with, or `nil` if not yet initialized.
+    var appKey: String? { get }
+
+    /// Sends any typed API request through the connector.
+    /// Extensions in other modules (e.g. `OrttoPushMessaging`) use this to add
+    /// endpoint methods without accessing the connector directly.
+    func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response
 }
 
 public class ApiManager: ApiManagerInterface {
 
-    /**
-     Send an Identify request to Ortto
-     */
-    public func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse? {
-        var components = URLComponents(string: Ortto.shared.apiEndpoint!)!
-        components.path = "/-/events/push-mobile-session"
-        components.queryItems = DeviceIdentity.getTrackingQueryItems()
+    private let connector: OrttoAPIConnector?
 
+    // MARK: - Init
+
+    /// Creates an unconfigured manager. `send` calls fail gracefully until
+    /// `Ortto.initialize()` replaces this with a connector-backed instance.
+    public init() {
+        connector = nil
+    }
+
+    /// Creates a fully configured manager backed by the given connector.
+    /// Inject this in tests: `ApiManager(connector: OrttoAPIConnector(http: mock, ...))`
+    public init(connector: OrttoAPIConnector) {
+        self.connector = connector
+    }
+
+    // MARK: - ApiManagerInterface
+
+    public var appKey: String? { connector?.appKey }
+
+    public func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
+        guard let connector else {
+            throw OrttoHTTPError.invalidRequest(
+                "ApiManager: SDK not initialized. Call Ortto.initialize() before making API calls."
+            )
+        }
+        return try await connector.send(request)
+    }
+
+    public func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse? {
+        guard let connector else {
+            Ortto.log().error("ApiManager@registerIdentity: SDK not initialized")
+            return nil
+        }
         guard let user = storage.user else {
             Ortto.log().info("ApiManager@registerIdentity.noUserIdentified")
-
             return nil
         }
 
-        let identityRegistration = PushMobileSessionRequest(
-            appKey: Ortto.shared.appKey!,
-            contactID: user.contactID,
-            associationEmail: user.email,
-            associationPhone: user.phone,
-            associationExternalID: user.externalID,
+        let request = RegisterIdentityRequest(
+            user: user,
+            appKey: connector.appKey,
             sessionID: storage.session,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            acceptGDPR: user.acceptsGDPR,
-            platform: "ios",
             shouldSkipNonExistingContacts: Ortto.shared.shouldSkipNonExistingContacts
         )
 
-        #if DEBUG
-            debugPrint(identityRegistration)
-        #endif
-
-        let headers: HTTPHeaders = [
-            .accept("application/json"),
-            .userAgent(Alamofire.HTTPHeader.defaultUserAgent.value),
-        ]
-
-        let dataTask = AF
-            .request(components.url!, method: .post, parameters: identityRegistration, encoder: JSONParameterEncoder.default, headers: headers)
-            .validate()
-            .serializingDecodable(IdentityRegistrationResponse.self)
-
-        let response = await dataTask.response
-
-        guard let statusCode = response.response?.statusCode else {
-            throw APIResponseError.noStatusCode
-        }
-
-        Ortto.log().info("ApiManager@registerIdentity status=\(statusCode)")
-
-        let value = try await dataTask.value
-
-        return value
+        let response = try await connector.send(request)
+        Ortto.log().info("ApiManager@registerIdentity.success session=\(response.sessionID)")
+        return response
     }
 
     public func sendLinkTracking(_ trackingUrl: URL) async throws {
-        let dataTask = AF
-            .request(trackingUrl, method: .get)
-            .validate()
-            .serializingString()
-
-        let response = await dataTask.response
-
-        guard let statusCode = response.response?.statusCode,
-              (200 ... 299).contains(statusCode)
-        else {
-            throw APIResponseError.notSuccessful
+        guard let connector else {
+            Ortto.log().error("ApiManager@sendLinkTracking: SDK not initialized")
+            return
         }
-    }
-
-    func debug(name: String, _ model: Codable) {
-        do {
-            let encoder = JSONEncoder()
-            let encoded = try encoder.encode(model)
-            guard let jsonString = String(data: encoded, encoding: .utf8) else {
-                return
-            }
-
-            print("ApiManager.debug \(name): \(jsonString)")
-        } catch {
-            debugPrint(error)
-        }
+        try await connector.sendGet(trackingUrl)
     }
 }

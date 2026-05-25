@@ -4,7 +4,6 @@
 //  Created by Mitch Flindell on 17/11/2022.
 //
 
-import Alamofire
 import Foundation
 #if canImport(UIKit)
     import UIKit
@@ -31,6 +30,7 @@ public class Ortto: OrttoInterface {
     public private(set) static var shared = Ortto()
 
     public var apiManager: ApiManagerInterface
+    public var httpClient: OrttoHTTPClient
     public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
     public var shouldSkipNonExistingContacts: Bool = false
@@ -50,6 +50,7 @@ public class Ortto: OrttoInterface {
 
     private init() {
         userStorage = OrttoUserStorage(preferences)
+        httpClient = OrttoURLSessionHTTPClient()
         apiManager = ApiManager()
     }
 
@@ -60,17 +61,28 @@ public class Ortto: OrttoInterface {
         shouldSkipNonExistingContacts: Bool = false,
         completionHandler: ((SDKConfiguration) -> Void)? = nil
     ) {
-        shared.apiEndpoint = {
-            guard let endpoint = endpoint else {
-                return nil
-            }
+        let normalizedEndpoint = endpoint.map {
+            $0.hasSuffix("/") ? String($0.dropLast()) : $0
+        }
 
-            return endpoint.hasSuffix("/") ? String(endpoint.dropLast()) : endpoint
-        }()
+        shared.apiEndpoint = normalizedEndpoint
         shared.shouldSkipNonExistingContacts = shouldSkipNonExistingContacts
         shared.appKey = appKey
 
-        let sdkConfiguration = SDKConfiguration(appKey: appKey, apiEndpoint: endpoint, shouldSkipNonExistingContacts: shouldSkipNonExistingContacts)
+        if let endpointString = normalizedEndpoint, let baseURL = URL(string: endpointString) {
+            let connector = OrttoAPIConnector(
+                http: shared.httpClient,
+                appKey: appKey,
+                baseURL: baseURL
+            )
+            shared.apiManager = ApiManager(connector: connector)
+        }
+
+        let sdkConfiguration = SDKConfiguration(
+            appKey: appKey,
+            apiEndpoint: normalizedEndpoint,
+            shouldSkipNonExistingContacts: shouldSkipNonExistingContacts
+        )
         completionHandler?(sdkConfiguration)
     }
 
