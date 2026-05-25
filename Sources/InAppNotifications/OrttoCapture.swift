@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Network
 import OrttoSDKCore
 import SwiftUI
 import UIKit
@@ -34,6 +35,8 @@ public class OrttoCapture: ObservableObject, Capture {
     private var _queue: WidgetQueue
     private var _timer: Timer?
     private var _widgetView: WidgetView?
+    private var _pathMonitor: NWPathMonitor?
+    private let _monitorQueue = DispatchQueue(label: "com.ortto.network-monitor")
     private var lock = os_unfair_lock()
     private static let orttoWidgetQueueKey = "ortto_widgets_queue"
     private var jsInteractionTimer: Timer? // Timer for JS interaction timeout
@@ -78,6 +81,20 @@ public class OrttoCapture: ObservableObject, Capture {
         _queue = WidgetQueue()
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                if path.status == .satisfied {
+                    self.processNextWidgetFromQueue()
+                } else {
+                    self._timer?.invalidate()
+                }
+            }
+        }
+        monitor.start(queue: _monitorQueue)
+        _pathMonitor = monitor
     }
 
     public static func initialize(dataSourceKey: String, captureJsURL: String, apiHost: String) throws {
@@ -94,6 +111,8 @@ public class OrttoCapture: ObservableObject, Capture {
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        _pathMonitor?.cancel()
+        _pathMonitor = nil
     }
 
     @objc func appDidBecomeActive() {
