@@ -30,7 +30,8 @@ public class MessagingService: MessagingServiceProtocol {
 
     private let httpClientFactory: () -> OrttoHTTPClient
     private let categoryRegistrar: (UNNotificationCategory) async -> Bool
-    private var currentDelivery: NotificationDelivery?
+    private let deliveriesLock = NSLock()
+    private var activeDeliveries: [NotificationDelivery] = []
 
     /// Creates the service. The factory is called once per `didReceive` so each notification
     /// enrichment has its own URL session — cancelling one does not affect others.
@@ -100,7 +101,7 @@ public class MessagingService: MessagingServiceProtocol {
         let content = buildContent(from: pushPayload, categoryID: request.content.categoryIdentifier)
         let category = buildCategory(from: pushPayload, categoryID: request.content.categoryIdentifier)
         let delivery = NotificationDelivery(content: content, contentHandler: contentHandler)
-        currentDelivery = delivery
+        addDelivery(delivery)
 
         delivery.task = Task { [weak self, weak delivery] in
             guard let self, let delivery else { return }
@@ -119,19 +120,38 @@ public class MessagingService: MessagingServiceProtocol {
 
             _ = await self.categoryRegistrar(category)
             delivery.deliver()
-
-            if self.currentDelivery === delivery {
-                self.currentDelivery = nil
-            }
+            self.removeDelivery(delivery)
         }
 
         return true
     }
 
-    /// Expires the current notification delivery and sends the best content assembled so far.
+    /// Expires every notification delivery currently in flight and sends the best content assembled so far for each.
+    /// `serviceExtensionTimeWillExpire()` is the system telling the whole NSE process to wrap up, so we drain the list.
     public func serviceExtensionTimeWillExpire() {
-        currentDelivery?.expire()
-        currentDelivery = nil
+        for delivery in drainDeliveries() {
+            delivery.expire()
+        }
+    }
+
+    private func addDelivery(_ delivery: NotificationDelivery) {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        activeDeliveries.append(delivery)
+    }
+
+    private func removeDelivery(_ delivery: NotificationDelivery) {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        activeDeliveries.removeAll { $0 === delivery }
+    }
+
+    private func drainDeliveries() -> [NotificationDelivery] {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        let copy = activeDeliveries
+        activeDeliveries.removeAll()
+        return copy
     }
 
     // MARK: - Private helpers
@@ -220,6 +240,7 @@ public class MessagingService: MessagingServiceProtocol {
         var task: Task<Void, Never>?
 
         private let contentHandler: (UNNotificationContent) -> Void
+        private let lock = NSLock()
         private var didDeliver = false
 
         init(
@@ -230,11 +251,14 @@ public class MessagingService: MessagingServiceProtocol {
             self.contentHandler = contentHandler
         }
 
-        /// Delivers the notification content exactly once.
+        /// Delivers the notification content exactly once. The lock guards a TOCTOU race between
+        /// the enrichment Task completing normally and `expire()` firing from the NSE callback thread.
         func deliver() {
-            guard !didDeliver else { return }
+            lock.lock()
+            let shouldDeliver = !didDeliver
             didDeliver = true
-            contentHandler(content)
+            lock.unlock()
+            if shouldDeliver { contentHandler(content) }
         }
 
         /// Cancels enrichment work and immediately delivers whatever content has been assembled.

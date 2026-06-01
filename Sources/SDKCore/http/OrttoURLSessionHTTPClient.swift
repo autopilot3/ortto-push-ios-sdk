@@ -71,8 +71,8 @@ public extension URLSessionConfiguration {
     static var orttoEphemeral: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.allowsCellularAccess = true
-        configuration.timeoutIntervalForResource = 30
-        configuration.timeoutIntervalForRequest = 60
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
         configuration.httpAdditionalHeaders = [
             "User-Agent": OrttoHTTPHeader.userAgent,
         ]
