@@ -8,7 +8,7 @@
 @testable import OrttoSDKCore
 import XCTest
 
-class OrttoPreferencesManagerTests: XCTestCase {
+class OrttoPreferencesManagerTests: OrttoTestCase {
 
     var preferencesManager: OrttoPreferencesManager!
     var mockUserDefaults: UserDefaults!

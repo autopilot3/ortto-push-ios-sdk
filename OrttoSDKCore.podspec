@@ -12,5 +12,4 @@ Pod::Spec.new do |s|
   s.platform         = :ios
   s.ios.deployment_target = '15.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
-  s.dependency "Alamofire", '5.6.2'
 end

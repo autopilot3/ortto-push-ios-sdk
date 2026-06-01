@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Network
 import OrttoSDKCore
 import SwiftUI
 import UIKit
@@ -30,11 +31,12 @@ public class OrttoCapture: ObservableObject, Capture {
     let dataSourceKey: String
     let captureJsURL: URL?
     let apiHost: URL?
-    var reachability: Reachability?
     public var isWidgetActive: Bool = false
     private var _queue: WidgetQueue
     private var _timer: Timer?
     private var _widgetView: WidgetView?
+    private var _pathMonitor: NWPathMonitor?
+    private let _monitorQueue = DispatchQueue(label: "com.ortto.network-monitor")
     private var lock = os_unfair_lock()
     private static let orttoWidgetQueueKey = "ortto_widgets_queue"
     private var jsInteractionTimer: Timer? // Timer for JS interaction timeout
@@ -78,22 +80,21 @@ public class OrttoCapture: ObservableObject, Capture {
         self.apiHost = apiHost
         _queue = WidgetQueue()
 
-        do {
-            reachability = try Reachability()
-        } catch {
-            Ortto.log().error("OrttoCapture@init:Failed to initialize Reachability")
-            return
-        }
-
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 
-        reachability?.whenReachable = { _ in
-            self.processNextWidgetFromQueue()
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                if path.status == .satisfied {
+                    self.processNextWidgetFromQueue()
+                } else {
+                    self._timer?.invalidate()
+                }
+            }
         }
-
-        reachability?.whenUnreachable = { _ in
-            self._timer?.invalidate()
-        }
+        monitor.start(queue: _monitorQueue)
+        _pathMonitor = monitor
     }
 
     public static func initialize(dataSourceKey: String, captureJsURL: String, apiHost: String) throws {
@@ -110,6 +111,8 @@ public class OrttoCapture: ObservableObject, Capture {
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        _pathMonitor?.cancel()
+        _pathMonitor = nil
     }
 
     @objc func appDidBecomeActive() {
@@ -349,43 +352,23 @@ public class OrttoCapture: ObservableObject, Capture {
     func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
         let user = Ortto.shared.userStorage.user
 
-        let request = WidgetsGetRequest(
+        let request = FetchWidgetsRequest(
             sessionId: OrttoCapture.shared.sessionId,
             applicationKey: OrttoCapture.shared.dataSourceKey,
             contactId: user?.contactID,
             emailAddress: user?.email
         )
 
-        CaptureAPI.fetchWidgets(request) { widgetsResponse in
-            let data: WidgetsResponse = {
+        Task {
+            let widgetsResponse: WidgetsResponse
+            do {
+                widgetsResponse = try await request.send()
+            } catch {
+                Ortto.log().debug("OrttoCapture@fetchWidgets.fail \(error.localizedDescription)")
+                widgetsResponse = .default
+            }
 
-                if let widgetId = widgetId {
-                    return WidgetsResponse(
-                        widgets: widgetsResponse.widgets
-                            .filter { widget in
-                                widget.id == widgetId && widget.type == WidgetType.popup
-                            }
-                            .filter { widget in
-                                if let expiry = widget.expiry {
-                                    let diff = expiry.timeIntervalSinceNow
-
-                                    return !diff.isLess(than: 0)
-                                }
-
-                                return true
-                            },
-                        hasLogo: widgetsResponse.hasLogo,
-                        enabledGdpr: widgetsResponse.enabledGdpr,
-                        recaptchaSiteKey: widgetsResponse.recaptchaSiteKey,
-                        countryCode: widgetsResponse.countryCode,
-                        serviceWorkerUrl: widgetsResponse.serviceWorkerUrl,
-                        cdnUrl: widgetsResponse.cdnUrl,
-                        sessionId: widgetsResponse.sessionId
-                    )
-                } else {
-                    return widgetsResponse
-                }
-            }()
+            let data = widgetId.map { widgetsResponse.filtering(for: $0) } ?? widgetsResponse
 
             if let sessionId = data.sessionId {
                 Ortto.shared.userStorage.session = sessionId

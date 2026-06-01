@@ -5,18 +5,16 @@
 //  Created by Mitch Flindell on 18/11/2022.
 //
 
-import Alamofire
 import Foundation
 import OrttoSDKCore
 
-#if canImport(UserNotifications) && canImport(UIKit)
-    import UIKit
-    import UserNotifications
+#if canImport(UserNotifications)
+    @preconcurrency import UserNotifications
 #endif
 
-struct DecodableType: Decodable {
-    let session_id: String
-}
+#if canImport(UIKit)
+    import UIKit
+#endif
 
 public protocol PushMessagingInterface {
     func registerDeviceToken(_ deviceToken: String)

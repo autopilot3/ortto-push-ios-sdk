@@ -10,6 +10,7 @@ import Foundation
 public protocol PreferencesInterface {
     func getString(_ key: String) -> String?
     func setString(_ value: String, key: String)
+    func removeString(_ key: String)
     func getObject<T: Codable>(key: String, type: T.Type) -> T?
     func setObject(object: Codable, key: String)
     func clear()
@@ -38,7 +39,13 @@ class OrttoUserStorage: UserStorage {
 
     public var session: String? {
         get { preferences.getString("sessionID") }
-        set { preferences.setString(newValue!, key: "sessionID") }
+        set {
+            guard let value = newValue else {
+                preferences.removeString("sessionID")
+                return
+            }
+            preferences.setString(value, key: "sessionID")
+        }
     }
 }
 
@@ -61,6 +68,10 @@ public class OrttoPreferencesManager: PreferencesInterface {
 
     public func setString(_ value: String, key: String) {
         defaults?.set(value, forKey: prefixedKey(key))
+    }
+
+    public func removeString(_ key: String) {
+        defaults?.removeObject(forKey: prefixedKey(key))
     }
 
     public func getObject<T: Codable>(key: String, type _: T.Type) -> T? {

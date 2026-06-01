@@ -5,19 +5,12 @@
 //  Created by Mitch Flindell on 18/11/2022.
 //
 
-import Alamofire
 import Foundation
 import OrttoSDKCore
 
-#if canImport(UserNotifications) && canImport(UIKit)
-    import UIKit
-    import UserNotifications
+#if canImport(UserNotifications)
+    @preconcurrency import UserNotifications
 #endif
-
-struct RegistrationRequestBody: Codable {
-    let token: String
-    let profile_id: String
-}
 
 // Used for rich push
 protocol MessagingServiceProtocol {
@@ -35,18 +28,36 @@ protocol MessagingServiceProtocol {
 public class MessagingService: MessagingServiceProtocol {
     public private(set) static var shared = MessagingService()
 
-    var imageDownloadRequest: DataRequest?
+    private let httpClientFactory: () -> OrttoHTTPClient
+    private let categoryRegistrar: (UNNotificationCategory) async -> Bool
+    private let deliveriesLock = NSLock()
+    private var activeDeliveries: [NotificationDelivery] = []
 
-    public func registerDeviceToken(token: String, tokenType: String) {
-        Ortto.shared.dispatchPushRequest(
-            PushToken(value: token, type: tokenType)
-        )
+    /// Creates the service. The factory is called once per `didReceive` so each notification
+    /// enrichment has its own URL session — cancelling one does not affect others.
+    init(
+        httpClientFactory: @escaping () -> OrttoHTTPClient = { OrttoURLSessionHTTPClient() },
+        categoryRegistrar: @escaping (UNNotificationCategory) async -> Bool = {
+            await MessagingService.registerCategoryWithNotificationCenter($0)
+        }
+    ) {
+        self.httpClientFactory = httpClientFactory
+        self.categoryRegistrar = categoryRegistrar
     }
 
-    public func clearIdentity(completion: @escaping (PushRegistrationResponse?) -> Void) {
-        guard let sessionID = Ortto.shared.userStorage.session, let token = PushMessaging.shared.token else {
-            completion(nil)
+    // MARK: - App-side push registration
 
+    /// Stores the device token and dispatches registration when identity is available.
+    public func registerDeviceToken(token: String, tokenType: String) {
+        Ortto.shared.dispatchPushRequest(PushToken(value: token, type: tokenType))
+    }
+
+    /// Clears the current device's push permission on the Ortto API.
+    public func clearIdentity(completion: @escaping (PushRegistrationResponse?) -> Void) {
+        guard let sessionID = Ortto.shared.userStorage.session,
+              let token = PushMessaging.shared.token
+        else {
+            completion(nil)
             return
         }
 
@@ -58,20 +69,25 @@ public class MessagingService: MessagingServiceProtocol {
         )
     }
 
-    func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
+    /// Registers the current device token and permission for an identified session.
+    func registerDeviceToken(
+        sessionID: String?,
+        token: PushToken,
+        completion: @escaping (PushRegistrationResponse?) -> Void
+    ) {
         Ortto.shared.apiManager.sendPushPermission(
             sessionID: sessionID,
             token: token,
-            permission: getPermission(),
+            permission: PushMessaging.shared.permission.isAllowed(),
             completion: completion
         )
     }
 
-    private func getPermission() -> Bool {
-        return PushMessaging.shared.permission.isAllowed()
-    }
+    // MARK: - NSE notification enrichment
 
     #if canImport(UserNotifications)
+    /// Intercepts Ortto push notifications, adds actions/media, tracks delivery, and delivers modified content.
+    @discardableResult
     public func didReceive(
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
@@ -81,151 +97,174 @@ public class MessagingService: MessagingServiceProtocol {
             return false
         }
 
-        var userInfo: [String: String] = [:]
-        var myActionList: [UNNotificationAction] = []
-        for action: ActionItem in pushPayload.actions {
-            myActionList.append(UNNotificationAction(
-                identifier: action.action!,
-                title: action.title ?? "",
-                options: [.foreground]
-            ))
-            userInfo[action.action!] = action.link
-        }
+        let http = httpClientFactory()
+        let content = buildContent(from: pushPayload, categoryID: request.content.categoryIdentifier)
+        let category = buildCategory(from: pushPayload, categoryID: request.content.categoryIdentifier)
+        let delivery = NotificationDelivery(content: content, contentHandler: contentHandler)
+        addDelivery(delivery)
 
-        // Define the notification type
-        let category = UNNotificationCategory(
-            identifier: request.content.categoryIdentifier,
-            actions: myActionList,
-            intentIdentifiers: [],
-            options: [.customDismissAction]
-        )
+        delivery.task = Task { [weak self, weak delivery] in
+            guard let self, let delivery else { return }
 
-        if let primaryAction = pushPayload.primaryAction {
-            userInfo[UNNotificationDefaultActionIdentifier] = primaryAction.link
-        }
+            async let attachment = NotificationAttachmentDownloader(httpClient: http)
+                .optionalAttachment(from: pushPayload.image)
+            async let tracking: Void = self.trackDelivery(pushPayload.eventTrackingUrl, using: http)
 
-        let content = UNMutableNotificationContent()
-        content.title = pushPayload.title
-        content.body = pushPayload.body
-        content.sound = .default
-        content.userInfo = userInfo
-        content.categoryIdentifier = request.content.categoryIdentifier
-
-        sendTrackingEventRequest(pushPayload.eventTrackingUrl)
-
-        getMediaAttachment(for: pushPayload.image!) { [weak self] image in
-            guard
-                let self = self,
-                let image = image,
-                let fileURL = self.saveImageAttachment(
-                    image: image,
-                    forIdentifier: "attachment.png"
-                ) else {
-                Ortto.log().debug("MessagingService@didReceive.image.fail message=no-image")
-
-                return
-            }
-
-            let imageAttachment = try? UNNotificationAttachment(
-                identifier: "image",
-                url: fileURL,
-                options: nil)
-
-            if let imageAttachment = imageAttachment {
+            if let imageAttachment = await attachment {
                 content.attachments = [imageAttachment]
             }
-        }
 
-        Task {
-            _ = await setCategories(newCategory: category)
+            _ = await tracking
 
-            contentHandler(content)
+            guard !Task.isCancelled else { return }
+
+            _ = await self.categoryRegistrar(category)
+            delivery.deliver()
+            self.removeDelivery(delivery)
         }
 
         return true
     }
 
-    private func getMediaAttachment(for urlString: String, completion: @escaping (UIImage?) -> Void) {
-        guard let url = URL(string: urlString) else {
-            completion(nil)
-            return
-        }
-
-        imageDownloadRequest = AF.request(url, method: .get)
-        imageDownloadRequest?.responseData { response in
-            guard let imageData = response.data else {
-                completion(nil)
-                return
-            }
-            let img = UIImage(data: imageData)!
-            completion(img)
+    /// Expires every notification delivery currently in flight and sends the best content assembled so far for each.
+    /// `serviceExtensionTimeWillExpire()` is the system telling the whole NSE process to wrap up, so we drain the list.
+    public func serviceExtensionTimeWillExpire() {
+        for delivery in drainDeliveries() {
+            delivery.expire()
         }
     }
 
-    private func saveImageAttachment(
-        image: UIImage,
-        forIdentifier identifier: String
-    ) -> URL? {
-        let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
-        let directoryPath = tempDirectory.appendingPathComponent(
-            ProcessInfo.processInfo.globallyUniqueString,
-            isDirectory: true
-        )
+    private func addDelivery(_ delivery: NotificationDelivery) {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        activeDeliveries.append(delivery)
+    }
 
-        do {
-            try FileManager.default.createDirectory(
-                at: directoryPath,
-                withIntermediateDirectories: true,
-                attributes: nil
+    private func removeDelivery(_ delivery: NotificationDelivery) {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        activeDeliveries.removeAll { $0 === delivery }
+    }
+
+    private func drainDeliveries() -> [NotificationDelivery] {
+        deliveriesLock.lock()
+        defer { deliveriesLock.unlock() }
+        let copy = activeDeliveries
+        activeDeliveries.removeAll()
+        return copy
+    }
+
+    // MARK: - Private helpers
+
+    private func buildContent(
+        from payload: PushNotificationPayload,
+        categoryID: String
+    ) -> UNMutableNotificationContent {
+        var actionLinks: [String: String] = [:]
+
+        for action in payload.actions {
+            guard let identifier = action.action else { continue }
+            actionLinks[identifier] = action.link
+        }
+
+        if let primaryAction = payload.primaryAction {
+            actionLinks[UNNotificationDefaultActionIdentifier] = primaryAction.link
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = payload.title
+        content.body = payload.body
+        content.sound = .default
+        content.userInfo = actionLinks
+        content.categoryIdentifier = categoryID
+        return content
+    }
+
+    private func buildCategory(
+        from payload: PushNotificationPayload,
+        categoryID: String
+    ) -> UNNotificationCategory {
+        let actions: [UNNotificationAction] = payload.actions.compactMap { item in
+            guard let identifier = item.action else { return nil }
+            return UNNotificationAction(
+                identifier: identifier,
+                title: item.title ?? "",
+                options: [.foreground]
             )
+        }
 
-            let fileURL = directoryPath.appendingPathComponent(identifier)
+        return UNNotificationCategory(
+            identifier: categoryID,
+            actions: actions,
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+    }
 
-            guard let imageData = image.pngData() else {
-                return nil
-            }
-
-            try imageData.write(to: fileURL)
-            return fileURL
+    /// Records notification delivery by sending a `TrackDeliveryRequest` through a
+    /// per-notification connector. Failures are logged and swallowed — a failed tracking
+    /// call must never block notification delivery.
+    private func trackDelivery(_ trackingURLString: String?, using http: OrttoHTTPClient) async {
+        guard let trackingURLString, let url = URL(string: trackingURLString) else { return }
+        do {
+            _ = try await OrttoAPIConnector(http: http).send(TrackDeliveryRequest(trackingURL: url))
         } catch {
-            return nil
+            Ortto.log().debug("MessagingService@tracking.fail \(error.localizedDescription)")
         }
     }
 
-    private func sendTrackingEventRequest(_ trackingUrl: String?) {
-        guard let trackingUrl = trackingUrl else {
-            return
-        }
-
-        var urlComponents = URLComponents(string: trackingUrl)!
-        for item in DeviceIdentity.getTrackingQueryItems() {
-            urlComponents.queryItems?.append(item)
-        }
-
-        AF.request(urlComponents.url!, method: .get)
-            .validate()
-            .response { _ in
-            }
-    }
-
-    func setCategories(newCategory: UNNotificationCategory) async -> Bool {
-        return await withCheckedContinuation { continuation in
-            UNUserNotificationCenter.current().getNotificationCategories { categories in
-                var allCategories: Set<UNNotificationCategory> = categories
-                allCategories.insert(newCategory)
-
-                UNUserNotificationCenter.current().setNotificationCategories(allCategories)
-
+    /// Registers a notification category with the system notification center.
+    private static func registerCategoryWithNotificationCenter(
+        _ category: UNNotificationCategory
+    ) async -> Bool {
+        await withCheckedContinuation { continuation in
+            UNUserNotificationCenter.current().getNotificationCategories { existing in
+                var all = existing
+                all.insert(category)
+                UNUserNotificationCenter.current().setNotificationCategories(all)
                 UNUserNotificationCenter.current().getNotificationCategories { _ in
                     continuation.resume(returning: true)
                 }
             }
         }
     }
-
-    public func serviceExtensionTimeWillExpire() {
-        imageDownloadRequest?.cancel()
-    }
-
     #endif
 }
+
+#if canImport(UserNotifications)
+    /// Owns the content and lifecycle of one NSE notification delivery.
+    /// `deliver()` is guarded so `contentHandler` is called at most once,
+    /// whether delivery completes normally or the extension expires first.
+    private final class NotificationDelivery {
+        let content: UNMutableNotificationContent
+        var task: Task<Void, Never>?
+
+        private let contentHandler: (UNNotificationContent) -> Void
+        private let lock = NSLock()
+        private var didDeliver = false
+
+        init(
+            content: UNMutableNotificationContent,
+            contentHandler: @escaping (UNNotificationContent) -> Void
+        ) {
+            self.content = content
+            self.contentHandler = contentHandler
+        }
+
+        /// Delivers the notification content exactly once. The lock guards a TOCTOU race between
+        /// the enrichment Task completing normally and `expire()` firing from the NSE callback thread.
+        func deliver() {
+            lock.lock()
+            let shouldDeliver = !didDeliver
+            didDeliver = true
+            lock.unlock()
+            if shouldDeliver { contentHandler(content) }
+        }
+
+        /// Cancels enrichment work and immediately delivers whatever content has been assembled.
+        func expire() {
+            task?.cancel()
+            deliver()
+        }
+    }
+#endif

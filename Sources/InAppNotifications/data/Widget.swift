@@ -238,7 +238,7 @@ struct Properties: Codable {
 }
 
 struct WidgetsResponse: Codable {
-    let widgets: [Widget]
+    var widgets: [Widget]
     let hasLogo: Bool
     let enabledGdpr: Bool
     let recaptchaSiteKey: String?
@@ -280,6 +280,15 @@ struct WidgetsResponse: Codable {
         self.serviceWorkerUrl = serviceWorkerUrl
         self.cdnUrl = cdnUrl
         self.sessionId = sessionId
+    }
+
+    /// Returns a copy containing only non-expired popup widgets matching `widgetId`.
+    func filtering(for widgetId: String) -> WidgetsResponse {
+        var copy = self
+        copy.widgets = widgets
+            .filter { $0.id == widgetId && $0.type == .popup }
+            .filter { $0.expiry.map { $0.timeIntervalSinceNow >= 0 } ?? true }
+        return copy
     }
 
     enum CodingKeys: String, CodingKey {

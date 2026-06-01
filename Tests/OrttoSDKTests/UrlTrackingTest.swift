@@ -10,7 +10,7 @@ import Foundation
 @testable import OrttoSDKCore
 import XCTest
 
-class UrlTrackingTest: XCTestCase {
+class UrlTrackingTest: OrttoTestCase {
     
     var mockApiManager: MockApiManager!
 
