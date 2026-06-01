@@ -1,0 +1,166 @@
+# Continuous integration for the Ortto iOS SDK.
+#
+# Runs on every pull request and on pushes to the default branch. The matrix
+# below intentionally pins explicit versions (Xcode, macOS image, simulator,
+# SwiftLint, Ruby) so we get reproducible builds — drift in any of these has
+# historically broken consumers without a corresponding code change.
+#
+# Status checks emitted to PRs:
+#   - Lint
+#   - SPM Build
+#   - Tests (iOS simulator)
+#   - Podspec — <name>   (one per podspec, runs in parallel)
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+# Cancel superseded runs on the same ref so PRs don't pile up under their
+# previous commit's runners.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  XCODE_VERSION: "16.4"
+  IOS_SIMULATOR: "platform=iOS Simulator,name=iPhone 16,OS=18.4"
+  SWIFTLINT_VERSION: "0.57.1"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # SwiftLint is fetched directly from the GitHub release to avoid Homebrew
+      # (which can't pin a version) and to keep this job hermetic.
+      - name: Install SwiftLint ${{ env.SWIFTLINT_VERSION }}
+        run: |
+          curl -fsSL "https://github.com/realm/SwiftLint/releases/download/${{ env.SWIFTLINT_VERSION }}/portable_swiftlint.zip" -o swiftlint.zip
+          unzip -q swiftlint.zip -d .swiftlint-bin
+          ./.swiftlint-bin/swiftlint version
+
+      - name: SwiftLint
+        run: ./.swiftlint-bin/swiftlint lint --strict --reporter github-actions-logging
+
+  build:
+    name: Build (iOS)
+    runs-on: macos-15
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      # Cache derived data + SwiftPM. The key includes Package.resolved so
+      # dependency bumps invalidate the cache automatically.
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: build-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            build-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-
+
+      # `swift build` defaults to the host platform (macOS) which won't compile
+      # the SDK's iOS-only code paths. We use xcodebuild against the iOS
+      # Simulator SDK instead so the build matches how consumers actually
+      # consume the SDK.
+      - name: Verify package graph resolves
+        run: swift package resolve
+
+      - name: xcodebuild build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -scheme OrttoSDK-Package \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+  test:
+    name: Tests (iOS simulator)
+    runs-on: macos-15
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: dd-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            dd-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-
+
+      - name: Run tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -scheme OrttoSDK-Package \
+            -destination "${{ env.IOS_SIMULATOR }}" \
+            -resultBundlePath TestResults.xcresult \
+            -enableCodeCoverage YES \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Upload xcresult on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.xcresult
+
+  podspec:
+    name: "Podspec — ${{ matrix.podspec }}"
+    runs-on: macos-15
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        podspec:
+          - OrttoSDKCore
+          - OrttoPushMessaging
+          - OrttoPushMessagingFCM
+          - OrttoPushMessagingAPNS
+          - OrttoInAppNotifications
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      # CocoaPods is pinned here rather than installed via the Gemfile to keep
+      # this job's gem footprint minimal — the Gemfile is reserved for Fastlane.
+      - name: Install CocoaPods
+        run: gem install cocoapods -v "1.15.2" --no-document
+
+      - name: pod lib lint
+        run: |
+          # --include-podspecs ensures sibling podspecs (e.g. OrttoPushMessaging
+          # for OrttoPushMessagingAPNS) resolve locally rather than from trunk.
+          pod lib lint ${{ matrix.podspec }}.podspec \
+            --allow-warnings \
+            --include-podspecs='Ortto*.podspec' \
+            --verbose
