@@ -13,6 +13,24 @@ The flow is designed for customer support and SDK validation:
 - Delivery also exposes link-click tracking for Ortto push-action deeplinks.
 - Log keeps SDK events, demo-app events, and session snapshots available for deeper inspection.
 
+## SDK Integration Points
+
+Everything the demo does with Ortto happens in the places below. Each call is made directly — no wrappers — with an `// Ortto SDK:` comment at the call site, so `grep -rn "// Ortto SDK"` lists them in the source. Start in `App/PushNotificationDemoApp.swift`, which carries the same map as a header comment.
+
+| What | Where | SDK call |
+| --- | --- | --- |
+| Initialize the SDK | `App/PushNotificationDemoApp.swift` | `Ortto.initialize(appKey:endpoint:)` (and `Ortto.shared.setLogger`) |
+| Identify a contact | `ViewModels/PushViewModel+Actions.swift` → `identify` | `Ortto.shared.identify(_:)` |
+| Clear identity (sign out) | `ViewModels/PushViewModel+Actions.swift` → `logout` | `Ortto.shared.clearIdentity` |
+| Track screen views | `Views/Main/{Home,Delivery,Log}View.swift` `.onAppear` | `Ortto.shared.screen(_:)` |
+| Register the APNS token | `App/APNSAppDelegate.swift` | `PushMessaging.shared.registerDeviceToken(apnsToken:)` |
+| Register the FCM token | `App/FCMAppDelegate.swift` | `PushMessaging.shared.messaging(_:didReceiveRegistrationToken:)` |
+| Rich push (media + delivery) | `NotificationServiceExtension/NotificationService.swift` | `MessagingService.shared.didReceive(...)` |
+| Notification taps → deeplink + click tracking | `App/NotificationCallbacks.swift` | `PushMessaging.shared.userNotificationCenter(...)` |
+| Track a link click directly | `ViewModels/PushViewModel+Actions.swift` → `runTrackLinkAction` | `Ortto.shared.trackLinkClick(_:)` |
+
+Delivery also demonstrates `Ortto.shared.dispatchPushRequest()` (redispatch the cached token) and `Ortto.shared.retrieveUtmParameters(_:)` (read UTM params from a deeplink). Everything else is ordinary SwiftUI app code.
+
 ## APNS vs FCM
 
 Choose the app target that matches the push package you want to demonstrate:

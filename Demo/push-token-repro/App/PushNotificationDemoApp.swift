@@ -2,7 +2,20 @@
 //  PushNotificationDemoApp.swift
 //  Ortto iOS SDK Push Demo
 //
-//  App entry point: initializes the Ortto SDK and shows RootView.
+//  Start here. The Ortto SDK is integrated in a handful of places — this is the
+//  map. Every call is marked with an `// Ortto SDK:` comment at the call site,
+//  so `grep -rn "// Ortto SDK"` jumps you to each one.
+//
+//    • Initialize           this file — Ortto.initialize(appKey:endpoint:)
+//    • Identify a contact   PushViewModel+Actions.swift — Ortto.shared.identify / clearIdentity
+//    • Track screen views   Home/Delivery/LogView .onAppear — Ortto.shared.screen(_:)
+//    • Register push token  APNSAppDelegate / FCMAppDelegate — PushMessaging.shared.registerDeviceToken / messaging(_:didReceiveRegistrationToken:)
+//    • Rich push (media)    NotificationServiceExtension — MessagingService.shared.didReceive
+//    • Notification taps    NotificationCallbacks.swift — PushMessaging.shared.userNotificationCenter(...)
+//    • Click tracking       PushViewModel+Actions.swift — Ortto.shared.trackLinkClick(_:)
+//
+//  Everything else is ordinary SwiftUI. Reading those touchpoints is the
+//  whole integration.
 //
 
 import OrttoSDKCore
@@ -28,7 +41,7 @@ struct PushNotificationDemoApp: App {
             appKey: AppConfiguration.appKey,
             endpoint: AppConfiguration.endpoint
         ) { _ in
-            appLog.sdkLifecycleInfo("Ortto.initialize completed endpoint=\(AppConfiguration.endpoint)")
+            appLog.info("Ortto.initialize completed endpoint=\(AppConfiguration.endpoint)")
         }
     }
 
