@@ -2,6 +2,10 @@
 build/
 *.xcuserstate
 
+# The SDK repo's root .gitignore excludes *.xcodeproj (it is a Swift package).
+# The demo ships its Xcode project, so re-include it here.
+!push-token-repro.xcodeproj
+
 # Local demo credentials and provider configuration.
 push-token-repro/Configurations/Local.xcconfig
 push-token-repro/GoogleService-Info.plist
