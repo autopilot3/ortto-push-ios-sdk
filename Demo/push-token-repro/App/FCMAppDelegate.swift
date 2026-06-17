@@ -2,9 +2,8 @@
 //  FCMAppDelegate.swift
 //  Ortto iOS SDK Push Demo
 //
-//  FCM target entry point. Firebase needs the APNS token before it can mint an
-//  FCM registration token; both arrive through these delegate callbacks and the
-//  FCM token is forwarded straight to the SDK.
+//  FCM target entry point. Firebase mints the registration token once it has
+//  the APNS token; the FCM token is then forwarded straight to the SDK.
 //
 
 import FirebaseCore
@@ -23,14 +22,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
 
-        guard AppConfiguration.hasFirebaseServiceInfo else {
-            appLog.appError("Firebase configuration failed: \(AppConfiguration.firebaseServiceInfoFailureDetail)")
-            return true
+        // Firebase reads GoogleService-Info.plist. The demo also runs without
+        // it — the UI surfaces the missing-config state — so configure only
+        // when the file is present instead of crashing.
+        if AppConfiguration.hasFirebaseServiceInfo {
+            FirebaseApp.configure()
+            Messaging.messaging().delegate = self
         }
-
-        FirebaseApp.configure()
-        Messaging.messaging().delegate = self
-        appLog.appInfo("FirebaseApp configured from \(AppConfiguration.firebaseServiceInfoName).plist")
         return true
     }
 
@@ -38,10 +36,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
-        // Firebase mints the FCM token once it has the APNS token.
+        // Firebase needs the APNS token to mint the FCM registration token.
         guard FirebaseApp.app() != nil else { return }
         Messaging.messaging().apnsToken = deviceToken
-        appLog.appInfo("APNS token attached to Firebase Messaging")
     }
 
     func application(
@@ -52,8 +49,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken, !fcmToken.isEmpty else { return }
-        appLog.appInfo("Firebase registration token received \(fcmToken)")
+        guard let fcmToken else { return }
 
         // Ortto SDK: forward the FCM registration token.
         PushMessaging.shared.messaging(messaging, didReceiveRegistrationToken: fcmToken)
