@@ -2,11 +2,10 @@
 //  APNSAppDelegate.swift
 //  Ortto iOS SDK Push Demo
 //
-//  APNS target entry point. iOS only delivers the APNS device token through
-//  these AppDelegate callbacks; the token is forwarded straight to the SDK.
+//  APNS target entry point. iOS delivers the APNS device token through these
+//  AppDelegate callbacks; the token is forwarded straight to the SDK.
 //
 
-import Foundation
 import OrttoPushMessagingAPNS
 import UIKit
 import UserNotifications
@@ -20,12 +19,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-        appLog.appInfo("launch provider=apns target=APNS app target")
-
-        if let remoteNotification = launchOptions?[.remoteNotification] {
-            appLog.appInfo("launched from remote notification payload=\(remoteNotification)")
-        }
-
         return true
     }
 
@@ -34,10 +27,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         let hex = DiagnosticsState.recordAPNSDeviceToken(deviceToken)
-        print("APNS device token: \(hex)")
         appLog.appInfo("APNS device token received \(hex)")
 
-        appLog.appInfo("calling PushMessaging.registerDeviceToken(apnsToken:)")
+        // Ortto SDK: forward the APNS device token — the whole APNS integration.
         PushMessaging.shared.registerDeviceToken(apnsToken: deviceToken)
     }
 
@@ -45,7 +37,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
-        print("APNS register failed: \(error.localizedDescription)")
-        appLog.appWarn("APNS register failed before Ortto registration: \(error.localizedDescription)")
+        appLog.appWarn("APNS registration failed: \(error.localizedDescription)")
     }
 }

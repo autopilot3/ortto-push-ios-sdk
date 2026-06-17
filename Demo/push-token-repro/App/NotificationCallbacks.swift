@@ -2,13 +2,14 @@
 //  NotificationCallbacks.swift
 //  Ortto iOS SDK Push Demo
 //
+//  Notification response handling, shared by both targets. Only token
+//  registration differs between APNS and FCM; this path is identical.
+//
 
 import UIKit
 import UserNotifications
 
-// PushMessaging comes from the push package the running target links. APNS
-// and FCM share the notification-response path; the concrete package only
-// changes token registration.
+// PushMessaging comes from the push package the running target links.
 #if PUSH_DEMO_FCM
 import OrttoPushMessagingFCM
 #else
@@ -22,23 +23,15 @@ extension AppDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        // Handles taps and action buttons after a notification is delivered.
-        // Foreground presentation is handled separately in `willPresent`.
-        logNotificationResponse(response)
-
-        // Ortto SDK: link handling happens here. The SDK opens the action
-        // deeplink and tracks the click when the payload contains a tracked
-        // action URL.
-        let handledBySDK = PushMessaging.shared.userNotificationCenter(
+        // Ortto SDK: hand the tapped notification to the SDK. It opens the
+        // action deeplink and tracks the click for Ortto pushes; for anything
+        // else it returns false and we finish the response ourselves.
+        let handled = PushMessaging.shared.userNotificationCenter(
             center,
             didReceive: response,
             withCompletionHandler: completionHandler
         )
-
-        if handledBySDK {
-            appLog.appInfo("notification response forwarded to Ortto SDK; action deeplink and click tracking are SDK-owned")
-        } else {
-            appLog.appInfo("notification response not handled by Ortto SDK; no matching action deeplink was found")
+        if !handled {
             completionHandler()
         }
     }
@@ -48,40 +41,8 @@ extension AppDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // Controls display while the app is already foregrounded. The SDK click
-        // tracking path starts only when the user taps an action/notification.
-        logForegroundNotification(notification)
+        // Show the notification while the app is foregrounded; the SDK's
+        // click-tracking path runs only when the user taps it.
         completionHandler([.banner, .list, .sound, .badge])
-    }
-
-    func application(
-        _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-        appLog.appInfo("remote notification received in app delegate payload=\(userInfo)")
-        completionHandler(.noData)
-    }
-
-    private func logNotificationResponse(_ response: UNNotificationResponse) {
-        appLog.appInfo(
-            [
-                "notification response received",
-                "action=\(response.actionIdentifier)",
-                "payload=\(response.notification.request.content.userInfo)"
-            ].joined(separator: " ")
-        )
-    }
-
-    private func logForegroundNotification(_ notification: UNNotification) {
-        let content = notification.request.content
-        appLog.appInfo(
-            [
-                "notification will present",
-                "title='\(content.title)'",
-                "body='\(content.body)'",
-                "payload=\(content.userInfo)"
-            ].joined(separator: " ")
-        )
     }
 }
