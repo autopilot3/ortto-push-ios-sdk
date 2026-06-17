@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>OrttoAppConfiguration</key>
+		<dict>
+			<key>AppKey</key>
+			<string>$(ORTTO_FCM_APP_KEY)</string>
+			<key>Endpoint</key>
+			<string>$(ORTTO_DEMO_ENDPOINT)</string>
+			<key>SDKBranch</key>
+			<string>$(ORTTO_SDK_BRANCH)</string>
+			<key>SDKSource</key>
+			<string>$(ORTTO_SDK_SOURCE)</string>
+		</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ortto-demo-fcm</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,12 @@
+// Copy this file to Local.xcconfig and fill only the target keys you need.
+// Leave the other key blank if you are only trying one push provider.
+//
+// The endpoint defaults to the AU production capture endpoint (see
+// BuildDefaults.xcconfig). Override it here for a different region or instance.
+// The $() segment expands to an empty string, producing https://...
+//
+// Internal Ortto team: uncomment the line below to point at staging.
+// ORTTO_DEMO_ENDPOINT = https:/$()/capture-api-au.ortto-stg.app/
+
+ORTTO_APNS_APP_KEY = paste_apns_app_key_here
+ORTTO_FCM_APP_KEY = paste_fcm_app_key_here
