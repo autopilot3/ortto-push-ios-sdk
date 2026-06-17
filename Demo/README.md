@@ -13,6 +13,12 @@ The flow is designed for customer support and SDK validation:
 - Delivery also exposes link-click tracking for Ortto push-action deeplinks.
 - Log keeps SDK events, demo-app events, and session snapshots available for deeper inspection.
 
+## Screenshots
+
+| Login | Home | Delivery | Log |
+| :---: | :---: | :---: | :---: |
+| <img src="Screenshots/login.jpg" width="200" alt="Login screen"> | <img src="Screenshots/home.jpg" width="200" alt="Home tab"> | <img src="Screenshots/delivery.jpg" width="200" alt="Delivery tab"> | <img src="Screenshots/log.jpg" width="200" alt="Log tab"> |
+
 ## SDK Integration Points
 
 Everything the demo does with Ortto happens in the places below. Each call is made directly — no wrappers — with an `// Ortto SDK:` comment at the call site, so `grep -rn "// Ortto SDK"` lists them in the source. Start in `App/PushNotificationDemoApp.swift`, which carries the same map as a header comment.
