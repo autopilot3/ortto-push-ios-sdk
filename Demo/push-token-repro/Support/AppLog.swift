@@ -25,8 +25,6 @@ final class AppLog: OrttoLogger {
     func appWarn(_ message: String)  { post(.warning, message, source: .demo) }
     func appError(_ message: String) { post(.error, message, source: .demo) }
 
-    func sdkLifecycleInfo(_ message: String) { post(.info, message, source: .sdk) }
-
     private func post(_ level: LogLevel, _ message: String, source: LogSource) {
         let entry = LogEntry(source: source, level: level, message: message)
         lock.lock()

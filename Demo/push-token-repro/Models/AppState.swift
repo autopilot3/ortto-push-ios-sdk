@@ -13,15 +13,12 @@ enum DefaultsKey {
 
 enum DiagnosticsState {
     static let apnsTokenKey = "OrttoPushDemo.lastAPNSDeviceTokenHex"
-    private static let legacyAPNSTokenKey = "lastDeviceTokenHex"
 
     // This is demo UI state, not SDK state. iOS only gives the APNS token
     // through an AppDelegate callback, so we remember the latest value to show
     // it after the Home/Delivery views refresh.
     static var apnsDeviceTokenHex: String {
-        UserDefaults.standard.string(forKey: apnsTokenKey)
-            ?? UserDefaults.standard.string(forKey: legacyAPNSTokenKey)
-            ?? ""
+        UserDefaults.standard.string(forKey: apnsTokenKey) ?? ""
     }
 
     @discardableResult
