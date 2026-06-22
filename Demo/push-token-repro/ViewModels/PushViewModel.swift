@@ -43,6 +43,9 @@ final class PushViewModel: ObservableObject {
     @Published var apnsToken = DiagnosticsState.apnsDeviceTokenHex
     @Published var fcmToken = ""
     @Published var trackedDeepLink = ""
+    @Published var widgetID = ""
+    @Published var availableWidgets: [DemoWidget] = []
+    @Published var isLoadingWidgets = false
     @Published var logEntries: [LogEntry] = []
     @Published var isIdentifying = false
     @Published var isLoggingOut = false

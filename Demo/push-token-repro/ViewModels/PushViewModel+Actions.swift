@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OrttoInAppNotifications
 import OrttoSDKCore
 import SwiftUI
 import UIKit
@@ -364,6 +365,106 @@ extension PushViewModel {
                 appendLog("Ortto.shared.trackLinkClick did not complete within 12s for \(deepLink)", dedupeKey: "track-link:timeout:\(Date().timeIntervalSince1970)")
             }
         }
+    }
+
+    // MARK: - In-app notifications (widgets)
+
+    func runShowWidgetAction() {
+        showWidget(id: widgetID.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    /// Presents an in-app notification by ID — used by both the manual ID field
+    /// and the fetched widget picker.
+    func showWidget(id: String) {
+        guard AppConfiguration.hasConfiguredCaptureJsURL else {
+            report(.showWidget, .blocked, status: "Set ORTTO_CAPTURE_JS_URL to enable widgets", toast: "Widgets not configured", "Add a capture JS URL in Local.xcconfig, then rebuild.")
+            appendLog("show widget blocked: ORTTO_CAPTURE_JS_URL not configured", dedupeKey: "widget:unconfigured:\(Date().timeIntervalSince1970)")
+            return
+        }
+
+        guard !id.isEmpty else {
+            report(.showWidget, .blocked, status: "Pick or enter a widget ID first", toast: "Missing widget ID", "Load the widget list or paste a widget ID.")
+            appendLog("show widget blocked: no widget ID", dedupeKey: "widget:missing-id:\(Date().timeIntervalSince1970)")
+            return
+        }
+
+        report(.showWidget, .working, status: "Calling OrttoCapture.shared.showWidget...", toast: "Showing widget", "Calling OrttoCapture.shared.showWidget.")
+        appendLog("calling OrttoCapture.shared.showWidget for \(id)")
+
+        // Ortto SDK: present a specific in-app notification (widget) by ID. The
+        // SDK owns the WebView overlay, fetch, and dismissal.
+        OrttoCapture.shared.showWidget(id).then { [weak self] result in
+            Task { @MainActor in
+                guard let self else { return }
+                switch result {
+                case .success:
+                    self.report(.showWidget, .success, status: "Widget shown", toast: "Widget shown", "The SDK presented the in-app notification.")
+                    self.appendLog("OrttoCapture.shared.showWidget presented \(id)")
+                case .failure(let error):
+                    self.report(.showWidget, .warning, status: "Widget did not show; check the SDK log", toast: "Widget not shown", error.localizedDescription)
+                    self.appendLog("OrttoCapture.shared.showWidget failed for \(id): \(error.localizedDescription)", dedupeKey: "widget:fail:\(id):\(Date().timeIntervalSince1970)")
+                }
+            }
+        }
+    }
+
+    /// Lists the account's widgets so the tester can pick one instead of typing
+    /// an ID. The SDK keeps its widget fetch internal, so this calls the same
+    /// `/-/widgets/get` endpoint directly, then keeps only `popup` types —
+    /// the only kind `showWidget` will actually render.
+    func runLoadWidgetsAction() {
+        guard AppConfiguration.canInitializeSDK else {
+            report(.loadWidgets, .blocked, status: "Configure the SDK first", toast: "Not configured", AppConfiguration.orttoConfigurationFailureDetail)
+            return
+        }
+
+        isLoadingWidgets = true
+        report(.loadWidgets, .working, status: "Fetching widget list...", toast: "Loading widgets", "POST \(AppConfiguration.endpoint)/-/widgets/get")
+        appendLog("fetching widget list: POST \(AppConfiguration.endpoint)/-/widgets/get")
+
+        Task {
+            do {
+                let widgets = try await fetchWidgetList()
+                let popups = widgets.filter { $0.type == "popup" }
+                availableWidgets = popups
+                isLoadingWidgets = false
+
+                let hidden = widgets.count - popups.count
+                let suffix = hidden > 0 ? "; \(hidden) non-popup hidden" : ""
+                report(.loadWidgets, popups.isEmpty ? .warning : .success, status: "\(popups.count) popup widget(s)\(suffix)", toast: "Widgets loaded", "Found \(popups.count) popup widget(s)\(suffix).")
+                appendLog("widget list loaded: \(popups.count) popup, \(hidden) other")
+            } catch {
+                isLoadingWidgets = false
+                report(.loadWidgets, .warning, status: "Could not load widgets; check the log", toast: "Load failed", error.localizedDescription)
+                appendLog("widget list fetch failed: \(error.localizedDescription)", dedupeKey: "widget:list:fail:\(Date().timeIntervalSince1970)")
+            }
+        }
+    }
+
+    /// Mirrors the SDK's internal widget fetch (same endpoint, same wire keys)
+    /// since those types are not part of the SDK's public surface.
+    private func fetchWidgetList() async throws -> [DemoWidget] {
+        let base = AppConfiguration.endpoint
+        let joined = base.hasSuffix("/") ? "\(base)-/widgets/get" : "\(base)/-/widgets/get"
+        guard let url = URL(string: joined) else { throw URLError(.badURL) }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        // Wire keys match FetchWidgetsRequest: h = app key, s = session, tk = talk.
+        var body: [String: Any] = ["h": AppConfiguration.appKey, "tk": false, "ottlk": ""]
+        if let session = Ortto.shared.userStorage.session { body["s"] = session }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            throw URLError(.badServerResponse, userInfo: [NSLocalizedDescriptionKey: "widgets/get returned HTTP \(code)"])
+        }
+
+        let decoded = try JSONDecoder().decode(WidgetListResponse.self, from: data)
+        return decoded.widgets.map { DemoWidget(id: $0.id, type: $0.type) }
     }
 
     // MARK: - Permission and state refresh

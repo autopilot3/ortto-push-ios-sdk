@@ -28,7 +28,6 @@ struct TechnicalDetailsView: View {
                 }
             }
             LabeledContent("App key", value: AppConfiguration.hasConfiguredAppKey ? "Configured" : "Missing")
-            LabeledContent("SDK source", value: AppConfiguration.sdkReference)
             LabeledContent("Push package", value: viewModel.activeProvider == .fcm ? "OrttoPushMessagingFCM" : "OrttoPushMessagingAPNS")
             LabeledContent("Firebase config", value: firebaseConfigStatus)
         } header: {

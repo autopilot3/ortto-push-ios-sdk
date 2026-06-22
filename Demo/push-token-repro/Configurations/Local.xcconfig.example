@@ -1,12 +1,16 @@
-// Copy this file to Local.xcconfig and fill only the target keys you need.
-// Leave the other key blank if you are only trying one push provider.
+// Copy this file to Local.xcconfig and fill in your Ortto configuration.
+// This is where ALL Ortto config lives — BuildDefaults.xcconfig declares these
+// empty. Local.xcconfig is gitignored, so your keys stay off version control.
 //
-// The endpoint defaults to the AU production capture endpoint (see
-// BuildDefaults.xcconfig). Override it here for a different region or instance.
-// The $() segment expands to an empty string, producing https://...
-//
-// Internal Ortto team: uncomment the line below to point at staging.
-// ORTTO_DEMO_ENDPOINT = https:/$()/capture-api-au.ortto-stg.app/
+// The $() segment expands to nothing, producing https:// — it only stops Xcode
+// from reading the // as an xcconfig comment.
 
+// Your account's capture endpoint. Pick your region (AU/EU/US) or instance.
+ORTTO_API_ENDPOINT = https:/$()/capture-api-au.ortto.app/
+
+// Fill in the key for the target(s) you run. Leave the other blank.
 ORTTO_APNS_APP_KEY = paste_apns_app_key_here
 ORTTO_FCM_APP_KEY = paste_fcm_app_key_here
+
+// Optional: set to demo in-app notifications (widgets). Leave blank to stay push-only.
+ORTTO_CAPTURE_JS_URL = paste_capture_js_url_here

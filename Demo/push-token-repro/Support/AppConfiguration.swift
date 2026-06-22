@@ -11,23 +11,18 @@ enum AppConfiguration {
 
     static var appKey: String { configurationString("AppKey") }
     static var endpoint: String { configurationString("Endpoint") }
-    static var sdkSource: String { configurationString("SDKSource") }
-    static var sdkBranch: String { configurationString("SDKBranch") }
-    static var sdkReference: String {
-        let source = isConfigured(sdkSource) ? sdkSource : "Local SDK"
-        guard isConfigured(sdkBranch) else { return source }
-        return "\(source) @ \(sdkBranch)"
-    }
+    static var captureJsURL: String { configurationString("CaptureJsURL") }
     static var hasConfiguredAppKey: Bool { isConfigured(appKey) }
     static var hasConfiguredEndpoint: Bool { isConfigured(endpoint) }
+    static var hasConfiguredCaptureJsURL: Bool { isConfigured(captureJsURL) }
     static var canInitializeSDK: Bool { hasConfiguredAppKey && hasConfiguredEndpoint }
 
     static var orttoConfigurationFailureDetail: String {
         if !hasConfiguredAppKey {
-            return "Set ORTTO_\(appPushProvider.rawValue.uppercased())_APP_KEY in push-token-repro/Configurations/Local.xcconfig, then rebuild the \(appPushProvider.targetTitle) target."
+            return "No Ortto app key. Copy push-token-repro/Configurations/Local.xcconfig.example to Local.xcconfig, set ORTTO_\(appPushProvider.rawValue.uppercased())_APP_KEY, then rebuild the \(appPushProvider.targetTitle) target."
         }
 
-        return "Set ORTTO_DEMO_ENDPOINT in push-token-repro/Configurations/Local.xcconfig or BuildDefaults.xcconfig, then rebuild the app target."
+        return "Set ORTTO_API_ENDPOINT in push-token-repro/Configurations/Local.xcconfig or BuildDefaults.xcconfig, then rebuild the app target."
     }
 
     static var deepLinkScheme: String {

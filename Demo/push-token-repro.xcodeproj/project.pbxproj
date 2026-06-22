@@ -163,14 +163,14 @@
 		4EE24A182DEE359E00AF48DC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		4EE24A1A2DEE359E00AF48DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EE24A222DEE365000AF48DC /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
-		C0NF1A000000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C0NF1F000000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C0DE000000000000README01 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C0CFG000000000000000001 /* BuildDefaults.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildDefaults.xcconfig; sourceTree = "<group>"; };
-		C0CFG000000000000000002 /* APNS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = APNS.xcconfig; sourceTree = "<group>"; };
-		C0CFG000000000000000003 /* FCM.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = FCM.xcconfig; sourceTree = "<group>"; };
-		C0CFG000000000000000004 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
-		C0CFG000000000000000005 /* GoogleService-Info.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist.example"; sourceTree = "<group>"; };
+		C0DEFACE0000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0DEFACE000000000000000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0DEFACE0000000000000006 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C0DEFACE0000000000000000 /* BuildDefaults.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildDefaults.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000001 /* APNS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = APNS.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000002 /* FCM.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = FCM.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000003 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
+		C0DEFACE0000000000000004 /* GoogleService-Info.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist.example"; sourceTree = "<group>"; };
 		A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Regular.otf"; sourceTree = "<group>"; };
 		A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Medium.otf"; sourceTree = "<group>"; };
 		A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Bold.otf"; sourceTree = "<group>"; };
@@ -251,7 +251,7 @@
 		4EE249C82DEE2CC500AF48DC = {
 			isa = PBXGroup;
 			children = (
-				C0DE000000000000README01 /* README.md */,
+				C0DEFACE0000000000000006 /* README.md */,
 				4EE249D32DEE2CC500AF48DC /* push-token-repro */,
 				4EE249E52DEE2CC600AF48DC /* push-token-reproTests */,
 				4EE249EF2DEE2CC600AF48DC /* push-token-reproUITests */,
@@ -281,8 +281,8 @@
 				C0DE000000000000000000A3 /* Support */,
 				C0DE000000000000000000A4 /* ViewModels */,
 				C0DE000000000000000000A5 /* Views */,
-				C0NF10000000000000000001 /* Configurations */,
-					C0CFG000000000000000005 /* GoogleService-Info.plist.example */,
+				C0DEFACE0000000000000007 /* Configurations */,
+					C0DEFACE0000000000000004 /* GoogleService-Info.plist.example */,
 				4EE249D82DEE2CC600AF48DC /* Assets.xcassets */,
 				A1B2C3D22F01000100000001 /* Fonts */,
 				4EE249DA2DEE2CC600AF48DC /* push_token_repro.entitlements */,
@@ -291,31 +291,31 @@
 			path = "push-token-repro";
 			sourceTree = "<group>";
 		};
-			C0NF10000000000000000001 /* Configurations */ = {
+			C0DEFACE0000000000000007 /* Configurations */ = {
 				isa = PBXGroup;
 				children = (
-					C0CFG000000000000000001 /* BuildDefaults.xcconfig */,
-					C0CFG000000000000000004 /* Local.xcconfig.example */,
-					C0NF1A000000000000000002 /* APNS */,
-					C0NF1F000000000000000002 /* FCM */,
+					C0DEFACE0000000000000000 /* BuildDefaults.xcconfig */,
+					C0DEFACE0000000000000003 /* Local.xcconfig.example */,
+					C0DEFACE0000000000000009 /* APNS */,
+					C0DEFACE000000000000000B /* FCM */,
 				);
 			path = Configurations;
 			sourceTree = "<group>";
 		};
-			C0NF1A000000000000000002 /* APNS */ = {
+			C0DEFACE0000000000000009 /* APNS */ = {
 				isa = PBXGroup;
 				children = (
-					C0CFG000000000000000002 /* APNS.xcconfig */,
-					C0NF1A000000000000000001 /* Info.plist */,
+					C0DEFACE0000000000000001 /* APNS.xcconfig */,
+					C0DEFACE0000000000000008 /* Info.plist */,
 				);
 			path = APNS;
 			sourceTree = "<group>";
 		};
-			C0NF1F000000000000000002 /* FCM */ = {
+			C0DEFACE000000000000000B /* FCM */ = {
 				isa = PBXGroup;
 				children = (
-					C0CFG000000000000000003 /* FCM.xcconfig */,
-					C0NF1F000000000000000001 /* Info.plist */,
+					C0DEFACE0000000000000002 /* FCM.xcconfig */,
+					C0DEFACE000000000000000A /* Info.plist */,
 				);
 			path = FCM;
 			sourceTree = "<group>";
@@ -469,7 +469,7 @@
 					4EE249CD2DEE2CC500AF48DC /* Sources */,
 					4EE249CE2DEE2CC500AF48DC /* Frameworks */,
 					4EE249CF2DEE2CC500AF48DC /* Resources */,
-					C0CFG000000000000000006 /* Bundle GoogleService-Info.plist if present */,
+					C0DEFACE0000000000000005 /* Bundle GoogleService-Info.plist if present */,
 					4EE24A212DEE359E00AF48DC /* Embed Foundation Extensions */,
 				);
 			buildRules = (
@@ -677,7 +677,7 @@
 	/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		C0CFG000000000000000006 /* Bundle GoogleService-Info.plist if present */ = {
+		C0DEFACE0000000000000005 /* Bundle GoogleService-Info.plist if present */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -936,7 +936,7 @@
 		};
 		4EE249F72DEE2CC600AF48DC /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0CFG000000000000000003 /* FCM.xcconfig */;
+			baseConfigurationReference = C0DEFACE0000000000000002 /* FCM.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -985,7 +985,7 @@
 		};
 				4EE249F82DEE2CC600AF48DC /* Release */ = {
 					isa = XCBuildConfiguration;
-					baseConfigurationReference = C0CFG000000000000000003 /* FCM.xcconfig */;
+					baseConfigurationReference = C0DEFACE0000000000000002 /* FCM.xcconfig */;
 					buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1033,7 +1033,7 @@
 			};
 				A2B000000000000000000020 /* Debug */ = {
 					isa = XCBuildConfiguration;
-					baseConfigurationReference = C0CFG000000000000000002 /* APNS.xcconfig */;
+					baseConfigurationReference = C0DEFACE0000000000000001 /* APNS.xcconfig */;
 					buildSettings = {
 					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1082,7 +1082,7 @@
 			};
 				A2B000000000000000000021 /* Release */ = {
 					isa = XCBuildConfiguration;
-					baseConfigurationReference = C0CFG000000000000000002 /* APNS.xcconfig */;
+					baseConfigurationReference = C0DEFACE0000000000000001 /* APNS.xcconfig */;
 					buildSettings = {
 					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

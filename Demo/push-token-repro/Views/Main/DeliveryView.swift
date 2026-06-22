@@ -12,6 +12,7 @@ struct DeliveryView: View {
 
     @FocusState private var isFCMTokenFocused: Bool
     @FocusState private var isTrackedDeepLinkFocused: Bool
+    @FocusState private var isWidgetIDFocused: Bool
 
     var body: some View {
         List {
@@ -19,6 +20,7 @@ struct DeliveryView: View {
             configurationSection
             fcmTokenOverrideSection
             clickTrackingSection
+            inAppNotificationsSection
             actionsSection
         }
         .font(AppTypography.sans(.body))
@@ -121,6 +123,67 @@ struct DeliveryView: View {
         }
     }
 
+    private var inAppNotificationsSection: some View {
+        Section {
+            DeliveryActionButton(
+                title: viewModel.isLoadingWidgets ? "Loading widgets" : "Load widgets",
+                detail: "Fetch this account's widgets so you can pick one to show instead of typing an ID.",
+                tint: AppColor.lilac,
+                isLoading: viewModel.isLoadingWidgets,
+                status: viewModel.actionStatus(.loadWidgets, fallback: viewModel.currentLoadWidgetsStatus, tone: viewModel.showWidgetTone),
+                action: viewModel.runLoadWidgetsAction
+            )
+            .disabled(viewModel.isLoadingWidgets)
+
+            ForEach(viewModel.availableWidgets) { widget in
+                Button {
+                    viewModel.showWidget(id: widget.id)
+                } label: {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(widget.id)
+                                .font(.system(.footnote, design: .monospaced))
+                                .foregroundStyle(AppColor.ink)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Text(widget.type)
+                                .font(AppTypography.sans(.caption2, weight: .bold))
+                                .foregroundStyle(AppColor.lilac)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "arrow.up.forward.circle.fill")
+                            .font(AppTypography.sans(.title3, weight: .bold))
+                            .foregroundStyle(AppColor.lilac)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            TextField("Or show by widget ID", text: $viewModel.widgetID)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .font(.system(.footnote, design: .monospaced))
+                .focused($isWidgetIDFocused)
+                .submitLabel(.done)
+                .onSubmit(dismissKeyboard)
+
+            DeliveryActionButton(
+                title: "Show in-app widget",
+                detail: "Call OrttoCapture.shared.showWidget to present a specific in-app notification.",
+                tint: AppColor.lilac,
+                status: viewModel.actionStatus(.showWidget, fallback: viewModel.currentShowWidgetStatus, tone: viewModel.showWidgetTone),
+                action: viewModel.runShowWidgetAction
+            )
+        } header: {
+            Text("In-app notifications")
+                .font(AppTypography.sans(.caption, weight: .bold))
+        } footer: {
+            Text("Screen views (sent on each tab) auto-trigger any widget configured for that screen. Load the list to pick a popup widget, or show one by ID. Set ORTTO_CAPTURE_JS_URL to actually present them.")
+                .font(AppTypography.sans(.footnote))
+        }
+        .simultaneousGesture(TapGesture().onEnded { _ in dismissKeyboard() })
+    }
+
     private var actionsSection: some View {
         Section {
             DeliveryActionButton(
@@ -190,6 +253,7 @@ struct DeliveryView: View {
     private func dismissKeyboard() {
         isFCMTokenFocused = false
         isTrackedDeepLinkFocused = false
+        isWidgetIDFocused = false
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

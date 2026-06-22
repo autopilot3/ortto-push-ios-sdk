@@ -7,6 +7,7 @@
 //  so `grep -rn "// Ortto SDK"` jumps you to each one.
 //
 //    • Initialize           this file — Ortto.initialize(appKey:endpoint:)
+//    • In-app notifications this file — OrttoCapture.initialize(...) + PushViewModel+Actions.swift — OrttoCapture.shared.showWidget(_:)
 //    • Identify a contact   PushViewModel+Actions.swift — Ortto.shared.identify / clearIdentity
 //    • Track screen views   Home/Delivery/LogView .onAppear — Ortto.shared.screen(_:)
 //    • Register push token  APNSAppDelegate / FCMAppDelegate — PushMessaging.shared.registerDeviceToken / messaging(_:didReceiveRegistrationToken:)
@@ -18,6 +19,7 @@
 //  whole integration.
 //
 
+import OrttoInAppNotifications
 import OrttoSDKCore
 import SwiftUI
 
@@ -42,6 +44,16 @@ struct PushNotificationDemoApp: App {
             endpoint: AppConfiguration.endpoint
         ) { _ in
             appLog.info("Ortto.initialize completed endpoint=\(AppConfiguration.endpoint)")
+        }
+
+        // Ortto SDK: enable in-app notifications (widgets). Optional — skipped
+        // until ORTTO_CAPTURE_JS_URL is set, so the demo stays push-only by default.
+        if AppConfiguration.hasConfiguredCaptureJsURL {
+            try? OrttoCapture.initialize(
+                dataSourceKey: AppConfiguration.appKey,
+                captureJsURL: AppConfiguration.captureJsURL,
+                apiHost: AppConfiguration.endpoint
+            )
         }
     }
 

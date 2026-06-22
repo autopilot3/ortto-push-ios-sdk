@@ -176,6 +176,24 @@ extension PushViewModel {
         "Permission status: \(permissionStatus)"
     }
 
+    var currentShowWidgetStatus: String {
+        guard AppConfiguration.hasConfiguredCaptureJsURL else {
+            return "Set ORTTO_CAPTURE_JS_URL to enable widgets"
+        }
+        return widgetID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "Enter a widget ID to show"
+            : "Ready to show widget"
+    }
+
+    var showWidgetTone: SDKActionTone {
+        AppConfiguration.hasConfiguredCaptureJsURL ? .ready : .blocked
+    }
+
+    var currentLoadWidgetsStatus: String {
+        guard AppConfiguration.canInitializeSDK else { return "Configure the SDK to load widgets" }
+        return availableWidgets.isEmpty ? "Load this account's popup widgets" : "\(availableWidgets.count) popup widget(s) loaded"
+    }
+
     var currentLogAPNSStatus: String {
         apnsToken.isEmpty ? "Register APNS before logging the token" : "APNS token ready to log"
     }

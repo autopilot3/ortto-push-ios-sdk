@@ -53,6 +53,35 @@ enum SDKActionID: Hashable {
     case redispatch
     case trackLink
     case refreshPermission
+    case showWidget
+    case loadWidgets
+}
+
+/// A widget from the `/-/widgets/get` response, reduced to what the picker
+/// needs. `showWidget` only renders `popup` types, so that is all we keep.
+struct DemoWidget: Identifiable, Equatable {
+    let id: String
+    let type: String
+}
+
+/// Minimal decode of the `/-/widgets/get` response — only the fields the picker
+/// needs. The full payload carries layout/style the SDK uses to render.
+/// The endpoint can return a bare `{}` (no session, or no widgets), so `widgets`
+/// tolerates a missing key rather than throwing.
+struct WidgetListResponse: Decodable {
+    let widgets: [Item]
+
+    struct Item: Decodable {
+        let id: String
+        let type: String
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        widgets = (try? container.decode([Item].self, forKey: .widgets)) ?? []
+    }
+
+    enum CodingKeys: String, CodingKey { case widgets }
 }
 
 struct SDKConfigurationIssue: Identifiable, Equatable {

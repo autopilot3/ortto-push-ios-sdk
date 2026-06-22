@@ -1,13 +1,11 @@
-// Shared non-secret defaults for the Ortto push demo.
-// The $() segment keeps Xcode from treating the URL as an xcconfig comment.
-//
-// Suggested default: the AU-region Ortto production capture endpoint. Use the
-// capture endpoint for your own Ortto account's region (AU/EU/US) — override it
-// in Local.xcconfig rather than editing this committed file.
-ORTTO_DEMO_ENDPOINT = https:/$()/capture-api-au.ortto.app/
+// Build-time defaults for the Ortto demo. All Ortto configuration — endpoint,
+// app keys, and the in-app-notifications capture JS URL — is set in
+// Local.xcconfig (copy it from Local.xcconfig.example). These are declared
+// empty here only so the app still builds, and shows its "configuration
+// missing" warning, before Local.xcconfig is filled in.
+ORTTO_API_ENDPOINT =
 ORTTO_APNS_APP_KEY =
 ORTTO_FCM_APP_KEY =
-ORTTO_SDK_SOURCE = Ortto iOS SDK (in-repo)
-ORTTO_SDK_BRANCH =
+ORTTO_CAPTURE_JS_URL =
 
 #include? "Local.xcconfig"

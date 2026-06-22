@@ -7,11 +7,9 @@
 			<key>AppKey</key>
 			<string>$(ORTTO_FCM_APP_KEY)</string>
 			<key>Endpoint</key>
-			<string>$(ORTTO_DEMO_ENDPOINT)</string>
-			<key>SDKBranch</key>
-			<string>$(ORTTO_SDK_BRANCH)</string>
-			<key>SDKSource</key>
-			<string>$(ORTTO_SDK_SOURCE)</string>
+			<string>$(ORTTO_API_ENDPOINT)</string>
+			<key>CaptureJsURL</key>
+			<string>$(ORTTO_CAPTURE_JS_URL)</string>
 		</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
