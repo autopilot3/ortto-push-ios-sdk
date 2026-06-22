@@ -1,5 +1,5 @@
 //
-//  PushNotificationDemoLaunchTests.swift
+//  PushDemoLaunchTests.swift
 //  Ortto iOS SDK Push Demo
 //
 //  Launch tests for the Ortto iOS SDK demo app.
@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class PushNotificationDemoLaunchTests: XCTestCase {
+final class PushDemoLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

@@ -1,5 +1,5 @@
 //
-//  PushNotificationDemoUITests.swift
+//  PushDemoUITests.swift
 //  Ortto iOS SDK Push Demo
 //
 //  UI tests for the Ortto iOS SDK demo app.
@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class PushNotificationDemoUITests: XCTestCase {
+final class PushDemoUITests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false

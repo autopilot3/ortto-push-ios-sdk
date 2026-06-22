@@ -1,5 +1,5 @@
 //
-//  PushNotificationDemoApp.swift
+//  PushDemoApp.swift
 //  Ortto iOS SDK Push Demo
 //
 //  Start here. The Ortto SDK is integrated in a handful of places — this is the
@@ -24,7 +24,7 @@ import OrttoSDKCore
 import SwiftUI
 
 @main
-struct PushNotificationDemoApp: App {
+struct PushDemoApp: App {
     // `AppDelegate` is intentionally target-specific. Xcode compiles
     // APNSAppDelegate.swift into the APNS scheme and FCMAppDelegate.swift into
     // the FCM scheme, so this single SwiftUI entry point binds to the selected

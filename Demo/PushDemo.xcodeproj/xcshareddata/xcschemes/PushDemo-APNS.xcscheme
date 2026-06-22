@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A2B00000000000000000001F"
-               BuildableName = "PushNotificationDemo-APNS.app"
-               BlueprintName = "PushNotificationDemo-APNS"
-               ReferencedContainer = "container:push-token-repro.xcodeproj">
+               BuildableName = "PushDemo-APNS.app"
+               BlueprintName = "PushDemo-APNS"
+               ReferencedContainer = "container:PushDemo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A2B00000000000000000001F"
-            BuildableName = "PushNotificationDemo-APNS.app"
-            BlueprintName = "PushNotificationDemo-APNS"
-            ReferencedContainer = "container:push-token-repro.xcodeproj">
+            BuildableName = "PushDemo-APNS.app"
+            BlueprintName = "PushDemo-APNS"
+            ReferencedContainer = "container:PushDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A2B00000000000000000001F"
-            BuildableName = "PushNotificationDemo-APNS.app"
-            BlueprintName = "PushNotificationDemo-APNS"
-            ReferencedContainer = "container:push-token-repro.xcodeproj">
+            BuildableName = "PushDemo-APNS.app"
+            BlueprintName = "PushDemo-APNS"
+            ReferencedContainer = "container:PushDemo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

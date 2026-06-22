@@ -19,10 +19,10 @@ enum AppConfiguration {
 
     static var orttoConfigurationFailureDetail: String {
         if !hasConfiguredAppKey {
-            return "No Ortto app key. Copy push-token-repro/Configurations/Local.xcconfig.example to Local.xcconfig, set ORTTO_\(appPushProvider.rawValue.uppercased())_APP_KEY, then rebuild the \(appPushProvider.targetTitle) target."
+            return "No Ortto app key. Copy PushDemo/Configurations/Local.xcconfig.example to Local.xcconfig, set ORTTO_\(appPushProvider.rawValue.uppercased())_APP_KEY, then rebuild the \(appPushProvider.targetTitle) target."
         }
 
-        return "Set ORTTO_API_ENDPOINT in push-token-repro/Configurations/Local.xcconfig or BuildDefaults.xcconfig, then rebuild the app target."
+        return "Set ORTTO_API_ENDPOINT in PushDemo/Configurations/Local.xcconfig or BuildDefaults.xcconfig, then rebuild the app target."
     }
 
     static var deepLinkScheme: String {

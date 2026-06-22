@@ -1,14 +1,14 @@
 //
-//  PushNotificationDemoTests.swift
+//  PushDemoTests.swift
 //  Ortto iOS SDK Push Demo
 //
 //  Unit tests for the Ortto iOS SDK demo app.
 //
 
 import XCTest
-@testable import PushNotificationDemo_APNS
+@testable import PushDemo_APNS
 
-final class PushNotificationDemoTests: XCTestCase {
+final class PushDemoTests: XCTestCase {
 
     func testPushProviderTokenTypesMatchSDKValues() {
         XCTAssertEqual(PushProvider.apns.tokenType, "apn")

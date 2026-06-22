@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4EE249D52DEE2CC500AF48DC /* PushNotificationDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushNotificationDemoApp.swift */; };
+		4EE249D52DEE2CC500AF48DC /* PushDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */; };
 		4EE249D72DEE2CC500AF48DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D62DEE2CC500AF48DC /* RootView.swift */; };
 		4EE249D92DEE2CC600AF48DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249D82DEE2CC600AF48DC /* Assets.xcassets */; };
 		4EE249DD2DEE2CC600AF48DC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */; };
-		4EE249E72DEE2CC600AF48DC /* PushNotificationDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249E62DEE2CC600AF48DC /* PushNotificationDemoTests.swift */; };
-		4EE249F12DEE2CC600AF48DC /* PushNotificationDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F02DEE2CC600AF48DC /* PushNotificationDemoUITests.swift */; };
-		4EE249F32DEE2CC600AF48DC /* PushNotificationDemoLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F22DEE2CC600AF48DC /* PushNotificationDemoLaunchTests.swift */; };
+		4EE249E72DEE2CC600AF48DC /* PushDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */; };
+		4EE249F12DEE2CC600AF48DC /* PushDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */; };
+		4EE249F32DEE2CC600AF48DC /* PushDemoLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */; };
 		4EE24A102DEE31E000AF48DC /* NotificationCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */; };
 		4EE24A192DEE359E00AF48DC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE24A182DEE359E00AF48DC /* NotificationService.swift */; };
 		4EE24A1D2DEE359E00AF48DC /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -41,7 +41,7 @@
 			A2B000000000000000000032 /* PushViewModel+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000012 /* PushViewModel+Actions.swift */; };
 			A2B000000000000000000033 /* PushViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000013 /* PushViewModel.swift */; };
 			A2B00000000000000000000D /* APNSAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F03000100000001 /* APNSAppDelegate.swift */; };
-			A2B00000000000000000000F /* PushNotificationDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushNotificationDemoApp.swift */; };
+			A2B00000000000000000000F /* PushDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */; };
 			A2B000000000000000000010 /* CanvaSansDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */; };
 			A2B000000000000000000011 /* CanvaSansDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */; };
 			A2B000000000000000000012 /* CanvaSansDisplay-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */; };
@@ -95,14 +95,14 @@
 			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A2B00000000000000000001F;
-			remoteInfo = "PushNotificationDemo-APNS";
+			remoteInfo = "PushDemo-APNS";
 		};
 		4EE249ED2DEE2CC600AF48DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A2B00000000000000000001F;
-			remoteInfo = "PushNotificationDemo-APNS";
+			remoteInfo = "PushDemo-APNS";
 		};
 			4EE24A1B2DEE359E00AF48DC /* PBXContainerItemProxy */ = {
 				isa = PBXContainerItemProxy;
@@ -146,18 +146,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4EE249D12DEE2CC500AF48DC /* PushNotificationDemo-FCM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushNotificationDemo-FCM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-			A2B000000000000000000001 /* PushNotificationDemo-APNS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushNotificationDemo-APNS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4EE249D42DEE2CC500AF48DC /* PushNotificationDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationDemoApp.swift; sourceTree = "<group>"; };
+		4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushDemo-FCM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+			A2B000000000000000000001 /* PushDemo-APNS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushDemo-APNS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoApp.swift; sourceTree = "<group>"; };
 		4EE249D62DEE2CC500AF48DC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		4EE249D82DEE2CC600AF48DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4EE249DA2DEE2CC600AF48DC /* push_token_repro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = push_token_repro.entitlements; sourceTree = "<group>"; };
+		4EE249DA2DEE2CC600AF48DC /* PushDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PushDemo.entitlements; sourceTree = "<group>"; };
 		4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		4EE249E22DEE2CC600AF48DC /* push-token-reproTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "push-token-reproTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4EE249E62DEE2CC600AF48DC /* PushNotificationDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationDemoTests.swift; sourceTree = "<group>"; };
-		4EE249EC2DEE2CC600AF48DC /* push-token-reproUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "push-token-reproUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4EE249F02DEE2CC600AF48DC /* PushNotificationDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationDemoUITests.swift; sourceTree = "<group>"; };
-		4EE249F22DEE2CC600AF48DC /* PushNotificationDemoLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationDemoLaunchTests.swift; sourceTree = "<group>"; };
+		4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "PushDemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoTests.swift; sourceTree = "<group>"; };
+		4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "PushDemoUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoUITests.swift; sourceTree = "<group>"; };
+		4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoLaunchTests.swift; sourceTree = "<group>"; };
 		4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCallbacks.swift; sourceTree = "<group>"; };
 		4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EE24A182DEE359E00AF48DC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -252,9 +252,9 @@
 			isa = PBXGroup;
 			children = (
 				C0DEFACE0000000000000006 /* README.md */,
-				4EE249D32DEE2CC500AF48DC /* push-token-repro */,
-				4EE249E52DEE2CC600AF48DC /* push-token-reproTests */,
-				4EE249EF2DEE2CC600AF48DC /* push-token-reproUITests */,
+				4EE249D32DEE2CC500AF48DC /* PushDemo */,
+				4EE249E52DEE2CC600AF48DC /* PushDemoTests */,
+				4EE249EF2DEE2CC600AF48DC /* PushDemoUITests */,
 				4EE24A172DEE359E00AF48DC /* NotificationServiceExtension */,
 				4EE249D22DEE2CC500AF48DC /* Products */,
 				4EE24A252DEE392500AF48DC /* Frameworks */,
@@ -264,16 +264,16 @@
 		4EE249D22DEE2CC500AF48DC /* Products */ = {
 			isa = PBXGroup;
 				children = (
-					4EE249D12DEE2CC500AF48DC /* PushNotificationDemo-FCM.app */,
-					A2B000000000000000000001 /* PushNotificationDemo-APNS.app */,
-					4EE249E22DEE2CC600AF48DC /* push-token-reproTests.xctest */,
-					4EE249EC2DEE2CC600AF48DC /* push-token-reproUITests.xctest */,
+					4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */,
+					A2B000000000000000000001 /* PushDemo-APNS.app */,
+					4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */,
+					4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */,
 					4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4EE249D32DEE2CC500AF48DC /* push-token-repro */ = {
+		4EE249D32DEE2CC500AF48DC /* PushDemo */ = {
 			isa = PBXGroup;
 			children = (
 				C0DE000000000000000000A1 /* App */,
@@ -285,10 +285,10 @@
 					C0DEFACE0000000000000004 /* GoogleService-Info.plist.example */,
 				4EE249D82DEE2CC600AF48DC /* Assets.xcassets */,
 				A1B2C3D22F01000100000001 /* Fonts */,
-				4EE249DA2DEE2CC600AF48DC /* push_token_repro.entitlements */,
+				4EE249DA2DEE2CC600AF48DC /* PushDemo.entitlements */,
 				4EE249DB2DEE2CC600AF48DC /* Preview Content */,
 			);
-			path = "push-token-repro";
+			path = "PushDemo";
 			sourceTree = "<group>";
 		};
 			C0DEFACE0000000000000007 /* Configurations */ = {
@@ -323,7 +323,7 @@
 		C0DE000000000000000000A1 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				4EE249D42DEE2CC500AF48DC /* PushNotificationDemoApp.swift */,
+				4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */,
 				A1B2C3E12F03000100000001 /* APNSAppDelegate.swift */,
 				A1B2C3E12F03000100000002 /* FCMAppDelegate.swift */,
 				4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */,
@@ -412,21 +412,21 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		4EE249E52DEE2CC600AF48DC /* push-token-reproTests */ = {
+		4EE249E52DEE2CC600AF48DC /* PushDemoTests */ = {
 			isa = PBXGroup;
 			children = (
-				4EE249E62DEE2CC600AF48DC /* PushNotificationDemoTests.swift */,
+				4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */,
 			);
-			path = "push-token-reproTests";
+			path = "PushDemoTests";
 			sourceTree = "<group>";
 		};
-		4EE249EF2DEE2CC600AF48DC /* push-token-reproUITests */ = {
+		4EE249EF2DEE2CC600AF48DC /* PushDemoUITests */ = {
 			isa = PBXGroup;
 			children = (
-				4EE249F02DEE2CC600AF48DC /* PushNotificationDemoUITests.swift */,
-				4EE249F22DEE2CC600AF48DC /* PushNotificationDemoLaunchTests.swift */,
+				4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */,
+				4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */,
 			);
-			path = "push-token-reproUITests";
+			path = "PushDemoUITests";
 			sourceTree = "<group>";
 		};
 		4EE24A172DEE359E00AF48DC /* NotificationServiceExtension */ = {
@@ -462,9 +462,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-			4EE249D02DEE2CC500AF48DC /* PushNotificationDemo-FCM */ = {
+			4EE249D02DEE2CC500AF48DC /* PushDemo-FCM */ = {
 				isa = PBXNativeTarget;
-				buildConfigurationList = 4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushNotificationDemo-FCM" */;
+				buildConfigurationList = 4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemo-FCM" */;
 			buildPhases = (
 					4EE249CD2DEE2CC500AF48DC /* Sources */,
 					4EE249CE2DEE2CC500AF48DC /* Frameworks */,
@@ -477,19 +477,19 @@
 			dependencies = (
 				4EE24A1C2DEE359E00AF48DC /* PBXTargetDependency */,
 			);
-				name = "PushNotificationDemo-FCM";
+				name = "PushDemo-FCM";
 				packageProductDependencies = (
 					4EE24A302DEE3B8A00AF48DC /* OrttoInAppNotifications */,
 					4EE24A3E2DEE5F0100AF48DC /* OrttoPushMessagingFCM */,
 					4EE24A362DEE3B8A00AF48DC /* OrttoSDKCore */,
 				);
-				productName = "PushNotificationDemo-FCM";
-				productReference = 4EE249D12DEE2CC500AF48DC /* PushNotificationDemo-FCM.app */;
+				productName = "PushDemo-FCM";
+				productReference = 4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */;
 				productType = "com.apple.product-type.application";
 			};
-			A2B00000000000000000001F /* PushNotificationDemo-APNS */ = {
+			A2B00000000000000000001F /* PushDemo-APNS */ = {
 				isa = PBXNativeTarget;
-				buildConfigurationList = A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushNotificationDemo-APNS" */;
+				buildConfigurationList = A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushDemo-APNS" */;
 				buildPhases = (
 					A2B00000000000000000001C /* Sources */,
 					A2B00000000000000000001A /* Frameworks */,
@@ -501,19 +501,19 @@
 				dependencies = (
 					A2B00000000000000000001E /* PBXTargetDependency */,
 				);
-				name = "PushNotificationDemo-APNS";
+				name = "PushDemo-APNS";
 				packageProductDependencies = (
 					A2B000000000000000000023 /* OrttoInAppNotifications */,
 					A2B000000000000000000025 /* OrttoPushMessagingAPNS */,
 					A2B000000000000000000026 /* OrttoSDKCore */,
 				);
-				productName = "PushNotificationDemo-APNS";
-				productReference = A2B000000000000000000001 /* PushNotificationDemo-APNS.app */;
+				productName = "PushDemo-APNS";
+				productReference = A2B000000000000000000001 /* PushDemo-APNS.app */;
 				productType = "com.apple.product-type.application";
 			};
-		4EE249E12DEE2CC600AF48DC /* push-token-reproTests */ = {
+		4EE249E12DEE2CC600AF48DC /* PushDemoTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "push-token-reproTests" */;
+			buildConfigurationList = 4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoTests" */;
 			buildPhases = (
 				4EE249DE2DEE2CC600AF48DC /* Sources */,
 				4EE249DF2DEE2CC600AF48DC /* Frameworks */,
@@ -524,14 +524,14 @@
 			dependencies = (
 				4EE249E42DEE2CC600AF48DC /* PBXTargetDependency */,
 			);
-			name = "push-token-reproTests";
-			productName = "push-token-reproTests";
-			productReference = 4EE249E22DEE2CC600AF48DC /* push-token-reproTests.xctest */;
+			name = "PushDemoTests";
+			productName = "PushDemoTests";
+			productReference = 4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		4EE249EB2DEE2CC600AF48DC /* push-token-reproUITests */ = {
+		4EE249EB2DEE2CC600AF48DC /* PushDemoUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "push-token-reproUITests" */;
+			buildConfigurationList = 4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoUITests" */;
 			buildPhases = (
 				4EE249E82DEE2CC600AF48DC /* Sources */,
 				4EE249E92DEE2CC600AF48DC /* Frameworks */,
@@ -542,9 +542,9 @@
 			dependencies = (
 				4EE249EE2DEE2CC600AF48DC /* PBXTargetDependency */,
 			);
-			name = "push-token-reproUITests";
-			productName = "push-token-reproUITests";
-			productReference = 4EE249EC2DEE2CC600AF48DC /* push-token-reproUITests.xctest */;
+			name = "PushDemoUITests";
+			productName = "PushDemoUITests";
+			productReference = 4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */ = {
@@ -597,7 +597,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "push-token-repro" */;
+			buildConfigurationList = 4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "PushDemo" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -613,10 +613,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 				targets = (
-					4EE249D02DEE2CC500AF48DC /* PushNotificationDemo-FCM */,
-					A2B00000000000000000001F /* PushNotificationDemo-APNS */,
-					4EE249E12DEE2CC600AF48DC /* push-token-reproTests */,
-					4EE249EB2DEE2CC600AF48DC /* push-token-reproUITests */,
+					4EE249D02DEE2CC500AF48DC /* PushDemo-FCM */,
+					A2B00000000000000000001F /* PushDemo-APNS */,
+					4EE249E12DEE2CC600AF48DC /* PushDemoTests */,
+					4EE249EB2DEE2CC600AF48DC /* PushDemoUITests */,
 					4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */,
 			);
 		};
@@ -686,7 +686,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/push-token-repro/GoogleService-Info.plist",
+				"$(SRCROOT)/PushDemo/GoogleService-Info.plist",
 			);
 			name = "Bundle GoogleService-Info.plist if present";
 			outputFileListPaths = (
@@ -696,7 +696,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\n\nGOOGLE_SERVICE_INFO=\"${SRCROOT}/push-token-repro/GoogleService-Info.plist\"\nDESTINATION=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ -f \"${GOOGLE_SERVICE_INFO}\" ]; then\n    mkdir -p \"$(dirname \"${DESTINATION}\")\"\n    cp \"${GOOGLE_SERVICE_INFO}\" \"${DESTINATION}\"\n    echo \"Bundled local GoogleService-Info.plist\"\nelse\n    echo \"No local GoogleService-Info.plist found; FCM demo will show its missing Firebase configuration state.\"\nfi\n";
+			shellScript = "set -euo pipefail\n\nGOOGLE_SERVICE_INFO=\"${SRCROOT}/PushDemo/GoogleService-Info.plist\"\nDESTINATION=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ -f \"${GOOGLE_SERVICE_INFO}\" ]; then\n    mkdir -p \"$(dirname \"${DESTINATION}\")\"\n    cp \"${GOOGLE_SERVICE_INFO}\" \"${DESTINATION}\"\n    echo \"Bundled local GoogleService-Info.plist\"\nelse\n    echo \"No local GoogleService-Info.plist found; FCM demo will show its missing Firebase configuration state.\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -728,7 +728,7 @@
 				A1B2C3E02F0200010000000F /* DeliveryView.swift in Sources */,
 				A1B2C3E02F02000100000010 /* TechnicalDetailsView.swift in Sources */,
 				A1B2C3E02F02000100000005 /* LogConsole.swift in Sources */,
-					4EE249D52DEE2CC500AF48DC /* PushNotificationDemoApp.swift in Sources */,
+					4EE249D52DEE2CC500AF48DC /* PushDemoApp.swift in Sources */,
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 			};
@@ -759,7 +759,7 @@
 					A2B00000000000000000002F /* DeliveryView.swift in Sources */,
 					A2B000000000000000000030 /* TechnicalDetailsView.swift in Sources */,
 					A2B00000000000000000000C /* LogConsole.swift in Sources */,
-					A2B00000000000000000000F /* PushNotificationDemoApp.swift in Sources */,
+					A2B00000000000000000000F /* PushDemoApp.swift in Sources */,
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 			};
@@ -767,7 +767,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4EE249E72DEE2CC600AF48DC /* PushNotificationDemoTests.swift in Sources */,
+				4EE249E72DEE2CC600AF48DC /* PushDemoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,8 +775,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4EE249F32DEE2CC600AF48DC /* PushNotificationDemoLaunchTests.swift in Sources */,
-				4EE249F12DEE2CC600AF48DC /* PushNotificationDemoUITests.swift in Sources */,
+				4EE249F32DEE2CC600AF48DC /* PushDemoLaunchTests.swift in Sources */,
+				4EE249F12DEE2CC600AF48DC /* PushDemoUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,12 +793,12 @@
 /* Begin PBXTargetDependency section */
 		4EE249E42DEE2CC600AF48DC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A2B00000000000000000001F /* PushNotificationDemo-APNS */;
+			target = A2B00000000000000000001F /* PushDemo-APNS */;
 			targetProxy = 4EE249E32DEE2CC600AF48DC /* PBXContainerItemProxy */;
 		};
 		4EE249EE2DEE2CC600AF48DC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A2B00000000000000000001F /* PushNotificationDemo-APNS */;
+			target = A2B00000000000000000001F /* PushDemo-APNS */;
 			targetProxy = 4EE249ED2DEE2CC600AF48DC /* PBXContainerItemProxy */;
 		};
 			4EE24A1C2DEE359E00AF48DC /* PBXTargetDependency */ = {
@@ -941,11 +941,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = "push-token-repro/push_token_repro.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "PushDemo/PushDemo.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"push-token-repro/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -953,7 +953,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "push-token-repro/Configurations/FCM/Info.plist";
+				INFOPLIST_FILE = "PushDemo/Configurations/FCM/Info.plist";
 					INFOPLIST_KEY_CFBundleDisplayName = "Push Demo FCM";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -990,18 +990,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = "push-token-repro/push_token_repro.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "PushDemo/PushDemo.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"push-token-repro/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "push-token-repro/Configurations/FCM/Info.plist";
+				INFOPLIST_FILE = "PushDemo/Configurations/FCM/Info.plist";
 					INFOPLIST_KEY_CFBundleDisplayName = "Push Demo FCM";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -1038,11 +1038,11 @@
 					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 					ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-					CODE_SIGN_ENTITLEMENTS = "push-token-repro/push_token_repro.entitlements";
+					CODE_SIGN_ENTITLEMENTS = "PushDemo/PushDemo.entitlements";
 					CODE_SIGN_STYLE = Automatic;
 					CURRENT_PROJECT_VERSION = 3;
 					DEAD_CODE_STRIPPING = YES;
-					DEVELOPMENT_ASSET_PATHS = "\"push-token-repro/Preview Content\"";
+					DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
 					ENABLE_APP_SANDBOX = YES;
 					ENABLE_DEBUG_DYLIB = NO;
 					ENABLE_HARDENED_RUNTIME = YES;
@@ -1050,7 +1050,7 @@
 					ENABLE_PREVIEWS = YES;
 					ENABLE_USER_SELECTED_FILES = readonly;
 					GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_FILE = "push-token-repro/Configurations/APNS/Info.plist";
+					INFOPLIST_FILE = "PushDemo/Configurations/APNS/Info.plist";
 					INFOPLIST_KEY_CFBundleDisplayName = "Push Demo";
 					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 					"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -1087,18 +1087,18 @@
 					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 					ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-					CODE_SIGN_ENTITLEMENTS = "push-token-repro/push_token_repro.entitlements";
+					CODE_SIGN_ENTITLEMENTS = "PushDemo/PushDemo.entitlements";
 					CODE_SIGN_STYLE = Automatic;
 					CURRENT_PROJECT_VERSION = 3;
 					DEAD_CODE_STRIPPING = YES;
-					DEVELOPMENT_ASSET_PATHS = "\"push-token-repro/Preview Content\"";
+					DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
 					ENABLE_APP_SANDBOX = YES;
 					ENABLE_HARDENED_RUNTIME = YES;
 					ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 					ENABLE_PREVIEWS = YES;
 					ENABLE_USER_SELECTED_FILES = readonly;
 					GENERATE_INFOPLIST_FILE = YES;
-					INFOPLIST_FILE = "push-token-repro/Configurations/APNS/Info.plist";
+					INFOPLIST_FILE = "PushDemo/Configurations/APNS/Info.plist";
 					INFOPLIST_KEY_CFBundleDisplayName = "Push Demo";
 					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 					"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -1147,7 +1147,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushNotificationDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushNotificationDemo-APNS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushDemo-APNS";
 			};
 			name = Debug;
 		};
@@ -1170,7 +1170,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushNotificationDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushNotificationDemo-APNS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushDemo-APNS";
 			};
 			name = Release;
 		};
@@ -1192,7 +1192,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = "PushNotificationDemo-APNS";
+				TEST_TARGET_NAME = "PushDemo-APNS";
 			};
 			name = Debug;
 		};
@@ -1214,7 +1214,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = "PushNotificationDemo-APNS";
+				TEST_TARGET_NAME = "PushDemo-APNS";
 			};
 			name = Release;
 		};
@@ -1285,7 +1285,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "push-token-repro" */ = {
+		4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "PushDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4EE249F42DEE2CC600AF48DC /* Debug */,
@@ -1294,7 +1294,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-			4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushNotificationDemo-FCM" */ = {
+			4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemo-FCM" */ = {
 				isa = XCConfigurationList;
 				buildConfigurations = (
 					4EE249F72DEE2CC600AF48DC /* Debug */,
@@ -1303,7 +1303,7 @@
 				defaultConfigurationIsVisible = 0;
 				defaultConfigurationName = Release;
 			};
-			A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushNotificationDemo-APNS" */ = {
+			A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushDemo-APNS" */ = {
 				isa = XCConfigurationList;
 				buildConfigurations = (
 					A2B000000000000000000020 /* Debug */,
@@ -1312,7 +1312,7 @@
 				defaultConfigurationIsVisible = 0;
 				defaultConfigurationName = Release;
 			};
-		4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "push-token-reproTests" */ = {
+		4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4EE249FA2DEE2CC600AF48DC /* Debug */,
@@ -1321,7 +1321,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "push-token-reproUITests" */ = {
+		4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4EE249FD2DEE2CC600AF48DC /* Debug */,
