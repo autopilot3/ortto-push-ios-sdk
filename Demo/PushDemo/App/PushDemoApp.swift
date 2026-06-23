@@ -19,8 +19,8 @@
 //  whole integration.
 //
 
-import OrttoInAppNotifications
-import OrttoSDKCore
+@preconcurrency import OrttoInAppNotifications
+@preconcurrency import OrttoSDKCore
 import SwiftUI
 
 @main
@@ -48,9 +48,9 @@ struct PushDemoApp: App {
 
         // Ortto SDK: enable in-app notifications (widgets). Optional — skipped
         // until ORTTO_CAPTURE_JS_URL is set, so the demo stays push-only by default.
-        if AppConfiguration.hasConfiguredCaptureJsURL {
+        if AppConfiguration.canInitializeCapture {
             try? OrttoCapture.initialize(
-                dataSourceKey: AppConfiguration.appKey,
+                dataSourceKey: AppConfiguration.captureDataSourceKey,
                 captureJsURL: AppConfiguration.captureJsURL,
                 apiHost: AppConfiguration.endpoint
             )

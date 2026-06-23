@@ -7,5 +7,5 @@ build/
 !PushDemo.xcodeproj
 
 # Local demo credentials and provider configuration.
-PushDemo/Configurations/Local.xcconfig
+PushDemo/Support/OrttoEnvironment.swift
 PushDemo/GoogleService-Info.plist

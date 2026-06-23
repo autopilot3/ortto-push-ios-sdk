@@ -9,7 +9,7 @@ Push permissions · token registration · session identity · link-click trackin
 [![Platform](https://img.shields.io/badge/platform-iOS%2016.6%2B-000000?logo=apple&logoColor=white)](https://developer.apple.com/ios/)
 [![Swift](https://img.shields.io/badge/Swift-5.0-F05138?logo=swift&logoColor=white)](https://swift.org)
 [![Xcode](https://img.shields.io/badge/Xcode-15.4%2B-147EFB?logo=xcode&logoColor=white)](https://developer.apple.com/xcode/)
-[![UI](https://img.shields.io/badge/UI-SwiftUI-0066CC)](https://developer.apple.com/xcode/swiftui/)
+[![UI](https://img.shields.io/badge/UI-SwiftUI-0066CC)](https://developer.apple.com/documentation/swiftui)
 
 </div>
 
@@ -35,22 +35,26 @@ Push permissions · token registration · session identity · link-click trackin
 
 > **Prerequisites**
 > - Xcode 15.4+
-> - An Ortto account and app key. For FCM, also a Firebase project + `GoogleService-Info.plist`.
+> - An Ortto account and app key. 
+> - For FCM, a Firebase project + `GoogleService-Info.plist`.
 
 ```sh
-# 1. Create your local config from the template (gitignored; your keys stay local)
-cp PushDemo/Configurations/Local.xcconfig.example \
-   PushDemo/Configurations/Local.xcconfig
+# 1. The demo lives in the SDK repo under Demo/ — work from there
+cd Demo
+
+# 2. Create your local config from the template (gitignored; your keys stay local)
+cp PushDemo/Support/OrttoEnvironment.sample.swift \
+   PushDemo/Support/OrttoEnvironment.swift
 ```
 
 ```sh
-# 2. Open the workspace
+# 3. Open the workspace
 open PushDemo.xcworkspace
 ```
 
-**3.** Fill in `PushDemo/Configurations/Local.xcconfig` (see [Configuration](#configuration)).
+**4.** Fill in `PushDemo/Support/OrttoEnvironment.swift` (see [Configuration](#configuration)).
 
-**4.** Pick the scheme for your provider — `PushDemo-APNS` or `PushDemo-FCM` — and run.
+**5.** Pick the scheme for your provider — `PushDemo-APNS` or `PushDemo-FCM` — and run.
 
 > Push **delivery** requires a physical device and an Ortto push setup. The simulator is fine for permission, registration, identity, and widget flows.
 
@@ -85,31 +89,33 @@ Each item is one or two direct SDK calls at the call site:
 
 Delivered through the `OrttoInAppNotifications` package. The SDK owns the WebView overlay, fetch, queueing, and dismissal — the app just initializes capture and asks for a widget:
 
-- **Init** — `OrttoCapture.initialize(dataSourceKey:captureJsURL:apiHost:)` at startup, only when `ORTTO_CAPTURE_JS_URL` is set (so the app stays push-only by default).
+- **Init** — `OrttoCapture.initialize(dataSourceKey:captureJsURL:apiHost:)` at startup, only when `OrttoEnvironment.captureJsURL` is set (so the app stays push-only by default).
 - **Auto-trigger** — `Ortto.shared.screen(_:)`, already sent per tab, shows any widget configured for that screen.
 - **Manual** — the Delivery tab's **Load widgets** action lists the account's widgets so you can pick one; a manual widget-ID field is also available. Both call `OrttoCapture.shared.showWidget(_:)`.
 
-> The SDK keeps its widget-fetch types internal, so **Load widgets** calls `/-/widgets/get` directly (against `ORTTO_API_ENDPOINT`) and keeps only `popup` widgets — the only type `showWidget` renders.
+> The SDK keeps its widget-fetch types internal, so **Load widgets** calls `/-/widgets/get` directly (against the configured `apiEndpoint`) and keeps only `popup` widgets — the only type `showWidget` renders.
 
 ## Configuration
 
-Config lives in `PushDemo/Configurations/Local.xcconfig` (gitignored; copied from `Local.xcconfig.example`). The committed `BuildDefaults.xcconfig` declares these empty, and Xcode expands them into the app `Info.plist` at build time.
+Config lives in **`PushDemo/Support/OrttoEnvironment.swift`** — a plain Swift file you copy from `OrttoEnvironment.sample.swift` and fill in. It's gitignored, so your keys stay off version control.
 
-| Variable | Required | Description |
+| Field | Required | Description |
 | --- | --- | --- |
-| `ORTTO_API_ENDPOINT` | ✅ | Your account's capture endpoint for your region (AU/EU/US) or instance. |
-| `ORTTO_APNS_APP_KEY` | APNS target | APNS app key. |
-| `ORTTO_FCM_APP_KEY` | FCM target | FCM app key. |
-| `ORTTO_CAPTURE_JS_URL` | optional | Account-specific capture JS URL. Set to enable in-app notifications. |
+| `apiEndpoint` | ✅ | Your account's capture endpoint for your region (AU/EU/US) or instance. |
+| `apnsAppKey` | APNS target | APNS app key. |
+| `fcmAppKey` | FCM target | FCM app key. |
+| `captureJsURL` | optional | Account-specific capture JS URL. Set to enable in-app notifications. |
 
-```xcconfig
-ORTTO_API_ENDPOINT = https:/$()/capture-api-au.ortto.app/
-ORTTO_FCM_APP_KEY  = your-fcm-app-key
+```swift
+enum OrttoEnvironment {
+    static let apiEndpoint = "https://capture-api-au.ortto.app/"
+    static let apnsAppKey = ""
+    static let fcmAppKey = "your-fcm-app-key"
+    static let captureJsURL = ""
+}
 ```
 
-> The `$()` segment expands to nothing (producing `https://`); it stops Xcode reading the `//` as an xcconfig comment. **Keep it when editing the URL.**
-
-For the **FCM** target, also drop a real Firebase plist at `PushDemo/GoogleService-Info.plist` (bundled only when present). Never commit `Local.xcconfig` or `GoogleService-Info.plist`.
+`AppConfiguration` picks `apnsAppKey` or `fcmAppKey` automatically based on the running target — no `//`-escaping or build-setting plumbing. For the **FCM** target, also drop a real Firebase plist at `PushDemo/GoogleService-Info.plist` (bundled only when present). Both `OrttoEnvironment.swift` and `GoogleService-Info.plist` are gitignored — never commit them.
 
 ## Project layout
 
@@ -117,14 +123,14 @@ For the **FCM** target, also drop a real Firebase plist at `PushDemo/GoogleServi
 PushDemo/
 ├── App/             Entry point (@main) and target-specific app delegates
 ├── Models/          Provider enum, persisted demo state, UI model types
-├── Support/         Plist-backed configuration and the shared logger
+├── Support/         Ortto config (OrttoEnvironment) and the shared logger
 ├── ViewModels/      PushViewModel: demo state, SDK flows, derived status copy
 ├── Views/
 │   ├── RootView     Shell: Login vs. Main based on sign-in state
 │   ├── Login/       Login screen and its artwork
 │   ├── Main/        Tabs — Home, Delivery, Log
 │   └── Components/  Design system and shared controls
-└── Configurations/  Per-target xcconfig and Info.plist files
+└── Configurations/  Per-target Info.plist and shared build settings
 ```
 
 - Start at `App/PushDemoApp.swift` (`@main`).
@@ -143,7 +149,8 @@ PushDemo/
 | `Models/PushProvider.swift` | APNS/FCM provider enum. |
 | `Models/AppState.swift` | UserDefaults keys, buffered diagnostics state, log entry model. |
 | `Models/UIModels.swift` | UI tabs, action status, toast, issue, and widget picker types. |
-| `Support/AppConfiguration.swift` | Typed accessor for plist-backed config and Firebase plist checks. |
+| `Support/AppConfiguration.swift` | Typed accessor over `OrttoEnvironment` + Firebase plist checks. |
+| `Support/OrttoEnvironment.sample.swift` | Config template — copy to gitignored `OrttoEnvironment.swift`. |
 | `Support/AppLog.swift` | Terminal-style log stream (`ortto@ios-sdk` + `demo@push-demo` entries). |
 | `ViewModels/PushViewModel.swift` | Demo state object and UI plumbing. |
 | `ViewModels/PushViewModel+Actions.swift` | The SDK flows — identify, register, redispatch, click tracking, widgets. |
@@ -157,8 +164,7 @@ PushDemo/
 | `Views/Main/LogView.swift` | Terminal-style console of SDK and demo log entries. |
 | `Views/Main/TechnicalDetailsView.swift` | SDK, session, notification, and configuration checks. |
 | `Views/Components/DesignSystem.swift` | Shared colors, typography, controls, icon treatment. |
-| `Configurations/BuildDefaults.xcconfig` | Empty key declarations; includes `Local.xcconfig`. |
-| `Configurations/Local.xcconfig.example` | Config template — copy to gitignored `Local.xcconfig`. |
+| `Configurations/BuildDefaults.xcconfig` | Shared build settings (no Ortto config). |
 | `Configurations/{APNS,FCM}/Info.plist` | Per-target config: app key, endpoint, URL scheme, background modes. |
 | `GoogleService-Info.plist.example` | Shape of the Firebase plist; supply a real one for FCM. |
 | `NotificationServiceExtension/NotificationService.swift` | Rich-push extension via shared `OrttoPushMessaging`. |
@@ -174,7 +180,7 @@ PushDemo/
 5. Open **Delivery** and register the selected target's APNS or FCM token.
 6. Use **Redispatch cached token** to observe SDK token/session de-dupe in the **Log**.
 7. Paste a tracked push-action deeplink and run **Track link click**.
-8. (Widgets) Set `ORTTO_CAPTURE_JS_URL`, then **Load widgets** and show one.
+8. (Widgets) Set `captureJsURL` in `OrttoEnvironment.swift`, then **Load widgets** and show one.
 9. Send a real notification with an action deeplink and confirm the tap reaches the SDK.
 10. Sign out to run the flow again.
 
@@ -194,9 +200,9 @@ xcodebuild -workspace PushDemo.xcworkspace \
 
 | Symptom | Likely cause |
 | --- | --- |
-| App logs **"configuration missing"** / no SDK init | `Local.xcconfig` not created, or its values still placeholders. Copy the template and fill it in. |
-| Endpoint or key changes ignored | You edited `Local.xcconfig.example` (a template, never read by the build) instead of `Local.xcconfig`. |
-| URL becomes a comment / endpoint truncated | The `$()` escape was removed from the endpoint URL — keep `https:/$()/…`. |
+| App logs **"configuration missing"** / no SDK init | `OrttoEnvironment.swift` values are still empty/placeholder. Fill them in and rebuild. |
+| Build fails: cannot find `OrttoEnvironment` | You haven't created `OrttoEnvironment.swift` yet — copy it from `OrttoEnvironment.sample.swift`. |
+| Endpoint or key changes ignored | You edited `OrttoEnvironment.sample.swift` (the template, not compiled) instead of `OrttoEnvironment.swift`. |
 | FCM token never arrives | `GoogleService-Info.plist` is missing from the app target. |
 | **Load widgets** returns empty | No active session (sign in first), or the app key/endpoint belong to a different region/instance. |
 

@@ -4,9 +4,12 @@
 //
 
 import Foundation
-import OrttoSDKCore
+@preconcurrency import OrttoSDKCore
 
-final class AppLog: OrttoLogger {
+// Thread-safe: all mutable state (`history`) is guarded by `lock`, so the shared
+// `appLog` global is safe to use from any concurrency domain (incl. SDK logger
+// callbacks on background threads).
+final class AppLog: OrttoLogger, @unchecked Sendable {
     private let lock = NSLock()
     private var history: [LogEntry] = []
 

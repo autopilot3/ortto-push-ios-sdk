@@ -8,14 +8,15 @@
 
 import FirebaseCore
 import FirebaseMessaging
-import OrttoPushMessagingFCM
+@preconcurrency import OrttoPushMessagingFCM
+@preconcurrency import OrttoPushMessaging
 import UIKit
 import UserNotifications
 
 let appPushProvider: PushProvider = .fcm
 
 @available(iOSApplicationExtension, unavailable)
-final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate, @preconcurrency MessagingDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?

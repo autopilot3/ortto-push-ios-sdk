@@ -7,17 +7,18 @@
 //
 
 import Foundation
-import OrttoInAppNotifications
-import OrttoSDKCore
+@preconcurrency import OrttoInAppNotifications
+@preconcurrency import OrttoSDKCore
+@preconcurrency import OrttoPushMessaging
 import SwiftUI
 import UIKit
 import UserNotifications
 
 // PushMessaging comes from the push package the running target links.
 #if PUSH_DEMO_FCM
-import OrttoPushMessagingFCM
+@preconcurrency import OrttoPushMessagingFCM
 #else
-import OrttoPushMessagingAPNS
+@preconcurrency import OrttoPushMessagingAPNS
 #endif
 
 extension PushViewModel {
@@ -25,39 +26,34 @@ extension PushViewModel {
 
     func runIdentifyAction() {
         report(.identify, .working, status: "Identifying signed-in account...", toast: "Identify started", "Calling Ortto.shared.identify.")
-        Task {
-            let didIdentify = await identify(email: signedInEmail, reason: "dashboard action")
-            report(
-                .identify,
-                didIdentify ? .success : .warning,
-                status: didIdentify ? "Identify complete; active session updated" : "Identify failed; check the SDK log",
-                toast: didIdentify ? "Identify complete" : "Identify failed",
-                didIdentify ? "The SDK session is active." : "Check Diagnostics for the SDK error."
+        identify(email: signedInEmail)
+    }
+
+    /// Surfaces an identify failure to the user. A server rejection (e.g. a 404 from
+    /// a wrong endpoint/app key) is shown as `.blocked` with the actual server reason
+    /// so a misconfiguration is visible, not silently swallowed; transient/timeout
+    /// problems stay a softer `.warning`.
+    func surfaceIdentifyFailure() {
+        let reason = lastIdentifyError ?? "Identify did not complete."
+        if reason.contains("Server error") {
+            setActionStatus(.identify, "Ortto rejected identify — check endpoint / app key", tone: .blocked)
+            showToast(
+                title: "Identify rejected — check config",
+                detail: "\(reason)\n\nVerify apiEndpoint and the app key in OrttoEnvironment.swift point at the same Ortto instance.",
+                tone: .blocked
             )
+        } else {
+            setActionStatus(.identify, "Identify did not complete", tone: .warning)
+            showToast(title: "Identify failed", detail: reason, tone: .warning)
         }
     }
 
-    /// Attaches the email to the SDK session unless an identical identify is
-    /// already active or in flight.
-    func identify(email rawEmail: String, reason: String) async -> Bool {
+    /// Identifies the signed-in contact. Calls the SDK directly —
+    /// `Ortto.shared.identify(_:completion:)` is the integration point; the
+    /// completion only drives UI state and surfaces failures.
+    func identify(email rawEmail: String) {
         let cleaned = normalizedEmail(rawEmail)
-        guard !cleaned.isEmpty else { return false }
-
-        if isIdentifying {
-            appendLog("identify skipped: already in flight", dedupeKey: "identify:in-flight")
-            return false
-        }
-
-        let cleanedLower = cleaned.lowercased()
-        if Ortto.shared.userStorage.user?.email?.lowercased() == cleanedLower,
-           lastIdentifiedEmail.lowercased() == cleanedLower,
-           sessionID != nil {
-            appendLog(
-                "identify de-duped for \(cleaned); session \(sessionID ?? "nil") is already active",
-                dedupeKey: "identify:dedupe:\(cleanedLower):\(sessionID ?? "nil")"
-            )
-            return true
-        }
+        guard !cleaned.isEmpty else { return }
 
         isIdentifying = true
         let user = UserIdentifier(
@@ -69,28 +65,29 @@ extension PushViewModel {
             lastName: nil
         )
 
-        appendLog("calling Ortto.shared.identify (\(reason)) for \(cleaned)")
-        let result = await sdkCallback(timeout: 12) { finish in
-            Ortto.shared.identify(user) { finish($0) }
+        appendLog("calling Ortto.shared.identify for \(cleaned)")
+        Ortto.shared.identify(user) { [weak self] result in
+            DispatchQueue.main.async { self?.handleIdentifyResult(result, email: cleaned) }
         }
+    }
+
+    /// Reacts to the SDK identify result: updates session state on success, and on
+    /// failure stores + surfaces the reason (e.g. a 404 from a misconfigured
+    /// endpoint/app key) so it isn't silently swallowed.
+    private func handleIdentifyResult(_ result: Result<String, Error>, email: String) {
         isIdentifying = false
-
-        let didIdentify: Bool
         switch result {
-        case .success(let newSessionID)?:
-            lastIdentifiedEmail = cleaned
-            appendLog("Ortto.shared.identify completed; session \(newSessionID)")
-            didIdentify = true
-        case .failure(let error)?:
+        case .success(let sessionID):
+            lastIdentifiedEmail = email
+            lastIdentifyError = nil
+            appendLog("Ortto.shared.identify completed; session \(sessionID)")
+            setActionStatus(.identify, "Identify complete; active session updated", tone: .success)
+        case .failure(let error):
+            lastIdentifyError = error.localizedDescription
             appendLog("Ortto.shared.identify failed: \(error.localizedDescription)")
-            didIdentify = false
-        case nil:
-            appendLog("identify timed out for \(cleaned)", dedupeKey: "identify:timeout:\(cleanedLower):\(Date().timeIntervalSince1970)")
-            didIdentify = false
+            surfaceIdentifyFailure()
         }
-
         refreshState()
-        return didIdentify
     }
 
     // MARK: - Login and logout
@@ -99,32 +96,12 @@ extension PushViewModel {
         let cleaned = normalizedEmail(rawEmail)
         guard !cleaned.isEmpty else { return }
         cancelPendingFirstOpenPushForLogin()
-        loginContinueTask?.cancel()
         email = cleaned
 
-        // Land on Home after 1.1s even if the SDK identify is still pending.
-        loginContinueTask = after(1.1) { [self] in
-            guard !isSignedIn else { return }
-            appendLog("login continued while SDK identify is still pending", dedupeKey: "login:continue:\(cleaned):\(Date().timeIntervalSince1970)")
-            completeLogin(email: cleaned)
-        }
-
-        Task {
-            let didIdentify = await identify(email: cleaned, reason: "login")
-            loginContinueTask?.cancel()
-            loginContinueTask = nil
-
-            if !isSignedIn {
-                completeLogin(email: cleaned)
-            }
-
-            if didIdentify {
-                setActionStatus(.identify, "Identify complete; active session updated", tone: .success)
-            } else {
-                setActionStatus(.identify, "Identify did not complete; check the SDK log", tone: .warning)
-                showToast(title: "Signed in locally", detail: "SDK identify did not complete yet. Check Log for details.", tone: .warning)
-            }
-        }
+        // Sign in locally right away, then identify in the background. Order vs.
+        // identify doesn't matter; a failure surfaces via handleIdentifyResult.
+        completeLogin(email: cleaned)
+        identify(email: cleaned)
     }
 
     func completeLogin(email cleaned: String) {
@@ -452,15 +429,20 @@ extension PushViewModel {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        // Wire keys match FetchWidgetsRequest: h = app key, s = session, tk = talk.
-        var body: [String: Any] = ["h": AppConfiguration.appKey, "tk": false, "ottlk": ""]
+        // Wire keys match FetchWidgetsRequest: h = data-source key, s = session, tk = talk.
+        // Widgets belong to the CAPTURE data source — using the push app key here
+        // queries the wrong data source and always returns zero widgets.
+        var body: [String: Any] = ["h": AppConfiguration.captureDataSourceKey, "tk": false, "ottlk": ""]
         if let session = Ortto.shared.userStorage.session { body["s"] = session }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        appendLog("widgets/get request body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "?")") // TEMP debug
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-            throw URLError(.badServerResponse, userInfo: [NSLocalizedDescriptionKey: "widgets/get returned HTTP \(code)"])
+        let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+        let rawBody = String(data: data, encoding: .utf8) ?? "(non-utf8, \(data.count) bytes)"
+        appendLog("widgets/get response HTTP \(code): \(rawBody)") // TEMP debug
+        guard (200..<300).contains(code) else {
+            throw URLError(.badServerResponse, userInfo: [NSLocalizedDescriptionKey: "widgets/get returned HTTP \(code): \(rawBody)"])
         }
 
         let decoded = try JSONDecoder().decode(WidgetListResponse.self, from: data)
@@ -546,14 +528,13 @@ extension PushViewModel {
         if !signedInEmail.isEmpty {
             email = signedInEmail
             appendLog("remembered account loaded: \(signedInEmail)")
-            Task {
-                let didIdentify = await identify(email: signedInEmail, reason: "app boot")
-                setActionStatus(
-                    .identify,
-                    didIdentify ? "Identify confirmed at boot" : "Boot identify did not complete; check Log",
-                    tone: didIdentify ? .success : .warning
-                )
-            }
+            identify(email: signedInEmail)
+
+            // Re-associate the stored push token with Ortto on every open. Fired
+            // independently of identify — order doesn't matter, and the SDK
+            // self-guards (no-ops) if no token has been registered yet.
+            appendLog("app boot: dispatching stored push token")
+            Ortto.shared.dispatchPushRequest()
         }
 
         refreshState(recordSnapshot: false)

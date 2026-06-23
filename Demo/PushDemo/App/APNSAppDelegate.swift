@@ -6,14 +6,15 @@
 //  AppDelegate callbacks; the token is forwarded straight to the SDK.
 //
 
-import OrttoPushMessagingAPNS
+@preconcurrency import OrttoPushMessagingAPNS
+@preconcurrency import OrttoPushMessaging
 import UIKit
 import UserNotifications
 
 let appPushProvider: PushProvider = .apns
 
 @available(iOSApplicationExtension, unavailable)
-final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate, @preconcurrency UNUserNotificationCenterDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?

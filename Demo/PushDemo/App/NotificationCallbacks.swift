@@ -11,10 +11,13 @@ import UserNotifications
 
 // PushMessaging comes from the push package the running target links.
 #if PUSH_DEMO_FCM
-import OrttoPushMessagingFCM
+@preconcurrency import OrttoPushMessagingFCM
 #else
-import OrttoPushMessagingAPNS
+@preconcurrency import OrttoPushMessagingAPNS
 #endif
+// PushMessaging itself lives in the base module (re-exported by the variants);
+// import it directly so @preconcurrency covers its not-yet-Sendable statics.
+@preconcurrency import OrttoPushMessaging
 
 @available(iOSApplicationExtension, unavailable)
 extension AppDelegate {

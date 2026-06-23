@@ -3,12 +3,12 @@
 //  Ortto iOS SDK Push Demo
 //
 
-import OrttoSDKCore
+@preconcurrency import OrttoSDKCore
 import SwiftUI
 import UIKit
 
 struct DeliveryView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
 
     @FocusState private var isFCMTokenFocused: Bool
     @FocusState private var isTrackedDeepLinkFocused: Bool
@@ -125,9 +125,10 @@ struct DeliveryView: View {
 
     private var inAppNotificationsSection: some View {
         Section {
+            // 1 — Fetch the account's popup widgets to choose from.
             DeliveryActionButton(
-                title: viewModel.isLoadingWidgets ? "Loading widgets" : "Load widgets",
-                detail: "Fetch this account's widgets so you can pick one to show instead of typing an ID.",
+                title: viewModel.isLoadingWidgets ? "Loading widgets…" : "Load widgets",
+                detail: "Fetch this account's popup widgets so you can tap one to show.",
                 tint: AppColor.lilac,
                 isLoading: viewModel.isLoadingWidgets,
                 status: viewModel.actionStatus(.loadWidgets, fallback: viewModel.currentLoadWidgetsStatus, tone: viewModel.showWidgetTone),
@@ -135,53 +136,87 @@ struct DeliveryView: View {
             )
             .disabled(viewModel.isLoadingWidgets)
 
+            // 2 — Fetched widgets: tap a row to present it.
             ForEach(viewModel.availableWidgets) { widget in
                 Button {
+                    dismissKeyboard()
                     viewModel.showWidget(id: widget.id)
                 } label: {
                     HStack(spacing: 12) {
+                        Image(systemName: "rectangle.portrait.on.rectangle.portrait.angled")
+                            .font(AppTypography.sans(.title3))
+                            .foregroundStyle(AppColor.lilac)
+                            .frame(width: 26)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(widget.id)
                                 .font(.system(.footnote, design: .monospaced))
                                 .foregroundStyle(AppColor.ink)
                                 .lineLimit(1)
                                 .truncationMode(.middle)
-                            Text(widget.type)
+                            Text(widget.type.capitalized)
                                 .font(AppTypography.sans(.caption2, weight: .bold))
-                                .foregroundStyle(AppColor.lilac)
+                                .foregroundStyle(.secondary)
                         }
                         Spacer(minLength: 0)
-                        Image(systemName: "arrow.up.forward.circle.fill")
-                            .font(AppTypography.sans(.title3, weight: .bold))
-                            .foregroundStyle(AppColor.lilac)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
 
-            TextField("Or show by widget ID", text: $viewModel.widgetID)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .font(.system(.footnote, design: .monospaced))
-                .focused($isWidgetIDFocused)
-                .submitLabel(.done)
-                .onSubmit(dismissKeyboard)
+            // 3 — Show by ID: an explicit input with its own Show action.
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 10) {
+                    TextField("Enter a widget ID", text: $viewModel.widgetID)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .font(.system(.footnote, design: .monospaced))
+                        .focused($isWidgetIDFocused)
+                        .submitLabel(.go)
+                        .onSubmit {
+                            dismissKeyboard()
+                            viewModel.runShowWidgetAction()
+                        }
+                    Button {
+                        dismissKeyboard()
+                        viewModel.runShowWidgetAction()
+                    } label: {
+                        Text("Show")
+                            .font(AppTypography.sans(.subheadline, weight: .bold))
+                            .frame(minWidth: 46)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(AppColor.lilac)
+                    .disabled(viewModel.widgetID.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
 
-            DeliveryActionButton(
-                title: "Show in-app widget",
-                detail: "Call OrttoCapture.shared.showWidget to present a specific in-app notification.",
-                tint: AppColor.lilac,
-                status: viewModel.actionStatus(.showWidget, fallback: viewModel.currentShowWidgetStatus, tone: viewModel.showWidgetTone),
-                action: viewModel.runShowWidgetAction
-            )
+                showWidgetStatusRow
+            }
+            .padding(.vertical, 2)
         } header: {
             Text("In-app notifications")
                 .font(AppTypography.sans(.caption, weight: .bold))
         } footer: {
-            Text("Screen views (sent on each tab) auto-trigger any widget configured for that screen. Load the list to pick a popup widget, or show one by ID. Set ORTTO_CAPTURE_JS_URL to actually present them.")
+            Text("Tap Load widgets, then tap a result to present it — or type a widget ID and tap Show. Screen views (sent on each tab) also auto-trigger any widget configured for that screen.")
                 .font(AppTypography.sans(.footnote))
         }
         .simultaneousGesture(TapGesture().onEnded { _ in dismissKeyboard() })
+    }
+
+    @ViewBuilder
+    private var showWidgetStatusRow: some View {
+        let status = viewModel.actionStatus(.showWidget, fallback: viewModel.currentShowWidgetStatus, tone: viewModel.showWidgetTone)
+        HStack(spacing: 5) {
+            Image(systemName: status.tone.symbol)
+                .font(.system(size: 10, weight: .bold))
+            Text(status.text)
+                .font(AppTypography.sans(.caption2, weight: .bold))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundStyle(status.tone.tint)
     }
 
     private var actionsSection: some View {

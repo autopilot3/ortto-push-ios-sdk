@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
 
     var body: some View {
         TabView(selection: $viewModel.selectedTab) {

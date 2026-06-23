@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
     @FocusState private var isEmailFocused: Bool
 
     var body: some View {

@@ -6,63 +6,70 @@
 //  The SDK flows themselves are in PushViewModel+Actions.swift.
 //
 
-import Combine
 import Foundation
-import OrttoSDKCore
+@preconcurrency import OrttoSDKCore
+@preconcurrency import OrttoPushMessaging
 import SwiftUI
 import UIKit
 
 // PushMessaging comes from the push package the running target links.
 #if PUSH_DEMO_FCM
-import OrttoPushMessagingFCM
+@preconcurrency import OrttoPushMessagingFCM
 #else
-import OrttoPushMessagingAPNS
+@preconcurrency import OrttoPushMessagingAPNS
 #endif
 
 @MainActor
-final class PushViewModel: ObservableObject {
-    private let defaults: UserDefaults
+@Observable
+final class PushViewModel {
+    @ObservationIgnored private let defaults: UserDefaults
 
-    @Published var signedInEmail: String {
+    var signedInEmail: String {
         didSet { defaults.set(signedInEmail, forKey: DefaultsKey.signedInEmail) }
     }
-    @Published var hasAskedFirstOpenPush: Bool {
+    var hasAskedFirstOpenPush: Bool {
         didSet { defaults.set(hasAskedFirstOpenPush, forKey: DefaultsKey.hasAskedFirstOpenPush) }
     }
-    @Published var lastIdentifiedEmail: String {
+    var lastIdentifiedEmail: String {
         didSet { defaults.set(lastIdentifiedEmail, forKey: DefaultsKey.lastIdentifiedEmail) }
     }
 
-    @Published var email: String
-    @Published var selectedTab: AppTab = .home
-    @Published var sessionID: String?
-    @Published var sdkToken: String?
-    @Published var sdkTokenType: String?
-    @Published var permissionStatus = "unknown"
-    @Published var remoteRegistrationStatus = "unknown"
-    @Published var apnsToken = DiagnosticsState.apnsDeviceTokenHex
-    @Published var fcmToken = ""
-    @Published var trackedDeepLink = ""
-    @Published var widgetID = ""
-    @Published var availableWidgets: [DemoWidget] = []
-    @Published var isLoadingWidgets = false
-    @Published var logEntries: [LogEntry] = []
-    @Published var isIdentifying = false
-    @Published var isLoggingOut = false
-    @Published var isRequestingPush = false
-    @Published var isTrackingLinkClick = false
-    @Published var isUsingRememberedLogin = true
-    @Published var isShowingTechnicalDetails = false
-    @Published var actionStatuses: [SDKActionID: SDKActionStatus] = [:]
-    @Published var actionToast: SDKToast?
+    var email: String
+    var selectedTab: AppTab = .home
+    /// Set when a notification's default (body-tap) action arrives, so the UI can
+    /// present an in-app confirmation modal before navigating. Nil when dismissed.
+    var deepLinkPrompt: DeepLinkPrompt?
+    /// The reason the most recent identify failed (e.g. the server's 404 + body),
+    /// surfaced to the user so a misconfigured endpoint/app key is visible, not silent.
+    var lastIdentifyError: String?
+    var sessionID: String?
+    var sdkToken: String?
+    var sdkTokenType: String?
+    var permissionStatus = "unknown"
+    var remoteRegistrationStatus = "unknown"
+    var apnsToken = DiagnosticsState.apnsDeviceTokenHex
+    var fcmToken = ""
+    var trackedDeepLink = ""
+    var widgetID = ""
+    var availableWidgets: [DemoWidget] = []
+    var isLoadingWidgets = false
+    var logEntries: [LogEntry] = []
+    var isIdentifying = false
+    var isLoggingOut = false
+    var isRequestingPush = false
+    var isTrackingLinkClick = false
+    var isUsingRememberedLogin = true
+    var isShowingTechnicalDetails = false
+    var actionStatuses: [SDKActionID: SDKActionStatus] = [:]
+    var actionToast: SDKToast?
 
-    var logDedupeKeys: Set<String> = []
-    var sessionSnapshotKeys: Set<String> = []
-    var hasPreparedInitialState = false
-    var hasStartedFCMBootstrap = false
-    var firstOpenPushTask: Task<Void, Never>?
-    var loginContinueTask: Task<Void, Never>?
-    var toastDismissTask: Task<Void, Never>?
+    @ObservationIgnored var logDedupeKeys: Set<String> = []
+    @ObservationIgnored var sessionSnapshotKeys: Set<String> = []
+    @ObservationIgnored var hasPreparedInitialState = false
+    @ObservationIgnored var hasStartedFCMBootstrap = false
+    @ObservationIgnored var firstOpenPushTask: Task<Void, Never>?
+    @ObservationIgnored var loginContinueTask: Task<Void, Never>?
+    @ObservationIgnored var toastDismissTask: Task<Void, Never>?
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -125,7 +132,7 @@ final class PushViewModel: ObservableObject {
     /// Bridges a callback-style SDK API into async/await, optionally racing a
     /// timeout. Returns nil when the timeout fires first; a late SDK callback
     /// is then ignored.
-    func sdkCallback<T>(
+    func sdkCallback<T: Sendable>(
         timeout: TimeInterval? = nil,
         _ start: (@escaping (T) -> Void) -> Void
     ) async -> T? {
@@ -190,6 +197,55 @@ final class PushViewModel: ObservableObject {
         for entry in appLog.recentEntries {
             appendRawLog(entry)
         }
+    }
+
+    // MARK: - Deep links (notification tap / action routing)
+
+    /// Routes a deeplink opened by the SDK after a notification tap or action
+    /// button. The SDK calls `UIApplication.shared.open(_:)` with the action's
+    /// link; iOS hands the app's own scheme (`ortto-demo-fcm`/`-apns`) back here
+    /// via `RootView.onOpenURL`. The URL host selects the screen
+    /// (e.g. `ortto-demo-fcm://delivery`); any `tracking_url` query is ignored —
+    /// the SDK already tracked the click on its way through.
+    func handleDeepLink(_ url: URL) {
+        appendLog("deeplink opened: \(url.absoluteString)")
+
+        let target = (url.host ?? url.pathComponents.first { $0 != "/" } ?? "").lowercased()
+        switch target {
+        case "confirm":
+            // Default (body-tap) action: confirm in-app before doing anything.
+            deepLinkPrompt = DeepLinkPrompt(link: url.absoluteString)
+        case "delivery", "campaign", "push":
+            selectedTab = .delivery
+        case "log", "logs", "diagnostics":
+            selectedTab = .diagnostics
+        case "home", "":
+            selectedTab = .home
+        default:
+            appendLog("deeplink host '\(target)' unrecognized — no screen change")
+        }
+
+        if !isSignedIn {
+            appendLog("deeplink received while signed out — screen applies after sign-in")
+        }
+    }
+
+    /// Confirms the pending default-action deeplink: dismiss the modal and
+    /// navigate to the Delivery screen.
+    func confirmDeepLinkPrompt() {
+        if let link = deepLinkPrompt?.link {
+            appendLog("deeplink confirmed: \(link) — opening Delivery")
+        }
+        deepLinkPrompt = nil
+        selectedTab = .delivery
+    }
+
+    /// Dismisses the pending default-action deeplink without navigating.
+    func dismissDeepLinkPrompt() {
+        if let link = deepLinkPrompt?.link {
+            appendLog("deeplink dismissed: \(link)")
+        }
+        deepLinkPrompt = nil
     }
 
     func recordSessionSnapshot() {

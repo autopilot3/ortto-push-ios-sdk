@@ -2,15 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>OrttoAppConfiguration</key>
-		<dict>
-			<key>AppKey</key>
-			<string>$(ORTTO_FCM_APP_KEY)</string>
-			<key>Endpoint</key>
-			<string>$(ORTTO_API_ENDPOINT)</string>
-			<key>CaptureJsURL</key>
-			<string>$(ORTTO_CAPTURE_JS_URL)</string>
-		</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

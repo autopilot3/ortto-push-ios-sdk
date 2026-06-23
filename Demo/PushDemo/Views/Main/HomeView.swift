@@ -3,11 +3,11 @@
 //  Ortto iOS SDK Push Demo
 //
 
-import OrttoSDKCore
+@preconcurrency import OrttoSDKCore
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
 
     var body: some View {
         List {

@@ -32,6 +32,12 @@ extension PushProvider {
     }
 }
 
+/// A pending notification default-action deeplink awaiting in-app confirmation.
+struct DeepLinkPrompt: Identifiable, Equatable {
+    let id = UUID()
+    let link: String
+}
+
 enum AppTab: Hashable {
     case home
     case delivery

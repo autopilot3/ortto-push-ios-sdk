@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct TechnicalDetailsView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
 
     var body: some View {
         List {

@@ -5,11 +5,11 @@
 //  The Log tab: a terminal-style console of SDK and demo log entries.
 //
 
-import OrttoSDKCore
+@preconcurrency import OrttoSDKCore
 import SwiftUI
 
 struct LogView: View {
-    @ObservedObject var viewModel: PushViewModel
+    @Bindable var viewModel: PushViewModel
 
     var body: some View {
         MatrixLogConsole(entries: viewModel.logEntries)

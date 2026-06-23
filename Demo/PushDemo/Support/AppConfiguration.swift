@@ -2,27 +2,40 @@
 //  AppConfiguration.swift
 //  Ortto iOS SDK Push Demo
 //
+//  Reads Ortto configuration from OrttoEnvironment (a plain Swift file copied
+//  from OrttoEnvironment.sample.swift). The URL scheme and Firebase plist still
+//  come from the bundle.
+//
 
 import Foundation
 
 enum AppConfiguration {
-    private static let plistKey = "OrttoAppConfiguration"
     static let firebaseServiceInfoName = "GoogleService-Info"
 
-    static var appKey: String { configurationString("AppKey") }
-    static var endpoint: String { configurationString("Endpoint") }
-    static var captureJsURL: String { configurationString("CaptureJsURL") }
+    static var appKey: String {
+        switch appPushProvider {
+        case .apns: return OrttoEnvironment.apnsAppKey
+        case .fcm: return OrttoEnvironment.fcmAppKey
+        }
+    }
+    static var endpoint: String { OrttoEnvironment.apiEndpoint }
+    static var captureJsURL: String { OrttoEnvironment.captureJsURL }
+    /// Capture (in-app notifications) uses its own data-source key, separate from the push app key.
+    static var captureDataSourceKey: String { OrttoEnvironment.captureDataSourceKey }
     static var hasConfiguredAppKey: Bool { isConfigured(appKey) }
     static var hasConfiguredEndpoint: Bool { isConfigured(endpoint) }
     static var hasConfiguredCaptureJsURL: Bool { isConfigured(captureJsURL) }
+    static var hasConfiguredCaptureDataSourceKey: Bool { isConfigured(captureDataSourceKey) }
     static var canInitializeSDK: Bool { hasConfiguredAppKey && hasConfiguredEndpoint }
+    /// Capture needs BOTH its own data-source key and the capture JS URL.
+    static var canInitializeCapture: Bool { hasConfiguredCaptureDataSourceKey && hasConfiguredCaptureJsURL }
 
     static var orttoConfigurationFailureDetail: String {
         if !hasConfiguredAppKey {
-            return "No Ortto app key. Copy PushDemo/Configurations/Local.xcconfig.example to Local.xcconfig, set ORTTO_\(appPushProvider.rawValue.uppercased())_APP_KEY, then rebuild the \(appPushProvider.targetTitle) target."
+            return "No Ortto app key. Copy PushDemo/Support/OrttoEnvironment.sample.swift to OrttoEnvironment.swift, set \(appPushProvider.rawValue)AppKey, then rebuild the \(appPushProvider.targetTitle) target."
         }
 
-        return "Set ORTTO_API_ENDPOINT in PushDemo/Configurations/Local.xcconfig or BuildDefaults.xcconfig, then rebuild the app target."
+        return "Set apiEndpoint in PushDemo/Support/OrttoEnvironment.swift, then rebuild the app target."
     }
 
     static var deepLinkScheme: String {
@@ -44,18 +57,10 @@ enum AppConfiguration {
         return urlTypes.flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
     }
 
-    private static var plist: [String: Any] {
-        Bundle.main.object(forInfoDictionaryKey: plistKey) as? [String: Any] ?? [:]
-    }
-
-    private static func configurationString(_ key: String) -> String {
-        plist[key] as? String ?? ""
-    }
-
     private static func isConfigured(_ value: String) -> Bool {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, !trimmed.hasPrefix("$(") else { return false }
+        guard !trimmed.isEmpty else { return false }
         let lowered = trimmed.lowercased()
-        return !lowered.contains("paste_") && !lowered.contains("replace-with")
+        return !lowered.contains("paste_") && !lowered.contains("replace-with") && !lowered.contains("your-")
     }
 }

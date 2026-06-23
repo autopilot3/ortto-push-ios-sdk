@@ -9,7 +9,10 @@
 //
 
 import UserNotifications
-import OrttoPushMessaging
+// MessagingService.shared is a mutable static the SDK does not yet annotate for
+// Swift 6 concurrency. @preconcurrency keeps this Swift 6 target building until
+// the SDK adopts strict concurrency.
+@preconcurrency import OrttoPushMessaging
 
 final class NotificationService: UNNotificationServiceExtension {
     var contentHandler: ((UNNotificationContent) -> Void)?

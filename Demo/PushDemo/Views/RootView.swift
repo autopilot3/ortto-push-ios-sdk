@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct RootView: View {
-    @StateObject private var viewModel = PushViewModel()
+    @State private var viewModel = PushViewModel()
 
     var body: some View {
         ZStack {
@@ -54,6 +54,26 @@ struct RootView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .logEntry)) { note in
             viewModel.receiveLogEntry(note)
+        }
+        // Ortto SDK: notification tap/action deeplinks land here. The SDK opens
+        // the action link with UIApplication.shared.open(_:); iOS routes the
+        // app's own URL scheme (ortto-demo-fcm/-apns) back into onOpenURL.
+        .onOpenURL { url in
+            viewModel.handleDeepLink(url)
+        }
+        // Default (body-tap) action confirmation modal.
+        .alert(
+            "Open from notification?",
+            isPresented: Binding(
+                get: { viewModel.deepLinkPrompt != nil },
+                set: { if !$0 { viewModel.dismissDeepLinkPrompt() } }
+            ),
+            presenting: viewModel.deepLinkPrompt
+        ) { _ in
+            Button("Open Delivery") { viewModel.confirmDeepLinkPrompt() }
+            Button("Cancel", role: .cancel) { viewModel.dismissDeepLinkPrompt() }
+        } message: { prompt in
+            Text("You tapped a push notification.\n\(prompt.link)")
         }
     }
 

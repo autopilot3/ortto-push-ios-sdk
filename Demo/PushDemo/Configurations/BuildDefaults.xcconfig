@@ -1,11 +1,5 @@
-// Build-time defaults for the Ortto demo. All Ortto configuration — endpoint,
-// app keys, and the in-app-notifications capture JS URL — is set in
-// Local.xcconfig (copy it from Local.xcconfig.example). These are declared
-// empty here only so the app still builds, and shows its "configuration
-// missing" warning, before Local.xcconfig is filled in.
-ORTTO_API_ENDPOINT =
-ORTTO_APNS_APP_KEY =
-ORTTO_FCM_APP_KEY =
-ORTTO_CAPTURE_JS_URL =
-
-#include? "Local.xcconfig"
+// Shared build settings for the Ortto demo.
+//
+// Ortto configuration (endpoint, app keys, capture JS URL) is no longer set here
+// — it lives in Swift: PushDemo/Support/OrttoEnvironment.swift, copied from
+// OrttoEnvironment.sample.swift. See the README.

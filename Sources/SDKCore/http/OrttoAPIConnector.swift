@@ -51,6 +51,7 @@ public final class OrttoAPIConnector {
     /// - Passes all other transport errors through as `OrttoAPIError.request`.
     public func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
         let urlRequest = try buildURLRequest(for: request)
+        Self.debugLogRequest(urlRequest) // TEMP(testing): remove before release
         do {
             let response = try await http.send(urlRequest).validated()
             return try request.decodeResponse(response)
@@ -70,6 +71,7 @@ public final class OrttoAPIConnector {
     /// derived from `baseURL + endpoint`.
     public func sendGet(_ url: URL) async throws {
         let urlRequest = OrttoHTTPRequest.get(url: url)
+        Self.debugLogRequest(urlRequest) // TEMP(testing): remove before release
         do {
             _ = try await http.send(urlRequest).validated()
         } catch let error as OrttoHTTPError {
@@ -78,6 +80,17 @@ public final class OrttoAPIConnector {
     }
 
     // MARK: - Private
+
+    /// TEMP(testing): logs the full outgoing request (method, URL, headers, body)
+    /// so failures like a 404 can be matched against exactly what was sent.
+    /// Remove before release — this can log identity query params and request bodies.
+    private static func debugLogRequest(_ request: URLRequest) {
+        let method = request.httpMethod ?? "?"
+        let url = request.url?.absoluteString ?? "(no url)"
+        let headers = request.allHTTPHeaderFields ?? [:]
+        let body = request.httpBody.flatMap { String(data: $0, encoding: .utf8) } ?? "(none)"
+        Ortto.log().info("OrttoAPIConnector@request → \(method) \(url) headers=\(headers) body=\(body)")
+    }
 
     private func buildURLRequest<R: OrttoAPIRequest>(for request: R) throws -> URLRequest {
         let resolvedURL: URL

@@ -54,10 +54,17 @@ extension PushViewModel {
         !AppConfiguration.canInitializeSDK
     }
 
+    /// Short label for whichever Ortto value is missing. App key takes priority,
+    /// matching `orttoConfigurationFailureDetail`, so the endpoint is only named
+    /// once a key is present.
+    var orttoConfigurationMissingLabel: String {
+        AppConfiguration.hasConfiguredAppKey ? "Ortto endpoint missing" : "Ortto app key missing"
+    }
+
     var orttoConfigurationFailure: SDKConfigurationIssue? {
         guard isOrttoConfigurationMissing else { return nil }
         return SDKConfigurationIssue(
-            title: "Ortto app key missing",
+            title: orttoConfigurationMissingLabel,
             detail: AppConfiguration.orttoConfigurationFailureDetail,
             severity: .critical
         )
@@ -117,7 +124,7 @@ extension PushViewModel {
 
     var currentRegisterStatus: String {
         if isOrttoConfigurationMissing {
-            return "Ortto app key missing"
+            return orttoConfigurationMissingLabel
         }
 
         switch activeProvider {
@@ -142,7 +149,7 @@ extension PushViewModel {
 
     var pushTokenPlaceholder: String {
         if isOrttoConfigurationMissing {
-            return "Ortto app key missing"
+            return orttoConfigurationMissingLabel
         }
         if isFirebaseConfigurationMissing {
             return "Firebase configuration failed: \(AppConfiguration.firebaseServiceInfoName).plist missing"
