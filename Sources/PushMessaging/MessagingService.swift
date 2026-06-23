@@ -98,8 +98,9 @@ public class MessagingService: MessagingServiceProtocol {
         }
 
         let http = httpClientFactory()
-        let content = buildContent(from: pushPayload, categoryID: request.content.categoryIdentifier)
-        let category = buildCategory(from: pushPayload, categoryID: request.content.categoryIdentifier)
+        let categoryID = Self.categoryIdentifier(for: pushPayload, requested: request.content.categoryIdentifier)
+        let content = buildContent(from: pushPayload, categoryID: categoryID)
+        let category = buildCategory(from: pushPayload, categoryID: categoryID)
         let delivery = NotificationDelivery(content: content, contentHandler: contentHandler)
         addDelivery(delivery)
 
@@ -213,18 +214,47 @@ public class MessagingService: MessagingServiceProtocol {
         }
     }
 
-    /// Registers a notification category with the system notification center.
+    // iOS shows a notification's action buttons from a category registered by name, not from
+    // the push. Ortto's actions vary per push, so each push gets its own unique category id
+    // (and we prune old ones) — otherwise every notification reuses the first push's buttons.
+    private static let dynamicCategoryPrefix = "ORTTO_ACTIONS."
+    private static let maxDynamicCategories = 64
+
+    /// A unique category id per push, so its buttons match its own actions.
+    static func categoryIdentifier(for payload: PushNotificationPayload, requested: String) -> String {
+        guard !payload.actions.isEmpty else { return requested }
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        return "\(dynamicCategoryPrefix)\(timestamp).\(payload.notificationID)"
+    }
+
+    /// Adds `category` (replacing any with the same id) and keeps only the newest categories.
+    static func categories(
+        byAdding category: UNNotificationCategory,
+        to existing: Set<UNNotificationCategory>
+    ) -> Set<UNNotificationCategory> {
+        var all = existing.filter { $0.identifier != category.identifier }
+        all.insert(category)
+
+        let ours = all.filter { $0.identifier.hasPrefix(dynamicCategoryPrefix) }
+        if ours.count > maxDynamicCategories {
+            let oldestFirst = ours.sorted { timestamp($0.identifier) < timestamp($1.identifier) }
+            oldestFirst.prefix(ours.count - maxDynamicCategories).forEach { all.remove($0) }
+        }
+        return all
+    }
+
+    private static func timestamp(_ categoryID: String) -> Int {
+        Int(categoryID.dropFirst(dynamicCategoryPrefix.count).prefix { $0 != "." }) ?? 0
+    }
+
     private static func registerCategoryWithNotificationCenter(
         _ category: UNNotificationCategory
     ) async -> Bool {
         await withCheckedContinuation { continuation in
-            UNUserNotificationCenter.current().getNotificationCategories { existing in
-                var all = existing
-                all.insert(category)
-                UNUserNotificationCenter.current().setNotificationCategories(all)
-                UNUserNotificationCenter.current().getNotificationCategories { _ in
-                    continuation.resume(returning: true)
-                }
+            let center = UNUserNotificationCenter.current()
+            center.getNotificationCategories { existing in
+                center.setNotificationCategories(categories(byAdding: category, to: existing))
+                center.getNotificationCategories { _ in continuation.resume(returning: true) }
             }
         }
     }
