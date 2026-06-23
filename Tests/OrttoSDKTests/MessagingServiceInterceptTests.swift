@@ -76,22 +76,79 @@ import XCTest
             let content = try XCTUnwrap(deliveredContent)
             XCTAssertEqual(content.title, "New release")
             XCTAssertEqual(content.body, "The notification service extension rewrote this body.")
-            XCTAssertEqual(content.categoryIdentifier, "ortto-push-category")
             XCTAssertEqual(content.sound, .default)
             XCTAssertEqual(content.attachments.count, 1)
             XCTAssertEqual(content.attachments.first?.identifier, "image")
 
-            let userInfo = try XCTUnwrap(content.userInfo as? [String: String])
-            XCTAssertEqual(userInfo["open_release"], "ortto://release")
-            XCTAssertEqual(userInfo["view_docs"], "ortto://docs")
-            XCTAssertEqual(userInfo[UNNotificationDefaultActionIdentifier], "ortto://primary")
-
+            // The category id is unique per notification (ORTTO_ACTIONS.<ts>.<notificationID>),
+            // not the shared id from the payload, and the content points at it.
             let category = try XCTUnwrap(categoryRecorder.latestCategory)
-            XCTAssertEqual(category.identifier, "ortto-push-category")
-            XCTAssertEqual(category.actions.map(\.identifier), ["open_release", "view_docs"])
+            XCTAssertTrue(category.identifier.hasPrefix("ORTTO_ACTIONS."))
+            XCTAssertTrue(category.identifier.hasSuffix(".message-123"))
+            XCTAssertEqual(content.categoryIdentifier, category.identifier)
+
+            // Buttons keep their titles + order, but identifiers are per-index (not the
+            // repeating `action` field), so duplicate action types can't collide.
+            XCTAssertEqual(category.actions.map(\.title), ["Open", "Docs"])
+            XCTAssertEqual(
+                category.actions.map(\.identifier),
+                ["\(category.identifier).0", "\(category.identifier).1"]
+            )
+
+            // Each button's link is stored under its own identifier; default action too.
+            let userInfo = try XCTUnwrap(content.userInfo as? [String: String])
+            XCTAssertEqual(userInfo["\(category.identifier).0"], "ortto://release")
+            XCTAssertEqual(userInfo["\(category.identifier).1"], "ortto://docs")
+            XCTAssertEqual(userInfo[UNNotificationDefaultActionIdentifier], "ortto://primary")
 
             XCTAssertEqual(httpClient.downloadRequests.count, 1)
             XCTAssertEqual(httpClient.sentRequests.count, 1)
+        }
+
+        // MARK: - Duplicate action types (real prod shape)
+
+        /// Ortto sends the action TYPE in `action` (e.g. "page"), repeated across buttons.
+        /// The SDK must give each button a distinct identifier and keep every link — using
+        /// `action` as the id makes both buttons collide onto the last link.
+        func testDuplicateActionTypesStayDistinct() throws {
+            let httpClient = MockOrttoHTTPClient()
+            let categoryRecorder = NotificationCategoryRecorder()
+            let service = MessagingService(
+                httpClientFactory: { httpClient },
+                categoryRegistrar: { category in await categoryRecorder.register(category) }
+            )
+
+            let content = UNMutableNotificationContent()
+            content.categoryIdentifier = "ORTTO_ACTIONS"
+            content.userInfo = [
+                "ortto_notification_id": "dup-1",
+                "title": "t",
+                "body": "b",
+                "actions": """
+                    [
+                        {"action":"page","title":"One","link":"ortto://one"},
+                        {"action":"page","title":"Two","link":"ortto://two"}
+                    ]
+                    """
+            ]
+            let request = UNNotificationRequest(identifier: "dup-req", content: content, trigger: nil)
+
+            let delivered = expectation(description: "delivered")
+            var deliveredContent: UNNotificationContent?
+            XCTAssertTrue(service.didReceive(request) { content in
+                deliveredContent = content
+                delivered.fulfill()
+            })
+            wait(for: [delivered], timeout: 5)
+
+            let category = try XCTUnwrap(categoryRecorder.latestCategory)
+            let ids = category.actions.map(\.identifier)
+            XCTAssertEqual(ids.count, 2)
+            XCTAssertEqual(Set(ids).count, 2, "action identifiers must be unique despite identical `action` types")
+
+            // Both links survive — the bug overwrote the first under the shared "page" key.
+            let userInfo = try XCTUnwrap(deliveredContent?.userInfo as? [String: String])
+            XCTAssertEqual(category.actions.map { userInfo[$0.identifier] }, ["ortto://one", "ortto://two"])
         }
 
         // MARK: - Non-Ortto payload

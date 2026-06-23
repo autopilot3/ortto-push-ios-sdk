@@ -98,8 +98,9 @@ public class MessagingService: MessagingServiceProtocol {
         }
 
         let http = httpClientFactory()
-        let content = buildContent(from: pushPayload, categoryID: request.content.categoryIdentifier)
-        let category = buildCategory(from: pushPayload, categoryID: request.content.categoryIdentifier)
+        let categoryID = Self.categoryIdentifier(for: pushPayload, requested: request.content.categoryIdentifier)
+        let content = buildContent(from: pushPayload, categoryID: categoryID)
+        let category = buildCategory(from: pushPayload, categoryID: categoryID)
         let delivery = NotificationDelivery(content: content, contentHandler: contentHandler)
         addDelivery(delivery)
 
@@ -162,9 +163,11 @@ public class MessagingService: MessagingServiceProtocol {
     ) -> UNMutableNotificationContent {
         var actionLinks: [String: String] = [:]
 
-        for action in payload.actions {
-            guard let identifier = action.action else { continue }
-            actionLinks[identifier] = action.link
+        // Index, not action.action — the backend sends the action TYPE (e.g. "page"),
+        // which repeats across buttons; using it as the id collides. Must match the
+        // UNNotificationAction id built in buildCategory so a tap resolves the right link.
+        for (index, action) in payload.actions.enumerated() {
+            actionLinks["\(categoryID).\(index)"] = action.link
         }
 
         if let primaryAction = payload.primaryAction {
@@ -184,10 +187,9 @@ public class MessagingService: MessagingServiceProtocol {
         from payload: PushNotificationPayload,
         categoryID: String
     ) -> UNNotificationCategory {
-        let actions: [UNNotificationAction] = payload.actions.compactMap { item in
-            guard let identifier = item.action else { return nil }
-            return UNNotificationAction(
-                identifier: identifier,
+        let actions: [UNNotificationAction] = payload.actions.enumerated().map { index, item in
+            UNNotificationAction(
+                identifier: "\(categoryID).\(index)",
                 title: item.title ?? "",
                 options: [.foreground]
             )
@@ -213,18 +215,43 @@ public class MessagingService: MessagingServiceProtocol {
         }
     }
 
-    /// Registers a notification category with the system notification center.
+    // Each push gets its own category id so a new notification can't reuse
+    // the previous push's item IDs.
+    private static let dynamicCategoryPrefix = "ORTTO_ACTIONS."
+    private static let maxDynamicCategories = 64
+
+    /// A unique category id for this push, so its buttons always match its own actions.
+    /// The send time is zero-padded so sorting the ids alphabetically is also oldest-first.
+    static func categoryIdentifier(for payload: PushNotificationPayload, requested: String) -> String {
+        guard !payload.actions.isEmpty else { return requested }
+        let sendTime = String(format: "%015ld", Int(Date().timeIntervalSince1970 * 1000))
+        return "\(dynamicCategoryPrefix)\(sendTime).\(payload.notificationID)"
+    }
+
+    /// Adds `category`, replacing any with the same id, then keeps only the newest
+    /// `maxDynamicCategories` ids this SDK created (oldest dropped first).
+    static func categories(
+        byAdding category: UNNotificationCategory,
+        to existing: Set<UNNotificationCategory>
+    ) -> Set<UNNotificationCategory> {
+        var kept = existing.filter { $0.identifier != category.identifier }
+        kept.insert(category)
+
+        let oursOldestFirst = kept.map(\.identifier)
+            .filter { $0.hasPrefix(dynamicCategoryPrefix) }
+            .sorted()
+        let stale = Set(oursOldestFirst.dropLast(maxDynamicCategories))
+        return kept.filter { !stale.contains($0.identifier) }
+    }
+
     private static func registerCategoryWithNotificationCenter(
         _ category: UNNotificationCategory
     ) async -> Bool {
         await withCheckedContinuation { continuation in
-            UNUserNotificationCenter.current().getNotificationCategories { existing in
-                var all = existing
-                all.insert(category)
-                UNUserNotificationCenter.current().setNotificationCategories(all)
-                UNUserNotificationCenter.current().getNotificationCategories { _ in
-                    continuation.resume(returning: true)
-                }
+            let center = UNUserNotificationCenter.current()
+            center.getNotificationCategories { existing in
+                center.setNotificationCategories(categories(byAdding: category, to: existing))
+                center.getNotificationCategories { _ in continuation.resume(returning: true) }
             }
         }
     }
