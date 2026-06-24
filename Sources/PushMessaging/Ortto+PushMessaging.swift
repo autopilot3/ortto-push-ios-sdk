@@ -33,10 +33,12 @@ public extension Ortto {
      */
     internal func updatePushToken(token: PushToken, force: Bool = false) {
         if force {
-            // Re-send even if the token is unchanged — needed when the session or
-            // permission changed after the token was first cached.
+            // Send straight to the API, skipping the token setter's unchanged-token
+            // guard. Needed when the token itself hasn't changed but the session or
+            // permission has (e.g. identify completed after the token was cached).
             PushMessaging.shared.sendPushRegistration(token)
         } else {
+            // Normal path: the setter dedupes against the cached token before sending.
             PushMessaging.shared.token = token
         }
     }

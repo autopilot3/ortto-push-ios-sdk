@@ -69,6 +69,11 @@ public class PushMessaging {
                 return
             }
 
+            // Dedup guard. The token is only ever cached after a successful send (see
+            // sendPushRegistration), so "already cached" means "already registered" —
+            // safe to skip. A failed send leaves the cache empty, so the next attempt
+            // falls through here and sends. To re-send a still-current token (e.g. the
+            // session changed), use dispatchPushRequest(), which bypasses this guard.
             if let existingToken = Ortto.shared.preferences.getObject(key: "token", type: PushToken.self),
                existingToken == newToken {
                 Ortto.log().info("PushMessaging@token.set unchanged token; skipping (call dispatchPushRequest() to force a re-send)")
@@ -79,24 +84,26 @@ public class PushMessaging {
         }
     }
 
-    /// Sends the token + permission to Ortto. Bypasses the unchanged-token skip in the
-    /// setter, so it also re-sends when the session/permission changed after the token
-    /// was first cached (e.g. identify completed after the token arrived).
+    /// Sends the token + permission to Ortto and caches the token only on success.
+    /// Skips the setter's unchanged-token guard, so it also re-sends a still-current
+    /// token when the session/permission changed (e.g. identify completed after the
+    /// token arrived).
     func sendPushRegistration(_ newToken: PushToken) {
         registerDeviceToken(
             sessionID: Ortto.shared.userStorage.session,
             token: newToken
         ) { (response: PushRegistrationResponse?) in
-            guard let sessionID = response?.sessionId else {
-                // Send failed — don't cache the token, so the next dispatch retries
-                // instead of being skipped by the unchanged-token check.
+            // A nil response means the request failed — the API layer collapses any
+            // error to nil (ApiManager.sendPushPermission). Don't cache on failure, so
+            // the next attempt isn't skipped by the setter's unchanged-token guard.
+            guard let response else {
                 Ortto.log().info("PushMessaging@token.set send failed; not caching token (will retry)")
                 return
             }
 
-            // Cache only after a successful send.
+            // Succeeded: cache the token now and adopt the returned session.
             Ortto.shared.preferences.setObject(object: newToken, key: "token")
-            Ortto.shared.setSessionID(sessionID)
+            Ortto.shared.setSessionID(response.sessionId)
         }
     }
 
