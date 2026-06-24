@@ -92,6 +92,9 @@ public class MessagingService: MessagingServiceProtocol {
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) -> Bool {
+        // TEMP(testing): capture the raw incoming payload to see exactly what the backend
+        // sends — especially whether each action carries an `action` identifier.
+        Ortto.log().info("MessagingService@didReceive.raw actions=\(request.content.userInfo["actions"] ?? "nil") primary_action=\(request.content.userInfo["primary_action"] ?? "nil") keys=\(Array(request.content.userInfo.keys))")
         guard let pushPayload = PushNotificationPayload.parse(request.content) else {
             Ortto.log().warn("MessagingService@didReceive.content.parse-fail")
             return false
@@ -163,9 +166,11 @@ public class MessagingService: MessagingServiceProtocol {
     ) -> UNMutableNotificationContent {
         var actionLinks: [String: String] = [:]
 
-        for action in payload.actions {
-            guard let identifier = action.action else { continue }
-            actionLinks[identifier] = action.link
+        // Index, not action.action — the backend sends the action TYPE (e.g. "page"),
+        // which repeats across buttons; using it as the id collides. Must match the
+        // UNNotificationAction id built in buildCategory so a tap resolves the right link.
+        for (index, action) in payload.actions.enumerated() {
+            actionLinks["\(categoryID).\(index)"] = action.link
         }
 
         if let primaryAction = payload.primaryAction {
@@ -185,10 +190,9 @@ public class MessagingService: MessagingServiceProtocol {
         from payload: PushNotificationPayload,
         categoryID: String
     ) -> UNNotificationCategory {
-        let actions: [UNNotificationAction] = payload.actions.compactMap { item in
-            guard let identifier = item.action else { return nil }
-            return UNNotificationAction(
-                identifier: identifier,
+        let actions: [UNNotificationAction] = payload.actions.enumerated().map { index, item in
+            UNNotificationAction(
+                identifier: "\(categoryID).\(index)",
                 title: item.title ?? "",
                 options: [.foreground]
             )
@@ -214,37 +218,33 @@ public class MessagingService: MessagingServiceProtocol {
         }
     }
 
-    // iOS shows a notification's action buttons from a category registered by name, not from
-    // the push. Ortto's actions vary per push, so each push gets its own unique category id
-    // (and we prune old ones) — otherwise every notification reuses the first push's buttons.
+    // Each push gets its own category id to avoid otherwise new notification reusing
+    // the previous push item ID's
     private static let dynamicCategoryPrefix = "ORTTO_ACTIONS."
     private static let maxDynamicCategories = 64
 
-    /// A unique category id per push, so its buttons match its own actions.
+    /// A unique category id for this push, so its buttons always match its own actions.
+    /// The send time is zero-padded so sorting the ids alphabetically is also oldest-first.
     static func categoryIdentifier(for payload: PushNotificationPayload, requested: String) -> String {
         guard !payload.actions.isEmpty else { return requested }
-        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
-        return "\(dynamicCategoryPrefix)\(timestamp).\(payload.notificationID)"
+        let sendTime = String(format: "%015ld", Int(Date().timeIntervalSince1970 * 1000))
+        return "\(dynamicCategoryPrefix)\(sendTime).\(payload.notificationID)"
     }
 
-    /// Adds `category` (replacing any with the same id) and keeps only the newest categories.
+    /// Adds `category`, replacing any with the same id, then keeps only the newest
+    /// `maxDynamicCategories` ids this SDK created (oldest dropped first).
     static func categories(
         byAdding category: UNNotificationCategory,
         to existing: Set<UNNotificationCategory>
     ) -> Set<UNNotificationCategory> {
-        var all = existing.filter { $0.identifier != category.identifier }
-        all.insert(category)
+        var kept = existing.filter { $0.identifier != category.identifier }
+        kept.insert(category)
 
-        let ours = all.filter { $0.identifier.hasPrefix(dynamicCategoryPrefix) }
-        if ours.count > maxDynamicCategories {
-            let oldestFirst = ours.sorted { timestamp($0.identifier) < timestamp($1.identifier) }
-            oldestFirst.prefix(ours.count - maxDynamicCategories).forEach { all.remove($0) }
-        }
-        return all
-    }
-
-    private static func timestamp(_ categoryID: String) -> Int {
-        Int(categoryID.dropFirst(dynamicCategoryPrefix.count).prefix { $0 != "." }) ?? 0
+        let oursOldestFirst = kept.map(\.identifier)
+            .filter { $0.hasPrefix(dynamicCategoryPrefix) }
+            .sorted()
+        let stale = Set(oursOldestFirst.dropLast(maxDynamicCategories))
+        return kept.filter { !stale.contains($0.identifier) }
     }
 
     private static func registerCategoryWithNotificationCenter(

@@ -32,7 +32,13 @@ public extension Ortto {
      Send push token to Ortto API
      */
     internal func updatePushToken(token: PushToken, force: Bool = false) {
-        PushMessaging.shared.token = token
+        if force {
+            // Re-send even if the token is unchanged — needed when the session or
+            // permission changed after the token was first cached.
+            PushMessaging.shared.sendPushRegistration(token)
+        } else {
+            PushMessaging.shared.token = token
+        }
     }
 
     /**

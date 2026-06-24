@@ -71,23 +71,32 @@ public class PushMessaging {
 
             if let existingToken = Ortto.shared.preferences.getObject(key: "token", type: PushToken.self),
                existingToken == newToken {
-                Ortto.log().info("PushMessaging@token.set session_id not changed")
+                Ortto.log().info("PushMessaging@token.set unchanged token; skipping (call dispatchPushRequest() to force a re-send)")
                 return
             }
 
-            registerDeviceToken(
-                sessionID: Ortto.shared.userStorage.session,
-                token: newToken
-            ) { (response: PushRegistrationResponse?) in
-                Ortto.shared.preferences.setObject(object: newToken, key: "token")
+            sendPushRegistration(newToken)
+        }
+    }
 
-                guard let sessionID = response?.sessionId else {
-                    Ortto.log().info("PushMessaging@token.set res returned no session_id")
-                    return
-                }
-
-                Ortto.shared.setSessionID(sessionID)
+    /// Sends the token + permission to Ortto. Bypasses the unchanged-token skip in the
+    /// setter, so it also re-sends when the session/permission changed after the token
+    /// was first cached (e.g. identify completed after the token arrived).
+    func sendPushRegistration(_ newToken: PushToken) {
+        registerDeviceToken(
+            sessionID: Ortto.shared.userStorage.session,
+            token: newToken
+        ) { (response: PushRegistrationResponse?) in
+            guard let sessionID = response?.sessionId else {
+                // Send failed — don't cache the token, so the next dispatch retries
+                // instead of being skipped by the unchanged-token check.
+                Ortto.log().info("PushMessaging@token.set send failed; not caching token (will retry)")
+                return
             }
+
+            // Cache only after a successful send.
+            Ortto.shared.preferences.setObject(object: newToken, key: "token")
+            Ortto.shared.setSessionID(sessionID)
         }
     }
 
