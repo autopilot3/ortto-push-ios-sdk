@@ -92,6 +92,9 @@ public class MessagingService: MessagingServiceProtocol {
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) -> Bool {
+        // TEMP(testing): capture the raw incoming payload to see exactly what the backend
+        // sends — especially whether each action carries an `action` identifier.
+        Ortto.log().info("MessagingService@didReceive.raw actions=\(request.content.userInfo["actions"] ?? "nil") primary_action=\(request.content.userInfo["primary_action"] ?? "nil") keys=\(Array(request.content.userInfo.keys))")
         guard let pushPayload = PushNotificationPayload.parse(request.content) else {
             Ortto.log().warn("MessagingService@didReceive.content.parse-fail")
             return false
@@ -107,8 +110,15 @@ public class MessagingService: MessagingServiceProtocol {
         delivery.task = Task { [weak self, weak delivery] in
             guard let self, let delivery else { return }
 
+            // Register the category FIRST, before any slow or cancellable work. Action buttons
+            // only render if the category is registered when the content is delivered, and on NSE
+            // expiry `expire()` cancels this Task and delivers immediately. Registering up front
+            // (above the cancellation guard) means a slow image download — or expiry mid-download —
+            // can never strip the buttons.
+            _ = await self.categoryRegistrar(category)
+
             async let attachment = NotificationAttachmentDownloader(httpClient: http)
-                .optionalAttachment(from: pushPayload.image)
+                .optionalAttachment(from: pushPayload.image, timeout: 20)
             async let tracking: Void = self.trackDelivery(pushPayload.eventTrackingUrl, using: http)
 
             if let imageAttachment = await attachment {
@@ -119,7 +129,6 @@ public class MessagingService: MessagingServiceProtocol {
 
             guard !Task.isCancelled else { return }
 
-            _ = await self.categoryRegistrar(category)
             delivery.deliver()
             self.removeDelivery(delivery)
         }
@@ -215,8 +224,8 @@ public class MessagingService: MessagingServiceProtocol {
         }
     }
 
-    // Each push gets its own category id so a new notification can't reuse
-    // the previous push's item IDs.
+    // Each push gets its own category id to avoid otherwise new notification reusing
+    // the previous push item ID's
     private static let dynamicCategoryPrefix = "ORTTO_ACTIONS."
     private static let maxDynamicCategories = 64
 
