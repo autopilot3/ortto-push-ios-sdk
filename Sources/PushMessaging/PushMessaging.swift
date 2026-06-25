@@ -56,8 +56,7 @@ public class PushMessaging {
         }
     }
 
-    /// The current device token from the OS. Stored the moment it arrives — even if the
-    /// registration below fails — so it can be retried later without the app re-supplying it.
+    /// The device token from the OS. Stored on arrival (even if registration fails) so it can be retried.
     public var token: PushToken? {
         get {
             Ortto.shared.preferences.getObject(key: "token", type: PushToken.self)
@@ -74,23 +73,26 @@ public class PushMessaging {
         }
     }
 
+    /// Clears the registration record (keeps the device token) so the next user re-registers.
+    func clearRegistration() {
+        latestRegistration = nil
+    }
+
     /// A successful registration: the token we registered and when.
     private struct Registration: Codable {
         let token: PushToken
         let date: Date
     }
 
-    /// The latest registration Ortto confirmed. Written only on success, and compared against
-    /// an incoming token to decide whether a new registration is actually needed.
+    /// The last registration Ortto confirmed (written only on success); used to dedup.
     private var latestRegistration: Registration? {
         get { Ortto.shared.preferences.getObject(key: "latestRegistration", type: Registration.self) }
         set { Ortto.shared.preferences.setObject(object: newValue as Registration?, key: "latestRegistration") }
     }
 
-    /// Registers the token with Ortto, unless it's already the registered token. Safe to call as
-    /// often as you like — `dispatchPushRequest()` runs this every time — it only hits the network
-    /// for a token Ortto hasn't confirmed yet, including retrying after an earlier attempt failed.
+    /// Registers the token unless it's already registered. Safe to call repeatedly.
     func sendPushRegistration(_ token: PushToken) {
+        // Dedup on token, not session: contact switches clear this via clearIdentity.
         if let latest = latestRegistration, latest.token == token {
             Ortto.log().info("PushMessaging@registration skip; token already registered \(latest.date)")
             return

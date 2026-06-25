@@ -91,6 +91,35 @@ final class PushMessagingRegistrationTests: OrttoTestCase {
         wait(for: [noFurtherSend], timeout: 0.5)
     }
 
+    /// Logout clears the identity and the registration record but keeps the device token, so the
+    /// next user re-registers the same device instead of being stuck with no token until the OS
+    /// re-delivers it. (The prior contact is disabled by clearIdentity's permission:false call.)
+    func testLogoutKeepsDeviceTokenAndReRegistersForNextUser() {
+        mock.shouldSucceed = true
+
+        // Register for the first user.
+        let registered = registeredExpectation()
+        PushMessaging.shared.token = token
+        wait(for: [registered], timeout: 2)
+        XCTAssertEqual(Ortto.shared.userStorage.session, "srv-session")
+
+        // Log out.
+        let loggedOut = expectation(description: "logout")
+        Ortto.shared.clearIdentity { _ in loggedOut.fulfill() }
+        wait(for: [loggedOut], timeout: 2)
+
+        // Device token survives; identity is gone.
+        XCTAssertEqual(PushMessaging.shared.token, token)
+        XCTAssertNil(Ortto.shared.userStorage.session)
+
+        // A different user identifies → the same token re-registers (record was cleared, no skip).
+        Ortto.shared.userStorage.session = "user-b-session"
+        let reRegister = expectation(description: "re-register for next user")
+        mock.onSend = { reRegister.fulfill() }
+        Ortto.shared.dispatchPushRequest()
+        wait(for: [reRegister], timeout: 2)
+    }
+
     /// An expectation satisfied once the session the server returned has been persisted —
     /// proof that a registration round-tripped (send + completion) successfully.
     private func registeredExpectation() -> XCTestExpectation {
