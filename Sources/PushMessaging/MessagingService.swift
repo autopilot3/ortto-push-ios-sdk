@@ -92,9 +92,6 @@ public class MessagingService: MessagingServiceProtocol {
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
     ) -> Bool {
-        // TEMP(testing): capture the raw incoming payload to see exactly what the backend
-        // sends — especially whether each action carries an `action` identifier.
-        Ortto.log().info("MessagingService@didReceive.raw actions=\(request.content.userInfo["actions"] ?? "nil") primary_action=\(request.content.userInfo["primary_action"] ?? "nil") keys=\(Array(request.content.userInfo.keys))")
         guard let pushPayload = PushNotificationPayload.parse(request.content) else {
             Ortto.log().warn("MessagingService@didReceive.content.parse-fail")
             return false
@@ -224,17 +221,16 @@ public class MessagingService: MessagingServiceProtocol {
         }
     }
 
-    // Each push gets its own category id to avoid otherwise new notification reusing
-    // the previous push item ID's
+    // Each push gets its own category id so a new notification can't reuse a previous push's action IDs.
     private static let dynamicCategoryPrefix = "ORTTO_ACTIONS."
     private static let maxDynamicCategories = 64
 
     /// A unique category id for this push, so its buttons always match its own actions.
-    /// The send time is zero-padded so sorting the ids alphabetically is also oldest-first.
+    /// The creation time is zero-padded so sorting the ids alphabetically is also oldest-first.
     static func categoryIdentifier(for payload: PushNotificationPayload, requested: String) -> String {
         guard !payload.actions.isEmpty else { return requested }
-        let sendTime = String(format: "%015ld", Int(Date().timeIntervalSince1970 * 1000))
-        return "\(dynamicCategoryPrefix)\(sendTime).\(payload.notificationID)"
+        let createdAt = String(format: "%015ld", Int(Date().timeIntervalSince1970 * 1000))
+        return "\(dynamicCategoryPrefix)\(createdAt).\(payload.notificationID)"
     }
 
     /// Adds `category`, replacing any with the same id, then keeps only the newest
