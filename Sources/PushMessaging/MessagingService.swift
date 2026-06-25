@@ -110,8 +110,15 @@ public class MessagingService: MessagingServiceProtocol {
         delivery.task = Task { [weak self, weak delivery] in
             guard let self, let delivery else { return }
 
+            // Register the category FIRST, before any slow or cancellable work. Action buttons
+            // only render if the category is registered when the content is delivered, and on NSE
+            // expiry `expire()` cancels this Task and delivers immediately. Registering up front
+            // (above the cancellation guard) means a slow image download — or expiry mid-download —
+            // can never strip the buttons.
+            _ = await self.categoryRegistrar(category)
+
             async let attachment = NotificationAttachmentDownloader(httpClient: http)
-                .optionalAttachment(from: pushPayload.image)
+                .optionalAttachment(from: pushPayload.image, timeout: 20)
             async let tracking: Void = self.trackDelivery(pushPayload.eventTrackingUrl, using: http)
 
             if let imageAttachment = await attachment {
@@ -122,7 +129,6 @@ public class MessagingService: MessagingServiceProtocol {
 
             guard !Task.isCancelled else { return }
 
-            _ = await self.categoryRegistrar(category)
             delivery.deliver()
             self.removeDelivery(delivery)
         }
