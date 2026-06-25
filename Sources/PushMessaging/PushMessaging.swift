@@ -53,41 +53,56 @@ public class PushMessaging {
         }
         set {
             Ortto.shared.preferences.setString(newValue.rawValue, key: "pushPermission")
-
         }
     }
 
+    /// The current device token from the OS. Stored the moment it arrives — even if the
+    /// registration below fails — so it can be retried later without the app re-supplying it.
     public var token: PushToken? {
         get {
             Ortto.shared.preferences.getObject(key: "token", type: PushToken.self)
         }
         set {
             guard let newToken = newValue else {
-                // If new value is nil, remove the existing token
                 Ortto.shared.preferences.setObject(object: nil as PushToken?, key: "token")
-                Ortto.log().info("PushMessaging@token.set removing token")
+                latestRegistration = nil
+                Ortto.log().info("PushMessaging@token forgotten")
                 return
             }
+            Ortto.shared.preferences.setObject(object: newToken, key: "token")
+            sendPushRegistration(newToken)
+        }
+    }
 
-            if let existingToken = Ortto.shared.preferences.getObject(key: "token", type: PushToken.self),
-               existingToken == newToken {
-                Ortto.log().info("PushMessaging@token.set session_id not changed")
+    /// A successful registration: the token we registered and when.
+    private struct Registration: Codable {
+        let token: PushToken
+        let date: Date
+    }
+
+    /// The latest registration Ortto confirmed. Written only on success, and compared against
+    /// an incoming token to decide whether a new registration is actually needed.
+    private var latestRegistration: Registration? {
+        get { Ortto.shared.preferences.getObject(key: "latestRegistration", type: Registration.self) }
+        set { Ortto.shared.preferences.setObject(object: newValue as Registration?, key: "latestRegistration") }
+    }
+
+    /// Registers the token with Ortto, unless it's already the registered token. Safe to call as
+    /// often as you like — `dispatchPushRequest()` runs this every time — it only hits the network
+    /// for a token Ortto hasn't confirmed yet, including retrying after an earlier attempt failed.
+    func sendPushRegistration(_ token: PushToken) {
+        if let latest = latestRegistration, latest.token == token {
+            Ortto.log().info("PushMessaging@registration skip; token already registered \(latest.date)")
+            return
+        }
+
+        registerDeviceToken(sessionID: Ortto.shared.userStorage.session, token: token) { (response: PushRegistrationResponse?) in
+            guard let response else {
+                Ortto.log().info("PushMessaging@registration failed; token kept for retry")
                 return
             }
-
-            registerDeviceToken(
-                sessionID: Ortto.shared.userStorage.session,
-                token: newToken
-            ) { (response: PushRegistrationResponse?) in
-                Ortto.shared.preferences.setObject(object: newToken, key: "token")
-
-                guard let sessionID = response?.sessionId else {
-                    Ortto.log().info("PushMessaging@token.set res returned no session_id")
-                    return
-                }
-
-                Ortto.shared.setSessionID(sessionID)
-            }
+            self.latestRegistration = Registration(token: token, date: Date())
+            Ortto.shared.setSessionID(response.sessionId)
         }
     }
 
