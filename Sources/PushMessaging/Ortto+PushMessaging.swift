@@ -23,34 +23,30 @@ public extension Ortto {
 
     func clearIdentity(_ completion: @escaping (PushRegistrationResponse?) -> Void) {
         MessagingService.shared.clearIdentity { response in
-            Ortto.shared.clearData()
-            completion(response)
+            // Deliver on main (like identify) — clears identity only; the token isn't identity.
+            DispatchQueue.main.async {
+                Ortto.shared.userStorage.session = nil
+                Ortto.shared.userStorage.user = nil
+                PushMessaging.shared.clearRegistration()
+                completion(response)
+            }
         }
     }
 
-    /**
-     Send push token to Ortto API
-     */
-    internal func updatePushToken(token: PushToken, force: Bool = false) {
+    internal func updatePushToken(token: PushToken) {
         PushMessaging.shared.token = token
     }
 
-    /**
-     Update push token
-     */
     internal func dispatchPushRequest(_ token: PushToken) {
         updatePushToken(token: token)
     }
 
-    /**
-     Update push token
-     */
+    /// Re-registers the stored token (skips if already registered, retries after a failure).
     func dispatchPushRequest() {
         guard let token = PushMessaging.shared.token else {
             Ortto.log().info("Ortto+PushMessaging@dispatchPushRequest.cancel")
             return
         }
-
-        updatePushToken(token: token, force: true)
+        PushMessaging.shared.sendPushRegistration(token)
     }
 }
