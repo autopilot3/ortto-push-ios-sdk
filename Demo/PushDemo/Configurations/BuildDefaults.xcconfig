@@ -1,0 +1,5 @@
+// Shared build settings for the Ortto demo.
+//
+// Ortto configuration (endpoint, app keys, capture JS URL) is no longer set here
+// — it lives in Swift: PushDemo/Support/OrttoEnvironment.swift, copied from
+// OrttoEnvironment.sample.swift. See the README.
