@@ -16,27 +16,20 @@ extension ApiManagerInterface {
     /// Registers or clears push permission for the current device token.
     /// Calls `completion` on whatever thread the network response arrives on.
     func sendPushPermission(
-        sessionID: String?,
         token: PushToken,
         permission: Bool,
         completion: @escaping (PushRegistrationResponse?) -> Void
     ) {
         Task {
-            let result = await sendPushPermissionResult(
-                sessionID: sessionID,
-                token: token,
-                permission: permission
-            )
+            let result = await sendPushPermissionResult(token: token, permission: permission)
             completion(try? result.get())
         }
     }
 
     // MARK: - Async Result API (used by tests)
 
-    /// Async variant that returns a typed `Result` so tests can assert the specific
-    /// failure category rather than only asserting `nil`.
+    /// Returns a typed `Result` so tests can assert the failure category. The live session is injected in-queue by `send`.
     func sendPushPermissionResult(
-        sessionID: String?,
         token: PushToken,
         permission: Bool
     ) async -> Result<PushRegistrationResponse, Error> {
@@ -50,7 +43,6 @@ extension ApiManagerInterface {
         do {
             let request = SendPushPermissionRequest(
                 appKey: appKey,
-                sessionID: sessionID,
                 token: token,
                 permission: permission
             )

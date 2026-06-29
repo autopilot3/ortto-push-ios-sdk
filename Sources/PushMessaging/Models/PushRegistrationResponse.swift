@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PushRegistrationResponse: Codable {
+public struct PushRegistrationResponse: Codable, Sendable {
     public let sessionId: String
 
     enum CodingKeys: String, CodingKey {

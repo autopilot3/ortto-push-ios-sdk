@@ -51,6 +51,9 @@ public final class OrttoAPIConnector {
     /// - Passes all other transport errors through as `OrttoAPIError.request`.
     public func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
         let urlRequest = try buildURLRequest(for: request)
+        // Host + path only — the query carries device/tracking params and the logger is `.public`.
+        let loggedURL = urlRequest.url.map { "\($0.host ?? "?")\($0.path)" } ?? "?"
+        Ortto.log().debug("Ortto@http \(request.method.rawValue) \(loggedURL)")
         do {
             let response = try await http.send(urlRequest).validated()
             return try request.decodeResponse(response)
@@ -60,20 +63,6 @@ public final class OrttoAPIConnector {
             throw error
         } catch {
             throw OrttoAPIError.decoding(error)
-        }
-    }
-
-    // MARK: - Raw GET (for pre-built URLs, e.g. link tracking)
-
-    /// Fires a GET to a fully-formed URL and validates the response status.
-    /// Used for tracking calls where the URL is built by the caller rather than
-    /// derived from `baseURL + endpoint`.
-    public func sendGet(_ url: URL) async throws {
-        let urlRequest = OrttoHTTPRequest.get(url: url)
-        do {
-            _ = try await http.send(urlRequest).validated()
-        } catch let error as OrttoHTTPError {
-            throw OrttoAPIError.from(error)
         }
     }
 

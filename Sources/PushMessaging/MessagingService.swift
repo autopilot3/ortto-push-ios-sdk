@@ -52,35 +52,23 @@ public class MessagingService: MessagingServiceProtocol {
         Ortto.shared.dispatchPushRequest(PushToken(value: token, type: tokenType))
     }
 
-    /// Clears the current device's push permission on the Ortto API.
+    /// Callback variant of `clearIdentity`; bridges to the async version.
     public func clearIdentity(completion: @escaping (PushRegistrationResponse?) -> Void) {
-        guard let sessionID = Ortto.shared.userStorage.session,
-              let token = PushMessaging.shared.token
-        else {
-            completion(nil)
-            return
-        }
-
-        Ortto.shared.apiManager.sendPushPermission(
-            sessionID: sessionID,
-            token: token,
-            permission: false,
-            completion: completion
-        )
+        Task { completion(try? await clearIdentity()) }
     }
 
-    /// Registers the current device token and permission for an identified session.
-    func registerDeviceToken(
-        sessionID: String?,
-        token: PushToken,
-        completion: @escaping (PushRegistrationResponse?) -> Void
-    ) {
-        Ortto.shared.apiManager.sendPushPermission(
-            sessionID: sessionID,
-            token: token,
-            permission: PushMessaging.shared.permission.isAllowed(),
-            completion: completion
-        )
+    /// Clears push permission on the API for the current session+token; `nil` when there's nothing to clear. Sends WITHOUT the queue so it can run inside the queued logout transaction (`Ortto.clearIdentity`).
+    public func clearIdentity() async throws -> PushRegistrationResponse? {
+        guard let session = Ortto.shared.userStorage.session,
+              let token = PushMessaging.shared.token,
+              let appKey = Ortto.shared.apiManager.appKey
+        else {
+            return nil
+        }
+
+        var request = SendPushPermissionRequest(appKey: appKey, token: token, permission: false)
+        request.sessionID = session
+        return try await Ortto.shared.apiManager.sendUnqueued(request)
     }
 
     // MARK: - NSE notification enrichment

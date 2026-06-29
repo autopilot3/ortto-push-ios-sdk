@@ -47,6 +47,21 @@ public protocol OrttoAPIRequest<Response> {
     /// Driven by `SendsDeviceContext` conformance — do not implement this directly.
     var appendsDeviceQueryItems: Bool { get }
 
+    /// Retry on transient network failure? Default `false`; session-establishing requests opt in.
+    var isRetryable: Bool { get }
+
+    /// Reads/writes the session → serialized + session middleware. Default `false`; conform to `OrttoAPISessionRequest` rather than setting this.
+    var isSessionBound: Bool { get }
+
+    /// Returns a copy carrying the live `session`, injected by the middleware at send time. Default `self`.
+    func injectingSession(_ session: String?) -> Self
+
+    /// Session to persist from a successful response; `nil` leaves the stored session unchanged. Default `nil`.
+    func persistedSession(from response: Response) -> String?
+
+    /// User to persist on success (same in-lane turn as the session, so the pair stays consistent); `nil` leaves it unchanged. Default `nil`.
+    func persistedUser(from response: Response) -> UserIdentifier?
+
     /// Return the JSON-encoded body data, or `nil` for requests with no body (e.g. GET).
     /// The connector sets `Content-Type: application/json` automatically when this is non-nil.
     func encodeBody(using encoder: JSONEncoder) throws -> Data?
@@ -64,6 +79,21 @@ public extension OrttoAPIRequest where Response: Decodable {
     /// Default: do not append device identity query items.
     /// Conforming to `SendsDeviceContext` overrides this to `true`.
     var appendsDeviceQueryItems: Bool { false }
+
+    /// Default: not retried.
+    var isRetryable: Bool { false }
+
+    /// Default: stateless w.r.t. the session (not queued, no session middleware).
+    var isSessionBound: Bool { false }
+
+    /// Default: request doesn't carry the session — unchanged.
+    func injectingSession(_: String?) -> Self { self }
+
+    /// Default: request doesn't establish a session.
+    func persistedSession(from _: Response) -> String? { nil }
+
+    /// Default: request doesn't carry an identified user.
+    func persistedUser(from _: Response) -> UserIdentifier? { nil }
 
     /// Default: no body.
     func encodeBody(using encoder: JSONEncoder) throws -> Data? { nil }
@@ -104,4 +134,23 @@ public protocol SendsDeviceContext: OrttoAPIRequest {}
 
 public extension SendsDeviceContext {
     var appendsDeviceQueryItems: Bool { true }
+}
+
+// MARK: - OrttoAPISessionRequest
+
+/// A request whose body carries the session. The middleware injects the live value into `sessionID`; conformers just declare the stored property (+ `persistedSession`).
+public protocol OrttoAPISessionRequest: OrttoAPIRequest {
+    /// Session carried in the body; the middleware overwrites it with the live value at send time.
+    var sessionID: String? { get set }
+}
+
+public extension OrttoAPISessionRequest {
+    var isSessionBound: Bool { true }
+
+    /// Shared injection — copy the request with the live session. No per-request override.
+    func injectingSession(_ session: String?) -> Self {
+        var copy = self
+        copy.sessionID = session
+        return copy
+    }
 }

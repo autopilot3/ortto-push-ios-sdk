@@ -33,15 +33,9 @@ final class FakeApiManager: ApiManagerInterface {
                 """
             )
         }
-        return try registration.handle(request) as! R.Response
-    }
-
-    /// Not supported in fake mode — these lifecycle methods are tested via MockApiManager.
-    public func sendRegisterIdentity(_ storage: any UserStorage) async throws -> IdentityRegistrationResponse? {
-        nil
-    }
-
-    public func sendLinkTracking(_ trackingUrl: URL) async throws {
-        // no-op
+        let response = try registration.handle(request) as! R.Response
+        // Honour the persistence contract the real manager has.
+        persistResponseState(from: response, for: request)
+        return response
     }
 }
