@@ -15,6 +15,8 @@ public protocol OrttoInterface {
     var appKey: String? { get }
     var apiEndpoint: String? { get }
     func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)?)
+    @discardableResult
+    func identify(_ user: UserIdentifier) async throws -> String
 }
 
 public struct SDKConfiguration {
@@ -33,6 +35,10 @@ public class Ortto: OrttoInterface {
     public var httpClient: OrttoHTTPClient
     public var preferences: PreferencesInterface = OrttoPreferencesManager()
     public var userStorage: UserStorage
+    /// Serial lane guarding session state: session-bound sends and the logout clear run through
+    /// it (FIFO) so their reads/writes of `userStorage.session`/`.user` can't race. Settable only
+    /// within the SDK (tests swap it for isolation) — external code can't reassign the live lane.
+    public internal(set) var requestQueue = OrttoRequestQueue()
     public var shouldSkipNonExistingContacts: Bool = false
     private var logger: OrttoLogger = PrintLogger()
     public private(set) var screenName: String?
@@ -90,40 +96,34 @@ public class Ortto: OrttoInterface {
         preferences.clear()
     }
 
-    public func setSessionID(_ sessionID: String) {
-        userStorage.session = sessionID
+    /// Identify the user, await the session ID (POST `/-/events/push-mobile-session`). Retries transient failures; throws on permanent failure.
+    @discardableResult
+    public func identify(_ user: UserIdentifier) async throws -> String {
+        guard let appKey = apiManager.appKey else {
+            logger.info("Ortto@identify.error SDK not initialized")
+            throw NSError(domain: "com.ortto", code: 1, userInfo: [NSLocalizedDescriptionKey: "SDK not initialized"])
+        }
+
+        // Captures `user` by value; `send` persists user + session together in the lane, so concurrent identifies can't cross them.
+        let request = RegisterIdentityRequest(
+            user: user,
+            appKey: appKey,
+            shouldSkipNonExistingContacts: shouldSkipNonExistingContacts
+        )
+        let response = try await apiManager.send(request)
+        logger.info("Ortto@identify.success \(response.sessionID)")
+        return response.sessionID
     }
 
-    /**
-     Identify user to the Ortto API
-     Endpoint: "/-/events/push-mobile-session"
-     */
+    /// Callback variant of `identify`. Fires `completion` on the main thread.
     public func identify(_ user: UserIdentifier, completion: ((Result<String, Error>) -> Void)? = nil) {
-        userStorage.user = user
-
         Task {
             do {
-                let response = try await apiManager.sendRegisterIdentity(userStorage)
-                guard let sessionID = response?.sessionID else {
-                    let error = NSError(domain: "com.ortto", code: 1, userInfo: [NSLocalizedDescriptionKey: "No session ID returned"])
-                    self.logger.info("Ortto@identify.error No session ID returned")
-                    DispatchQueue.main.async {
-                        completion?(.failure(error))
-                    }
-                    return
-                }
-
-                self.userStorage.session = sessionID
-                self.logger.info("Ortto@identify.success \(sessionID)")
-
-                DispatchQueue.main.async {
-                    completion?(.success(sessionID))
-                }
+                let sessionID = try await identify(user)
+                DispatchQueue.main.async { completion?(.success(sessionID)) }
             } catch {
                 self.logger.info("Ortto@identify.error \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion?(.failure(error))
-                }
+                DispatchQueue.main.async { completion?(.failure(error)) }
             }
         }
     }
@@ -155,19 +155,16 @@ public class Ortto: OrttoInterface {
         return base64
     }
 
-    /**
-     Track the clicking of a link and return the utm values for the developer to use for marketing
-     */
-    public func trackLinkClick(_ encodedUrl: String, completion: @escaping () -> Void) {
-
+    /// Decodes the embedded `tracking_url` and appends device params; `nil` if the input can't be decoded.
+    private func buildTrackingURL(from encodedUrl: String) -> URL? {
         guard let url = URL(string: encodedUrl) else {
             Ortto.log().error("could not decode tracking_url: \(encodedUrl)")
-            return
+            return nil
         }
 
         guard let components = URLComponents(string: url.absoluteString),
               let queryItems = components.queryItems else {
-            return
+            return nil
         }
 
         let items = queryItems.reduce(into: [String: String]()) { result, item in
@@ -175,7 +172,7 @@ public class Ortto: OrttoInterface {
         }
 
         guard let trackingUrl = items["tracking_url"] else {
-            return
+            return nil
         }
 
         let trackingUrlDecoded = base64urlToBase64(base64url: trackingUrl)
@@ -186,19 +183,30 @@ public class Ortto: OrttoInterface {
               var urlComponents = URLComponents(string: trackingUrlFinal)
         else {
             Ortto.log().error("could not get tracking_url: \(encodedUrl)")
-            return
+            return nil
         }
 
         for item in DeviceIdentity.getTrackingQueryItems() {
             urlComponents.queryItems?.append(item)
         }
 
-        guard let finalURL = urlComponents.url else { return }
+        return urlComponents.url
+    }
 
+    /// Track a link click; throws on network failure (the callback variant swallows it).
+    public func trackLinkClick(_ encodedUrl: String) async throws {
+        guard let finalURL = buildTrackingURL(from: encodedUrl) else { return }
+        _ = try await apiManager.send(LinkTrackingRequest(trackingURL: finalURL))
+        logger.debug("Ortto@trackLinkClick.success")
+    }
+
+    /**
+     Track the clicking of a link and return the utm values for the developer to use for marketing
+     */
+    public func trackLinkClick(_ encodedUrl: String, completion: @escaping () -> Void) {
         Task {
             do {
-                try await apiManager.sendLinkTracking(finalURL)
-                self.logger.debug("Ortto@trackLinkClick.success")
+                try await trackLinkClick(encodedUrl)
                 completion()
             } catch {
                 self.logger.info("Ortto@trackLinkClick.error \(error.localizedDescription)")

@@ -8,7 +8,7 @@ import Foundation
 @testable import OrttoSDKCore
 import XCTest
 
-final class ApiManagerHTTPTests: OrttoTestCase {
+final class ApiManagerHTTPTests: OrttoIsolatedTestCase {
 
     private let baseURL = URL(string: "https://api.example.test")!
 
@@ -20,24 +20,14 @@ final class ApiManagerHTTPTests: OrttoTestCase {
         ))
     }
 
-    // MARK: - Register identity
+    // MARK: - Register identity (via send)
 
-    func testSendRegisterIdentitySendsExpectedRequest() async throws {
+    func testRegisterIdentitySendsExpectedRequest() async throws {
         let http = MockOrttoHTTPClient()
         let api = makeApiManager(http: http)
 
-        let storage = TestUserStorage(
-            user: UserIdentifier(
-                contactID: "contact-id",
-                email: "person@example.test",
-                phone: nil,
-                externalID: nil,
-                firstName: "First",
-                lastName: "Last",
-                acceptsGDPR: true
-            ),
-            session: "existing-session"
-        )
+        // The request carries the live session from userStorage (injected inside the queue).
+        Ortto.shared.userStorage.session = "existing-session"
 
         http.sendResponder = { request in
             XCTAssertEqual(request.httpMethod, "POST")
@@ -55,38 +45,34 @@ final class ApiManagerHTTPTests: OrttoTestCase {
             return .json(#"{"session_id":"new-session"}"#, url: request.url)
         }
 
-        let response = try await api.sendRegisterIdentity(storage)
+        let response = try await api.send(RegisterIdentityRequest(
+            user: UserIdentifier(
+                contactID: "contact-id", email: "person@example.test", phone: nil,
+                externalID: nil, firstName: "First", lastName: "Last", acceptsGDPR: true
+            ),
+            appKey: "app-key",
+            shouldSkipNonExistingContacts: false
+        ))
 
-        XCTAssertEqual(response?.sessionID, "new-session")
+        XCTAssertEqual(response.sessionID, "new-session")
         XCTAssertEqual(http.sentRequests.count, 1)
     }
 
-    func testSendRegisterIdentityReturnsNilWhenNoUserIdentified() async throws {
+    func testRegisterIdentityThrowsServerErrorOnNon2xx() async throws {
         let http = MockOrttoHTTPClient()
         let api = makeApiManager(http: http)
-        let storage = TestUserStorage(user: nil, session: nil)
-
-        let response = try await api.sendRegisterIdentity(storage)
-
-        XCTAssertNil(response)
-        XCTAssertEqual(http.sentRequests.count, 0)
-    }
-
-    func testSendRegisterIdentityThrowsServerErrorOnNon2xx() async throws {
-        let http = MockOrttoHTTPClient()
-        let api = makeApiManager(http: http)
-        let storage = TestUserStorage(
-            user: UserIdentifier(contactID: "c", email: nil, phone: nil, externalID: nil,
-                                 firstName: nil, lastName: nil, acceptsGDPR: false),
-            session: nil
-        )
 
         http.sendResponder = { request in
             .json(#"{"error":"forbidden"}"#, statusCode: 403, url: request.url)
         }
 
         do {
-            _ = try await api.sendRegisterIdentity(storage)
+            _ = try await api.send(RegisterIdentityRequest(
+                user: UserIdentifier(contactID: "c", email: nil, phone: nil, externalID: nil,
+                                     firstName: nil, lastName: nil, acceptsGDPR: false),
+                appKey: "app-key",
+                shouldSkipNonExistingContacts: false
+            ))
             XCTFail("Expected OrttoAPIError.server")
         } catch OrttoAPIError.server(let statusCode, let message, _) {
             XCTAssertEqual(statusCode, 403)
@@ -94,9 +80,9 @@ final class ApiManagerHTTPTests: OrttoTestCase {
         }
     }
 
-    // MARK: - Link tracking
+    // MARK: - Link tracking (via send)
 
-    func testSendLinkTrackingFiresGetToExactURL() async throws {
+    func testLinkTrackingFiresGetToExactURL() async throws {
         let http = MockOrttoHTTPClient()
         let api = makeApiManager(http: http)
         let trackingURL = URL(string: "https://tracking.example.test/open")!
@@ -107,13 +93,8 @@ final class ApiManagerHTTPTests: OrttoTestCase {
             return .json("{}", statusCode: 204, url: request.url)
         }
 
-        try await api.sendLinkTracking(trackingURL)
+        _ = try await api.send(LinkTrackingRequest(trackingURL: trackingURL))
 
         XCTAssertEqual(http.sentRequests.count, 1)
     }
-}
-
-private struct TestUserStorage: UserStorage {
-    var user: UserIdentifier?
-    var session: String?
 }

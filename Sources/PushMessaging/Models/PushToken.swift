@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct PushToken: Codable, Equatable {
+public struct PushToken: Codable, Equatable, Sendable {
     public var value: String
     public var type: String
 

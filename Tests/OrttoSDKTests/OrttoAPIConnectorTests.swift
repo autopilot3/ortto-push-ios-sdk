@@ -194,39 +194,6 @@ final class OrttoAPIConnectorTests: XCTestCase {
         }
     }
 
-    // MARK: - sendGet
-
-    func testSendGetFiresGetToExactURL() async throws {
-        let http = MockOrttoHTTPClient()
-        let connector = makeConnector(http: http)
-        let trackingURL = URL(string: "https://tracking.example.test/click?ref=abc")!
-
-        http.sendResponder = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url, trackingURL)
-            return OrttoHTTPResponse(data: Data(), response: .ok(url: request.url!))
-        }
-
-        try await connector.sendGet(trackingURL)
-        XCTAssertEqual(http.sentRequests.count, 1)
-    }
-
-    func testSendGetThrowsServerErrorOnNon2xx() async throws {
-        let http = MockOrttoHTTPClient()
-        let connector = makeConnector(http: http)
-
-        http.sendResponder = { request in
-            .json(#"{"error":"gone"}"#, statusCode: 410, url: request.url)
-        }
-
-        do {
-            try await connector.sendGet(URL(string: "https://tracking.example.test/gone")!)
-            XCTFail("Expected OrttoAPIError.server")
-        } catch OrttoAPIError.server(let statusCode, let message, _) {
-            XCTAssertEqual(statusCode, 410)
-            XCTAssertEqual(message, "gone")
-        }
-    }
 }
 
 // MARK: - Helpers for decoding error test

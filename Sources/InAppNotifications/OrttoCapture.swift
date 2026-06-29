@@ -352,8 +352,8 @@ public class OrttoCapture: ObservableObject, Capture {
     func fetchWidgets(_ widgetId: String?, completion: @escaping (WidgetsResponse) -> Void) {
         let user = Ortto.shared.userStorage.user
 
+        // sessionId is injected with the live session and persisted in-queue by `send` — no out-of-lane read/write here.
         let request = FetchWidgetsRequest(
-            sessionId: OrttoCapture.shared.sessionId,
             applicationKey: OrttoCapture.shared.dataSourceKey,
             contactId: user?.contactID,
             emailAddress: user?.email
@@ -369,11 +369,6 @@ public class OrttoCapture: ObservableObject, Capture {
             }
 
             let data = widgetId.map { widgetsResponse.filtering(for: $0) } ?? widgetsResponse
-
-            if let sessionId = data.sessionId {
-                Ortto.shared.userStorage.session = sessionId
-            }
-
             completion(data)
         }
     }

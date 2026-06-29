@@ -11,41 +11,20 @@ import Foundation
 @testable import OrttoSDKCore
 import XCTest
 
-final class PushMessagingRegistrationTests: OrttoTestCase {
+final class PushMessagingRegistrationTests: OrttoIsolatedTestCase {
 
     private let token = PushToken(value: "device-token", type: "apns")
 
-    private var mock: RecordingApiManager!
-    private var savedApiManager: ApiManagerInterface!
-    private var savedPreferences: PreferencesInterface!
-    private var savedUserStorage: UserStorage!
+    private var mock: MockApiManager!
 
     override func setUp() {
         super.setUp()
 
-        // Isolate global SDK state so each test starts from a clean slate.
-        savedApiManager = Ortto.shared.apiManager
-        savedPreferences = Ortto.shared.preferences
-        savedUserStorage = Ortto.shared.userStorage
-
-        let preferences = OrttoPreferencesManager()
-        preferences.clear()
-        Ortto.shared.preferences = preferences
-        Ortto.shared.userStorage = OrttoUserStorage(preferences)
-
-        mock = RecordingApiManager()
+        mock = MockApiManager()
         Ortto.shared.apiManager = mock
 
         // .Accept resolves synchronously without touching UNUserNotificationCenter.
         PushMessaging.shared.permission = .Accept
-    }
-
-    override func tearDown() {
-        Ortto.shared.preferences.clear()
-        Ortto.shared.apiManager = savedApiManager
-        Ortto.shared.preferences = savedPreferences
-        Ortto.shared.userStorage = savedUserStorage
-        super.tearDown()
     }
 
     /// The core regression: if the first registration fails, the token must be kept and a
@@ -71,7 +50,7 @@ final class PushMessagingRegistrationTests: OrttoTestCase {
         Ortto.shared.dispatchPushRequest()
         wait(for: [registered], timeout: 2)
 
-        XCTAssertEqual(Ortto.shared.userStorage.session, "srv-session")
+        XCTAssertEqual(Ortto.shared.userStorage.session, "mock-session")
     }
 
     /// The same token arriving again (e.g. on the next launch) must not re-register — otherwise
@@ -101,7 +80,7 @@ final class PushMessagingRegistrationTests: OrttoTestCase {
         let registered = registeredExpectation()
         PushMessaging.shared.token = token
         wait(for: [registered], timeout: 2)
-        XCTAssertEqual(Ortto.shared.userStorage.session, "srv-session")
+        XCTAssertEqual(Ortto.shared.userStorage.session, "mock-session")
 
         // Log out.
         let loggedOut = expectation(description: "logout")
@@ -120,37 +99,35 @@ final class PushMessagingRegistrationTests: OrttoTestCase {
         wait(for: [reRegister], timeout: 2)
     }
 
-    /// An expectation satisfied once the session the server returned has been persisted —
+    /// The awaitable `dispatchPushRequest` registers the stored token, returns the
+    /// response, and dedups a second call for the same token.
+    func testAwaitDispatchPushRequestRegistersThenDedups() async throws {
+        mock.shouldSucceed = true
+        // Seed the token directly to avoid the setter's fire-and-forget registration.
+        Ortto.shared.preferences.setObject(object: token, key: "token")
+
+        let response = try await Ortto.shared.dispatchPushRequest()
+        XCTAssertEqual(response?.sessionId, "mock-session")
+        XCTAssertEqual(Ortto.shared.userStorage.session, "mock-session")
+
+        // Same token already registered → no further send, returns nil.
+        let noFurtherSend = expectation(description: "no further registration")
+        noFurtherSend.isInverted = true
+        mock.onSend = { noFurtherSend.fulfill() }
+
+        let second = try await Ortto.shared.dispatchPushRequest()
+        XCTAssertNil(second)
+        await fulfillment(of: [noFurtherSend], timeout: 0.3)
+    }
+
+    /// An expectation satisfied once the session the mock returned has been persisted —
     /// proof that a registration round-tripped (send + completion) successfully.
     private func registeredExpectation() -> XCTestExpectation {
         XCTNSPredicateExpectation(
             predicate: NSPredicate { _, _ in
-                Ortto.shared.userStorage.session == "srv-session"
+                Ortto.shared.userStorage.session == "mock-session"
             },
             object: nil
         )
-    }
-}
-
-/// Drives reconciliation deterministically: counts push-permission sends, lets a test toggle
-/// success/failure, and returns the canned `session_id` the assertions key off.
-private final class RecordingApiManager: ApiManagerInterface {
-    var appKey: String? = "app-key"
-    var shouldSucceed = true
-    var onSend: (() -> Void)?
-
-    func sendRegisterIdentity(_: UserStorage) async throws -> IdentityRegistrationResponse? {
-        nil
-    }
-
-    func sendLinkTracking(_: URL) async throws {}
-
-    func send<R: OrttoAPIRequest>(_: R) async throws -> R.Response {
-        onSend?()
-        guard shouldSucceed else {
-            throw OrttoHTTPError.network(URLError(.timedOut))
-        }
-        let json = Data(#"{"session_id":"srv-session"}"#.utf8)
-        return try JSONDecoder().decode(R.Response.self, from: json)
     }
 }
