@@ -15,6 +15,13 @@ public struct OrttoHTTPResponse {
     public let data: Data
     public let response: HTTPURLResponse
 
+    /// Public so consumers can stub `OrttoHTTPClient` (e.g. an integration-test
+    /// harness) without `@testable`. Mirrors `OrttoDownloadedFile`'s public init.
+    public init(data: Data, response: HTTPURLResponse) {
+        self.data = data
+        self.response = response
+    }
+
     public var statusCode: Int {
         response.statusCode
     }

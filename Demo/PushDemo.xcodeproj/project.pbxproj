@@ -1,0 +1,1397 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4EE249D52DEE2CC500AF48DC /* PushDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */; };
+		4EE249D72DEE2CC500AF48DC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D62DEE2CC500AF48DC /* RootView.swift */; };
+		4EE249D92DEE2CC600AF48DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249D82DEE2CC600AF48DC /* Assets.xcassets */; };
+		4EE249DD2DEE2CC600AF48DC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */; };
+		4EE249E72DEE2CC600AF48DC /* PushDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */; };
+		4EE249F12DEE2CC600AF48DC /* PushDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */; };
+		4EE249F32DEE2CC600AF48DC /* PushDemoLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */; };
+		4EE24A102DEE31E000AF48DC /* NotificationCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */; };
+		4EE24A192DEE359E00AF48DC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE24A182DEE359E00AF48DC /* NotificationService.swift */; };
+		4EE24A1D2DEE359E00AF48DC /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4EE24A312DEE3B8A00AF48DC /* OrttoInAppNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE24A302DEE3B8A00AF48DC /* OrttoInAppNotifications */; };
+		4EE24A372DEE3B8A00AF48DC /* OrttoSDKCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE24A362DEE3B8A00AF48DC /* OrttoSDKCore */; };
+		4EE24A392DEE475100AF48DC /* OrttoPushMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE24A382DEE475100AF48DC /* OrttoPushMessaging */; };
+		4EE24A3B2DEE475100AF48DC /* OrttoSDKCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE24A3A2DEE475100AF48DC /* OrttoSDKCore */; };
+		4EE24A3D2DEE5F0100AF48DC /* OrttoPushMessagingFCM in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE24A3E2DEE5F0100AF48DC /* OrttoPushMessagingFCM */; };
+		A1B2C3D02F01000100000001 /* CanvaSansDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */; };
+		A1B2C3D02F01000100000002 /* CanvaSansDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */; };
+		A1B2C3D02F01000100000003 /* CanvaSansDisplay-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */; };
+		A1B2C3D02F01000100000004 /* CanvaSans-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000004 /* CanvaSans-Regular.otf */; };
+		A1B2C3D02F01000100000005 /* CanvaSans-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000005 /* CanvaSans-Medium.otf */; };
+		A1B2C3D02F01000100000006 /* CanvaSans-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000006 /* CanvaSans-Bold.otf */; };
+		A1B2C3E02F02000100000001 /* PushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000001 /* PushProvider.swift */; };
+		A1B2C3E02F02000100000002 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000002 /* DesignSystem.swift */; };
+		A1B2C3E02F02000100000003 /* LoginComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000003 /* LoginComponents.swift */; };
+		A1B2C3E02F02000100000004 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000004 /* Controls.swift */; };
+		A1B2C3E02F02000100000005 /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000005 /* LogConsole.swift */; };
+		A1B2C3E02F0200010000000D /* ConfigurationIssueRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000D /* ConfigurationIssueRows.swift */; };
+		A1B2C3E02F0200010000000E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000E /* HomeView.swift */; };
+		A1B2C3E02F0200010000000F /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000F /* DeliveryView.swift */; };
+		A1B2C3E02F02000100000010 /* TechnicalDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000010 /* TechnicalDetailsView.swift */; };
+		A1B2C3E02F02000100000011 /* PushViewModel+DerivedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000011 /* PushViewModel+DerivedState.swift */; };
+		A1B2C3E02F02000100000012 /* PushViewModel+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000012 /* PushViewModel+Actions.swift */; };
+		A1B2C3E02F02000100000013 /* PushViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000013 /* PushViewModel.swift */; };
+		A1B2C3E02F03000100000002 /* FCMAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F03000100000002 /* FCMAppDelegate.swift */; };
+		A2B000000000000000000002 /* OrttoInAppNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = A2B000000000000000000023 /* OrttoInAppNotifications */; };
+		A2B000000000000000000004 /* OrttoPushMessagingAPNS in Frameworks */ = {isa = PBXBuildFile; productRef = A2B000000000000000000025 /* OrttoPushMessagingAPNS */; };
+		A2B000000000000000000005 /* OrttoSDKCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2B000000000000000000026 /* OrttoSDKCore */; };
+		A2B000000000000000000006 /* NotificationCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */; };
+		A2B000000000000000000007 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D62DEE2CC500AF48DC /* RootView.swift */; };
+		A2B000000000000000000008 /* PushProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000001 /* PushProvider.swift */; };
+		A2B000000000000000000009 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000002 /* DesignSystem.swift */; };
+		A2B00000000000000000000A /* LoginComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000003 /* LoginComponents.swift */; };
+		A2B00000000000000000000B /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000004 /* Controls.swift */; };
+		A2B00000000000000000000C /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000005 /* LogConsole.swift */; };
+		A2B00000000000000000000D /* APNSAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F03000100000001 /* APNSAppDelegate.swift */; };
+		A2B00000000000000000000F /* PushDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */; };
+		A2B000000000000000000010 /* CanvaSansDisplay-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */; };
+		A2B000000000000000000011 /* CanvaSansDisplay-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */; };
+		A2B000000000000000000012 /* CanvaSansDisplay-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */; };
+		A2B000000000000000000013 /* CanvaSans-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000004 /* CanvaSans-Regular.otf */; };
+		A2B000000000000000000014 /* CanvaSans-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000005 /* CanvaSans-Medium.otf */; };
+		A2B000000000000000000015 /* CanvaSans-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D12F01000100000006 /* CanvaSans-Bold.otf */; };
+		A2B000000000000000000016 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */; };
+		A2B000000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EE249D82DEE2CC600AF48DC /* Assets.xcassets */; };
+		A2B000000000000000000018 /* NotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A2B00000000000000000002D /* ConfigurationIssueRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000D /* ConfigurationIssueRows.swift */; };
+		A2B00000000000000000002E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000E /* HomeView.swift */; };
+		A2B00000000000000000002F /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F0200010000000F /* DeliveryView.swift */; };
+		A2B000000000000000000030 /* TechnicalDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000010 /* TechnicalDetailsView.swift */; };
+		A2B000000000000000000031 /* PushViewModel+DerivedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000011 /* PushViewModel+DerivedState.swift */; };
+		A2B000000000000000000032 /* PushViewModel+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000012 /* PushViewModel+Actions.swift */; };
+		A2B000000000000000000033 /* PushViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3E12F02000100000013 /* PushViewModel.swift */; };
+		C0DE00000000000000000030 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000020 /* AppConfiguration.swift */; };
+		C0DE00000000000000000031 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000021 /* AppState.swift */; };
+		C0DE00000000000000000032 /* UIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000022 /* UIModels.swift */; };
+		C0DE00000000000000000033 /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000023 /* AppLog.swift */; };
+		C0DE00000000000000000040 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000020 /* AppConfiguration.swift */; };
+		C0DE00000000000000000041 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000021 /* AppState.swift */; };
+		C0DE00000000000000000042 /* UIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000022 /* UIModels.swift */; };
+		C0DE00000000000000000043 /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE00000000000000000023 /* AppLog.swift */; };
+		C0DE000000000000000000C1 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B1 /* LoginView.swift */; };
+		C0DE000000000000000000C2 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B2 /* MainTabView.swift */; };
+		C0DE000000000000000000C3 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B3 /* LogView.swift */; };
+		C0DE000000000000000000C4 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B1 /* LoginView.swift */; };
+		C0DE000000000000000000C5 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B2 /* MainTabView.swift */; };
+		C0DE000000000000000000C6 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B3 /* LogView.swift */; };
+		C0DE000000000000000000C7 /* PaperShaderBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B4 /* PaperShaderBackground.swift */; };
+		C0DE000000000000000000C8 /* PaperShaderBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE000000000000000000B4 /* PaperShaderBackground.swift */; };
+		C0DEEE000000000000000002 /* OrttoEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEEE000000000000000000 /* OrttoEnvironment.swift */; };
+		C0DEEE000000000000000003 /* OrttoEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEEE000000000000000000 /* OrttoEnvironment.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4EE249E32DEE2CC600AF48DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2B00000000000000000001F;
+			remoteInfo = "PushDemo-APNS";
+		};
+		4EE249ED2DEE2CC600AF48DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2B00000000000000000001F;
+			remoteInfo = "PushDemo-APNS";
+		};
+		4EE24A1B2DEE359E00AF48DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EE24A152DEE359E00AF48DC;
+			remoteInfo = NotificationServiceExtension;
+		};
+		A2B00000000000000000001D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EE249C92DEE2CC500AF48DC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EE24A152DEE359E00AF48DC;
+			remoteInfo = NotificationServiceExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4EE24A212DEE359E00AF48DC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4EE24A1D2DEE359E00AF48DC /* NotificationServiceExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B000000000000000000019 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A2B000000000000000000018 /* NotificationServiceExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushDemo-FCM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoApp.swift; sourceTree = "<group>"; };
+		4EE249D62DEE2CC500AF48DC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		4EE249D82DEE2CC600AF48DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4EE249DA2DEE2CC600AF48DC /* PushDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PushDemo.entitlements; sourceTree = "<group>"; };
+		4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PushDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoTests.swift; sourceTree = "<group>"; };
+		4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PushDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoUITests.swift; sourceTree = "<group>"; };
+		4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDemoLaunchTests.swift; sourceTree = "<group>"; };
+		4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCallbacks.swift; sourceTree = "<group>"; };
+		4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE24A182DEE359E00AF48DC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		4EE24A1A2DEE359E00AF48DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EE24A222DEE365000AF48DC /* NotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationServiceExtension.entitlements; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Regular.otf"; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Medium.otf"; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSansDisplay-Bold.otf"; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000004 /* CanvaSans-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSans-Regular.otf"; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000005 /* CanvaSans-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSans-Medium.otf"; sourceTree = "<group>"; };
+		A1B2C3D12F01000100000006 /* CanvaSans-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CanvaSans-Bold.otf"; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000001 /* PushProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushProvider.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000002 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000003 /* LoginComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginComponents.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000004 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000005 /* LogConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
+		A1B2C3E12F0200010000000D /* ConfigurationIssueRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationIssueRows.swift; sourceTree = "<group>"; };
+		A1B2C3E12F0200010000000E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A1B2C3E12F0200010000000F /* DeliveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryView.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000010 /* TechnicalDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicalDetailsView.swift; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000011 /* PushViewModel+DerivedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PushViewModel+DerivedState.swift"; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000012 /* PushViewModel+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PushViewModel+Actions.swift"; sourceTree = "<group>"; };
+		A1B2C3E12F02000100000013 /* PushViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushViewModel.swift; sourceTree = "<group>"; };
+		A1B2C3E12F03000100000001 /* APNSAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APNSAppDelegate.swift; sourceTree = "<group>"; };
+		A1B2C3E12F03000100000002 /* FCMAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMAppDelegate.swift; sourceTree = "<group>"; };
+		A2B000000000000000000001 /* PushDemo-APNS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PushDemo-APNS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0DE00000000000000000020 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		C0DE00000000000000000021 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		C0DE00000000000000000022 /* UIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIModels.swift; sourceTree = "<group>"; };
+		C0DE00000000000000000023 /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
+		C0DE000000000000000000B1 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		C0DE000000000000000000B2 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		C0DE000000000000000000B3 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
+		C0DE000000000000000000B4 /* PaperShaderBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperShaderBackground.swift; sourceTree = "<group>"; };
+		C0DEEE000000000000000000 /* OrttoEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrttoEnvironment.swift; sourceTree = "<group>"; };
+		C0DEEE000000000000000001 /* OrttoEnvironment.sample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrttoEnvironment.sample.swift; sourceTree = "<group>"; };
+		C0DEFACE0000000000000000 /* BuildDefaults.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildDefaults.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000001 /* APNS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = APNS.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000002 /* FCM.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = FCM.xcconfig; sourceTree = "<group>"; };
+		C0DEFACE0000000000000006 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C0DEFACE0000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0DEFACE000000000000000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4EE249CE2DEE2CC500AF48DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE24A3D2DEE5F0100AF48DC /* OrttoPushMessagingFCM in Frameworks */,
+				4EE24A312DEE3B8A00AF48DC /* OrttoInAppNotifications in Frameworks */,
+				4EE24A372DEE3B8A00AF48DC /* OrttoSDKCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249DF2DEE2CC600AF48DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249E92DEE2CC600AF48DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE24A132DEE359E00AF48DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE24A392DEE475100AF48DC /* OrttoPushMessaging in Frameworks */,
+				4EE24A3B2DEE475100AF48DC /* OrttoSDKCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B00000000000000000001A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B000000000000000000004 /* OrttoPushMessagingAPNS in Frameworks */,
+				A2B000000000000000000002 /* OrttoInAppNotifications in Frameworks */,
+				A2B000000000000000000005 /* OrttoSDKCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4EE249C82DEE2CC500AF48DC = {
+			isa = PBXGroup;
+			children = (
+				C0DEFACE0000000000000006 /* README.md */,
+				4EE249D32DEE2CC500AF48DC /* PushDemo */,
+				4EE249E52DEE2CC600AF48DC /* PushDemoTests */,
+				4EE249EF2DEE2CC600AF48DC /* PushDemoUITests */,
+				4EE24A172DEE359E00AF48DC /* NotificationServiceExtension */,
+				4EE249D22DEE2CC500AF48DC /* Products */,
+				4EE24A252DEE392500AF48DC /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4EE249D22DEE2CC500AF48DC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */,
+				A2B000000000000000000001 /* PushDemo-APNS.app */,
+				4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */,
+				4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */,
+				4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4EE249D32DEE2CC500AF48DC /* PushDemo */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE000000000000000000A1 /* App */,
+				C0DE000000000000000000A2 /* Models */,
+				C0DE000000000000000000A3 /* Support */,
+				C0DE000000000000000000A4 /* ViewModels */,
+				C0DE000000000000000000A5 /* Views */,
+				C0DEFACE0000000000000007 /* Configurations */,
+				4EE249D82DEE2CC600AF48DC /* Assets.xcassets */,
+				A1B2C3D22F01000100000001 /* Fonts */,
+				4EE249DA2DEE2CC600AF48DC /* PushDemo.entitlements */,
+				4EE249DB2DEE2CC600AF48DC /* Preview Content */,
+			);
+			path = PushDemo;
+			sourceTree = "<group>";
+		};
+		4EE249DB2DEE2CC600AF48DC /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249DC2DEE2CC600AF48DC /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		4EE249E52DEE2CC600AF48DC /* PushDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249E62DEE2CC600AF48DC /* PushDemoTests.swift */,
+			);
+			path = PushDemoTests;
+			sourceTree = "<group>";
+		};
+		4EE249EF2DEE2CC600AF48DC /* PushDemoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249F02DEE2CC600AF48DC /* PushDemoUITests.swift */,
+				4EE249F22DEE2CC600AF48DC /* PushDemoLaunchTests.swift */,
+			);
+			path = PushDemoUITests;
+			sourceTree = "<group>";
+		};
+		4EE24A172DEE359E00AF48DC /* NotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				4EE24A222DEE365000AF48DC /* NotificationServiceExtension.entitlements */,
+				4EE24A182DEE359E00AF48DC /* NotificationService.swift */,
+				4EE24A1A2DEE359E00AF48DC /* Info.plist */,
+			);
+			path = NotificationServiceExtension;
+			sourceTree = "<group>";
+		};
+		4EE24A252DEE392500AF48DC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1B2C3D22F01000100000001 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D12F01000100000001 /* CanvaSansDisplay-Regular.otf */,
+				A1B2C3D12F01000100000002 /* CanvaSansDisplay-Medium.otf */,
+				A1B2C3D12F01000100000003 /* CanvaSansDisplay-Bold.otf */,
+				A1B2C3D12F01000100000004 /* CanvaSans-Regular.otf */,
+				A1B2C3D12F01000100000005 /* CanvaSans-Medium.otf */,
+				A1B2C3D12F01000100000006 /* CanvaSans-Bold.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A1 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249D42DEE2CC500AF48DC /* PushDemoApp.swift */,
+				A1B2C3E12F03000100000001 /* APNSAppDelegate.swift */,
+				A1B2C3E12F03000100000002 /* FCMAppDelegate.swift */,
+				4EE24A0D2DEE31DF00AF48DC /* NotificationCallbacks.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3E12F02000100000001 /* PushProvider.swift */,
+				C0DE00000000000000000021 /* AppState.swift */,
+				C0DE00000000000000000022 /* UIModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A3 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE00000000000000000020 /* AppConfiguration.swift */,
+				C0DEEE000000000000000000 /* OrttoEnvironment.swift */,
+				C0DEEE000000000000000001 /* OrttoEnvironment.sample.swift */,
+				C0DE00000000000000000023 /* AppLog.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A4 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3E12F02000100000013 /* PushViewModel.swift */,
+				A1B2C3E12F02000100000012 /* PushViewModel+Actions.swift */,
+				A1B2C3E12F02000100000011 /* PushViewModel+DerivedState.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4EE249D62DEE2CC500AF48DC /* RootView.swift */,
+				C0DE000000000000000000A7 /* Login */,
+				C0DE000000000000000000A8 /* Main */,
+				C0DE000000000000000000A6 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A6 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3E12F02000100000002 /* DesignSystem.swift */,
+				A1B2C3E12F02000100000004 /* Controls.swift */,
+				A1B2C3E12F0200010000000D /* ConfigurationIssueRows.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A7 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE000000000000000000B1 /* LoginView.swift */,
+				A1B2C3E12F02000100000003 /* LoginComponents.swift */,
+				C0DE000000000000000000B4 /* PaperShaderBackground.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		C0DE000000000000000000A8 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE000000000000000000B2 /* MainTabView.swift */,
+				A1B2C3E12F0200010000000E /* HomeView.swift */,
+				A1B2C3E12F0200010000000F /* DeliveryView.swift */,
+				C0DE000000000000000000B3 /* LogView.swift */,
+				A1B2C3E12F02000100000005 /* LogConsole.swift */,
+				A1B2C3E12F02000100000010 /* TechnicalDetailsView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		C0DEFACE0000000000000007 /* Configurations */ = {
+			isa = PBXGroup;
+			children = (
+				C0DEFACE0000000000000000 /* BuildDefaults.xcconfig */,
+				C0DEFACE0000000000000009 /* APNS */,
+				C0DEFACE000000000000000B /* FCM */,
+			);
+			path = Configurations;
+			sourceTree = "<group>";
+		};
+		C0DEFACE0000000000000009 /* APNS */ = {
+			isa = PBXGroup;
+			children = (
+				C0DEFACE0000000000000001 /* APNS.xcconfig */,
+				C0DEFACE0000000000000008 /* Info.plist */,
+			);
+			path = APNS;
+			sourceTree = "<group>";
+		};
+		C0DEFACE000000000000000B /* FCM */ = {
+			isa = PBXGroup;
+			children = (
+				C0DEFACE0000000000000002 /* FCM.xcconfig */,
+				C0DEFACE000000000000000A /* Info.plist */,
+			);
+			path = FCM;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4EE249D02DEE2CC500AF48DC /* PushDemo-FCM */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemo-FCM" */;
+			buildPhases = (
+				4EE249CD2DEE2CC500AF48DC /* Sources */,
+				4EE249CE2DEE2CC500AF48DC /* Frameworks */,
+				4EE249CF2DEE2CC500AF48DC /* Resources */,
+				C0DEFACE0000000000000005 /* Bundle GoogleService-Info.plist if present */,
+				4EE24A212DEE359E00AF48DC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EE24A1C2DEE359E00AF48DC /* PBXTargetDependency */,
+			);
+			name = "PushDemo-FCM";
+			packageProductDependencies = (
+				4EE24A302DEE3B8A00AF48DC /* OrttoInAppNotifications */,
+				4EE24A3E2DEE5F0100AF48DC /* OrttoPushMessagingFCM */,
+				4EE24A362DEE3B8A00AF48DC /* OrttoSDKCore */,
+			);
+			productName = "PushDemo-FCM";
+			productReference = 4EE249D12DEE2CC500AF48DC /* PushDemo-FCM.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4EE249E12DEE2CC600AF48DC /* PushDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoTests" */;
+			buildPhases = (
+				4EE249DE2DEE2CC600AF48DC /* Sources */,
+				4EE249DF2DEE2CC600AF48DC /* Frameworks */,
+				4EE249E02DEE2CC600AF48DC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EE249E42DEE2CC600AF48DC /* PBXTargetDependency */,
+			);
+			name = PushDemoTests;
+			productName = PushDemoTests;
+			productReference = 4EE249E22DEE2CC600AF48DC /* PushDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4EE249EB2DEE2CC600AF48DC /* PushDemoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoUITests" */;
+			buildPhases = (
+				4EE249E82DEE2CC600AF48DC /* Sources */,
+				4EE249E92DEE2CC600AF48DC /* Frameworks */,
+				4EE249EA2DEE2CC600AF48DC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EE249EE2DEE2CC600AF48DC /* PBXTargetDependency */,
+			);
+			name = PushDemoUITests;
+			productName = PushDemoUITests;
+			productReference = 4EE249EC2DEE2CC600AF48DC /* PushDemoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EE24A1E2DEE359E00AF48DC /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
+			buildPhases = (
+				4EE24A122DEE359E00AF48DC /* Sources */,
+				4EE24A132DEE359E00AF48DC /* Frameworks */,
+				4EE24A142DEE359E00AF48DC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NotificationServiceExtension;
+			packageProductDependencies = (
+				4EE24A382DEE475100AF48DC /* OrttoPushMessaging */,
+				4EE24A3A2DEE475100AF48DC /* OrttoSDKCore */,
+			);
+			productName = NotificationServiceExtension;
+			productReference = 4EE24A162DEE359E00AF48DC /* NotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		A2B00000000000000000001F /* PushDemo-APNS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushDemo-APNS" */;
+			buildPhases = (
+				A2B00000000000000000001C /* Sources */,
+				A2B00000000000000000001A /* Frameworks */,
+				A2B00000000000000000001B /* Resources */,
+				A2B000000000000000000019 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A2B00000000000000000001E /* PBXTargetDependency */,
+			);
+			name = "PushDemo-APNS";
+			packageProductDependencies = (
+				A2B000000000000000000023 /* OrttoInAppNotifications */,
+				A2B000000000000000000025 /* OrttoPushMessagingAPNS */,
+				A2B000000000000000000026 /* OrttoSDKCore */,
+			);
+			productName = "PushDemo-APNS";
+			productReference = A2B000000000000000000001 /* PushDemo-APNS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4EE249C92DEE2CC500AF48DC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					4EE249D02DEE2CC500AF48DC = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					4EE249E12DEE2CC600AF48DC = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A2B00000000000000000001F;
+					};
+					4EE249EB2DEE2CC600AF48DC = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A2B00000000000000000001F;
+					};
+					4EE24A152DEE359E00AF48DC = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					A2B00000000000000000001F = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = 4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "PushDemo" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4EE249C82DEE2CC500AF48DC;
+			packageReferences = (
+				4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */,
+			);
+			productRefGroup = 4EE249D22DEE2CC500AF48DC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4EE249D02DEE2CC500AF48DC /* PushDemo-FCM */,
+				A2B00000000000000000001F /* PushDemo-APNS */,
+				4EE249E12DEE2CC600AF48DC /* PushDemoTests */,
+				4EE249EB2DEE2CC600AF48DC /* PushDemoUITests */,
+				4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4EE249CF2DEE2CC500AF48DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D02F01000100000001 /* CanvaSansDisplay-Regular.otf in Resources */,
+				A1B2C3D02F01000100000002 /* CanvaSansDisplay-Medium.otf in Resources */,
+				A1B2C3D02F01000100000003 /* CanvaSansDisplay-Bold.otf in Resources */,
+				A1B2C3D02F01000100000004 /* CanvaSans-Regular.otf in Resources */,
+				A1B2C3D02F01000100000005 /* CanvaSans-Medium.otf in Resources */,
+				A1B2C3D02F01000100000006 /* CanvaSans-Bold.otf in Resources */,
+				4EE249DD2DEE2CC600AF48DC /* Preview Assets.xcassets in Resources */,
+				4EE249D92DEE2CC600AF48DC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249E02DEE2CC600AF48DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249EA2DEE2CC600AF48DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE24A142DEE359E00AF48DC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B00000000000000000001B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B000000000000000000010 /* CanvaSansDisplay-Regular.otf in Resources */,
+				A2B000000000000000000011 /* CanvaSansDisplay-Medium.otf in Resources */,
+				A2B000000000000000000012 /* CanvaSansDisplay-Bold.otf in Resources */,
+				A2B000000000000000000013 /* CanvaSans-Regular.otf in Resources */,
+				A2B000000000000000000014 /* CanvaSans-Medium.otf in Resources */,
+				A2B000000000000000000015 /* CanvaSans-Bold.otf in Resources */,
+				A2B000000000000000000016 /* Preview Assets.xcassets in Resources */,
+				A2B000000000000000000017 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C0DEFACE0000000000000005 /* Bundle GoogleService-Info.plist if present */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/PushDemo/GoogleService-Info.plist",
+			);
+			name = "Bundle GoogleService-Info.plist if present";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nGOOGLE_SERVICE_INFO=\"${SRCROOT}/PushDemo/GoogleService-Info.plist\"\nDESTINATION=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ -f \"${GOOGLE_SERVICE_INFO}\" ]; then\n    mkdir -p \"$(dirname \"${DESTINATION}\")\"\n    cp \"${GOOGLE_SERVICE_INFO}\" \"${DESTINATION}\"\n    echo \"Bundled local GoogleService-Info.plist\"\nelse\n    echo \"No local GoogleService-Info.plist found; FCM demo will show its missing Firebase configuration state.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4EE249CD2DEE2CC500AF48DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE24A102DEE31E000AF48DC /* NotificationCallbacks.swift in Sources */,
+				C0DE00000000000000000033 /* AppLog.swift in Sources */,
+				C0DE00000000000000000030 /* AppConfiguration.swift in Sources */,
+				C0DEEE000000000000000002 /* OrttoEnvironment.swift in Sources */,
+				C0DE00000000000000000031 /* AppState.swift in Sources */,
+				A1B2C3E02F03000100000002 /* FCMAppDelegate.swift in Sources */,
+				4EE249D72DEE2CC500AF48DC /* RootView.swift in Sources */,
+				A1B2C3E02F02000100000001 /* PushProvider.swift in Sources */,
+				C0DE00000000000000000032 /* UIModels.swift in Sources */,
+				A1B2C3E02F02000100000002 /* DesignSystem.swift in Sources */,
+				A1B2C3E02F02000100000003 /* LoginComponents.swift in Sources */,
+				C0DE000000000000000000C1 /* LoginView.swift in Sources */,
+				C0DE000000000000000000C7 /* PaperShaderBackground.swift in Sources */,
+				C0DE000000000000000000C2 /* MainTabView.swift in Sources */,
+				C0DE000000000000000000C3 /* LogView.swift in Sources */,
+				A1B2C3E02F02000100000013 /* PushViewModel.swift in Sources */,
+				A1B2C3E02F02000100000011 /* PushViewModel+DerivedState.swift in Sources */,
+				A1B2C3E02F02000100000012 /* PushViewModel+Actions.swift in Sources */,
+				A1B2C3E02F02000100000004 /* Controls.swift in Sources */,
+				A1B2C3E02F0200010000000D /* ConfigurationIssueRows.swift in Sources */,
+				A1B2C3E02F0200010000000E /* HomeView.swift in Sources */,
+				A1B2C3E02F0200010000000F /* DeliveryView.swift in Sources */,
+				A1B2C3E02F02000100000010 /* TechnicalDetailsView.swift in Sources */,
+				A1B2C3E02F02000100000005 /* LogConsole.swift in Sources */,
+				4EE249D52DEE2CC500AF48DC /* PushDemoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249DE2DEE2CC600AF48DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE249E72DEE2CC600AF48DC /* PushDemoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE249E82DEE2CC600AF48DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE249F32DEE2CC600AF48DC /* PushDemoLaunchTests.swift in Sources */,
+				4EE249F12DEE2CC600AF48DC /* PushDemoUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EE24A122DEE359E00AF48DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EE24A192DEE359E00AF48DC /* NotificationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B00000000000000000001C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B000000000000000000006 /* NotificationCallbacks.swift in Sources */,
+				C0DE00000000000000000043 /* AppLog.swift in Sources */,
+				C0DE00000000000000000040 /* AppConfiguration.swift in Sources */,
+				C0DEEE000000000000000003 /* OrttoEnvironment.swift in Sources */,
+				C0DE00000000000000000041 /* AppState.swift in Sources */,
+				A2B00000000000000000000D /* APNSAppDelegate.swift in Sources */,
+				A2B000000000000000000007 /* RootView.swift in Sources */,
+				A2B000000000000000000008 /* PushProvider.swift in Sources */,
+				C0DE00000000000000000042 /* UIModels.swift in Sources */,
+				A2B000000000000000000009 /* DesignSystem.swift in Sources */,
+				A2B00000000000000000000A /* LoginComponents.swift in Sources */,
+				C0DE000000000000000000C4 /* LoginView.swift in Sources */,
+				C0DE000000000000000000C8 /* PaperShaderBackground.swift in Sources */,
+				C0DE000000000000000000C5 /* MainTabView.swift in Sources */,
+				C0DE000000000000000000C6 /* LogView.swift in Sources */,
+				A2B000000000000000000033 /* PushViewModel.swift in Sources */,
+				A2B000000000000000000031 /* PushViewModel+DerivedState.swift in Sources */,
+				A2B000000000000000000032 /* PushViewModel+Actions.swift in Sources */,
+				A2B00000000000000000000B /* Controls.swift in Sources */,
+				A2B00000000000000000002D /* ConfigurationIssueRows.swift in Sources */,
+				A2B00000000000000000002E /* HomeView.swift in Sources */,
+				A2B00000000000000000002F /* DeliveryView.swift in Sources */,
+				A2B000000000000000000030 /* TechnicalDetailsView.swift in Sources */,
+				A2B00000000000000000000C /* LogConsole.swift in Sources */,
+				A2B00000000000000000000F /* PushDemoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4EE249E42DEE2CC600AF48DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2B00000000000000000001F /* PushDemo-APNS */;
+			targetProxy = 4EE249E32DEE2CC600AF48DC /* PBXContainerItemProxy */;
+		};
+		4EE249EE2DEE2CC600AF48DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2B00000000000000000001F /* PushDemo-APNS */;
+			targetProxy = 4EE249ED2DEE2CC600AF48DC /* PBXContainerItemProxy */;
+		};
+		4EE24A1C2DEE359E00AF48DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */;
+			targetProxy = 4EE24A1B2DEE359E00AF48DC /* PBXContainerItemProxy */;
+		};
+		A2B00000000000000000001E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EE24A152DEE359E00AF48DC /* NotificationServiceExtension */;
+			targetProxy = A2B00000000000000000001D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		4EE249F42DEE2CC600AF48DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W36N65RH8S;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4EE249F52DEE2CC600AF48DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W36N65RH8S;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		4EE249F72DEE2CC600AF48DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DEFACE0000000000000002 /* FCM.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = PushDemo/PushDemo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PushDemo/Configurations/FCM/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Push Demo FCM";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PUSH_DEMO_FCM";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4EE249F82DEE2CC600AF48DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DEFACE0000000000000002 /* FCM.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = PushDemo/PushDemo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PushDemo/Configurations/FCM/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Push Demo FCM";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PUSH_DEMO_FCM";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		4EE249FA2DEE2CC600AF48DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ortto.com.push-token-reproTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushDemo-APNS";
+			};
+			name = Debug;
+		};
+		4EE249FB2DEE2CC600AF48DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ortto.com.push-token-reproTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PushDemo-APNS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PushDemo-APNS";
+			};
+			name = Release;
+		};
+		4EE249FD2DEE2CC600AF48DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ortto.com.push-token-reproUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = "PushDemo-APNS";
+			};
+			name = Debug;
+		};
+		4EE249FE2DEE2CC600AF48DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ortto.com.push-token-reproUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = "PushDemo-APNS";
+			};
+			name = Release;
+		};
+		4EE24A1F2DEE359E00AF48DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				ENABLE_DEBUG_DYLIB = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro.apns.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4EE24A202DEE359E00AF48DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro.apns.NotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A2B000000000000000000020 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DEFACE0000000000000001 /* APNS.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = PushDemo/PushDemo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PushDemo/Configurations/APNS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Push Demo";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro.apns;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PUSH_DEMO_APNS";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A2B000000000000000000021 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DEFACE0000000000000001 /* APNS.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = PushDemo/PushDemo.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"PushDemo/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PushDemo/Configurations/APNS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Push Demo";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MARKETING_VERSION = 1.1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ortto.pushtokenrepro.apns;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PUSH_DEMO_APNS";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4EE249CC2DEE2CC500AF48DC /* Build configuration list for PBXProject "PushDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EE249F42DEE2CC600AF48DC /* Debug */,
+				4EE249F52DEE2CC600AF48DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EE249F62DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemo-FCM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EE249F72DEE2CC600AF48DC /* Debug */,
+				4EE249F82DEE2CC600AF48DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EE249F92DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EE249FA2DEE2CC600AF48DC /* Debug */,
+				4EE249FB2DEE2CC600AF48DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EE249FC2DEE2CC600AF48DC /* Build configuration list for PBXNativeTarget "PushDemoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EE249FD2DEE2CC600AF48DC /* Debug */,
+				4EE249FE2DEE2CC600AF48DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EE24A1E2DEE359E00AF48DC /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EE24A1F2DEE359E00AF48DC /* Debug */,
+				4EE24A202DEE359E00AF48DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A2B000000000000000000022 /* Build configuration list for PBXNativeTarget "PushDemo-APNS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2B000000000000000000020 /* Debug */,
+				A2B000000000000000000021 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4EE24A302DEE3B8A00AF48DC /* OrttoInAppNotifications */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoInAppNotifications;
+		};
+		4EE24A362DEE3B8A00AF48DC /* OrttoSDKCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoSDKCore;
+		};
+		4EE24A382DEE475100AF48DC /* OrttoPushMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoPushMessaging;
+		};
+		4EE24A3A2DEE475100AF48DC /* OrttoSDKCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoSDKCore;
+		};
+		4EE24A3E2DEE5F0100AF48DC /* OrttoPushMessagingFCM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoPushMessagingFCM;
+		};
+		A2B000000000000000000023 /* OrttoInAppNotifications */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoInAppNotifications;
+		};
+		A2B000000000000000000025 /* OrttoPushMessagingAPNS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoPushMessagingAPNS;
+		};
+		A2B000000000000000000026 /* OrttoSDKCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE24A3C2DEE4D4800AF48DC /* XCLocalSwiftPackageReference ".." */;
+			productName = OrttoSDKCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 4EE249C92DEE2CC500AF48DC /* Project object */;
+}

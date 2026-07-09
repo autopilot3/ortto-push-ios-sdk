@@ -25,11 +25,21 @@ extension OrttoAPIError: LocalizedError {
         switch self {
         case .request(let error):
             return error.localizedDescription
-        case .server(let statusCode, let message, _):
-            if let message {
-                return "Server error \(statusCode): \(message)"
+        case .server(let statusCode, let message, let data):
+            var description = message.map { "Server error \(statusCode): \($0)." }
+                ?? "Server error \(statusCode)."
+            // Surface the raw response body so failures like a 404 from the wrong
+            // endpoint/data-source are diagnosable from the log alone, not just
+            // the parsed `{"error":…}` summary (which is often empty or generic).
+            if let body = data.flatMap({ String(data: $0, encoding: .utf8) })?
+                .trimmingCharacters(in: .whitespacesAndNewlines), !body.isEmpty {
+                let limit = 2048
+                let truncated = body.count > limit
+                    ? String(body.prefix(limit)) + "… (truncated, \(body.count) bytes total)"
+                    : body
+                description += " Response body: \(truncated)"
             }
-            return "Server error \(statusCode)."
+            return description
         case .decoding(let error):
             return "Failed to decode API response: \(error.localizedDescription)"
         }
