@@ -1,52 +1,79 @@
-name: Deploy SDK
+name: Validate and publish CocoaPods
 
-on:  
-  workflow_dispatch: 
+on:
+  workflow_dispatch:
     inputs:
       git-tag:
-        description: 'Tag'
+        description: Existing SDK tag to validate or publish
         required: true
-        type: string 
+        type: string
+      publish:
+        description: Publish validated podspecs to CocoaPods trunk
+        required: true
+        default: false
+        type: boolean
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  deploy-to-cocoapods:
-    name: Deploy to cocoapods 
+  cocoapods:
+    name: Validate and publish ${{ inputs.git-tag }}
+    runs-on: macos-15
     env:
-      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}    
-    runs-on: macos-14
+      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+      SDK_TAG: ${{ inputs.git-tag }}
     steps:
-      - name: Checkout git tag that was previously created 
+      - name: Checkout the existing release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git-tag }}
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2.0'
+          xcode-version: '26.2'
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
+          ruby-version: '3.3'
 
-      - name: Install cocoapods
-        run: gem install cocoapods
+      - name: Install CocoaPods 1.17.0
+        run: gem install cocoapods -v 1.17.0 --no-document
 
-      - name: Push OrttoSDKCore
-        run: pod trunk push OrttoSDKCore.podspec --allow-warnings --synchronous || true 
+      - name: Verify podspec versions and source tags
+        run: |
+          expected_version="${SDK_TAG#v}"
+          for podspec in OrttoSDKCore.podspec OrttoPushMessaging.podspec OrttoPushMessagingFCM.podspec OrttoPushMessagingAPNS.podspec OrttoInAppNotifications.podspec; do
+            version=$(ruby -r cocoapods -e 'puts Pod::Specification.from_file(ARGV.fetch(0)).version' "$podspec")
+            source_tag=$(ruby -r cocoapods -e 'puts Pod::Specification.from_file(ARGV.fetch(0)).source[:tag]' "$podspec")
+            test "$version" = "$expected_version"
+            test "$source_tag" = "$SDK_TAG"
+          done
 
-      - name: Push OrttoPushMessaging
-        run: pod trunk push OrttoPushMessaging.podspec --allow-warnings --synchronous || true 
+      - name: Validate podspecs
+        run: |
+          for podspec in OrttoSDKCore.podspec OrttoPushMessaging.podspec OrttoPushMessagingFCM.podspec OrttoPushMessagingAPNS.podspec OrttoInAppNotifications.podspec; do
+            pod lib lint "$podspec" \
+              --allow-warnings \
+              --include-podspecs='Ortto*.podspec'
+          done
 
-      - name: Push OrttoPushMessagingFCM
-        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings --synchronous || true 
+      - name: Publish OrttoSDKCore
+        if: inputs.publish
+        run: pod trunk push OrttoSDKCore.podspec --allow-warnings --synchronous
 
-      - name: Push OrttoPushMessagingAPNS
-        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings --synchronous || true 
+      - name: Publish OrttoPushMessaging
+        if: inputs.publish
+        run: pod trunk push OrttoPushMessaging.podspec --allow-warnings --synchronous
 
-      - name: Push OrttoInAppNotifications
-        run: pod trunk push OrttoInAppNotifications.podspec --allow-warnings --synchronous || true 
+      - name: Publish OrttoPushMessagingFCM
+        if: inputs.publish
+        run: pod trunk push OrttoPushMessagingFCM.podspec --allow-warnings --synchronous
+
+      - name: Publish OrttoPushMessagingAPNS
+        if: inputs.publish
+        run: pod trunk push OrttoPushMessagingAPNS.podspec --allow-warnings --synchronous
+
+      - name: Publish OrttoInAppNotifications
+        if: inputs.publish
+        run: pod trunk push OrttoInAppNotifications.podspec --allow-warnings --synchronous
