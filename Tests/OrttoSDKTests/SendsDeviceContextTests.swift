@@ -79,7 +79,6 @@ final class SendsDeviceContextTests: OrttoTestCase {
         let request = RegisterIdentityRequest(
             user: UserIdentifier(contactID: nil, email: "test@example.com", phone: nil, externalID: nil, firstName: nil, lastName: nil, acceptsGDPR: false),
             appKey: "key",
-            sessionID: nil,
             shouldSkipNonExistingContacts: false
         )
         XCTAssertTrue(request.appendsDeviceQueryItems)
@@ -88,7 +87,6 @@ final class SendsDeviceContextTests: OrttoTestCase {
     func testSendPushPermissionRequestSendsDeviceContext() {
         let request = SendPushPermissionRequest(
             appKey: "key",
-            sessionID: nil,
             token: PushToken(value: "token", type: "apns"),
             permission: true
         )
@@ -101,7 +99,7 @@ final class SendsDeviceContextTests: OrttoTestCase {
     }
 
     func testFetchWidgetsRequestDoesNotSendDeviceContext() {
-        let request = FetchWidgetsRequest(sessionId: nil, applicationKey: "key")
+        let request = FetchWidgetsRequest(applicationKey: "key")
         XCTAssertFalse(request.appendsDeviceQueryItems)
     }
 }

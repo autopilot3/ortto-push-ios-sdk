@@ -90,25 +90,29 @@ public class PushMessaging {
         set { Ortto.shared.preferences.setObject(object: newValue as Registration?, key: "latestRegistration") }
     }
 
-    /// Registers the token unless it's already registered. Safe to call repeatedly.
+    /// Fire-and-forget registration of the stored token; bridges to the async version.
     func sendPushRegistration(_ token: PushToken) {
-        // Dedup on token, not session: contact switches clear this via clearIdentity.
-        if let latest = latestRegistration, latest.token == token {
-            Ortto.log().info("PushMessaging@registration skip; token already registered \(latest.date)")
-            return
-        }
-
-        registerDeviceToken(sessionID: Ortto.shared.userStorage.session, token: token) { (response: PushRegistrationResponse?) in
-            guard let response else {
-                Ortto.log().info("PushMessaging@registration failed; token kept for retry")
-                return
-            }
-            self.latestRegistration = Registration(token: token, date: Date())
-            Ortto.shared.setSessionID(response.sessionId)
-        }
+        Task { try? await sendPushRegistration(token) }
     }
 
-    func registerDeviceToken(sessionID: String?, token: PushToken, completion: @escaping (PushRegistrationResponse?) -> Void) {
-        MessagingService.shared.registerDeviceToken(sessionID: sessionID, token: token, completion: completion)
+    /// Registers the token unless already registered (dedup keyed on token; clearIdentity resets it on contact switch). `nil` if already registered.
+    @discardableResult
+    func sendPushRegistration(_ token: PushToken) async throws -> PushRegistrationResponse? {
+        if let latest = latestRegistration, latest.token == token {
+            Ortto.log().info("PushMessaging@registration skip; token already registered \(latest.date)")
+            return nil
+        }
+        return try await registerDeviceToken(token: token)
+    }
+
+    /// Registers the token and records it for dedup; no dedup check here (unlike `sendPushRegistration`). Session persisted in-lane by `send`.
+    @discardableResult
+    func registerDeviceToken(token: PushToken) async throws -> PushRegistrationResponse {
+        let response = try await Ortto.shared.apiManager
+            .sendPushPermissionResult(token: token, permission: permission.isAllowed())
+            .get()
+        // Session is persisted inside the serial lane; here we only record the dedup marker.
+        latestRegistration = Registration(token: token, date: Date())
+        return response
     }
 }

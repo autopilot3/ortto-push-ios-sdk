@@ -6,7 +6,7 @@
 
 import Foundation
 
-public struct UserIdentifier: Codable {
+public struct UserIdentifier: Codable, Sendable {
     public var contactID: String?
     public var email: String?
     public var phone: String?

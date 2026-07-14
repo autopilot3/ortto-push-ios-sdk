@@ -10,8 +10,8 @@ import Foundation
 @testable import OrttoSDKCore
 import XCTest
 
-class UrlTrackingTest: OrttoTestCase {
-    
+class UrlTrackingTest: OrttoIsolatedTestCase {
+
     var mockApiManager: MockApiManager!
 
     override func setUp() {
@@ -36,6 +36,19 @@ class UrlTrackingTest: OrttoTestCase {
         }
 
         waitForExpectations(timeout: 5, handler: nil)
+
+        XCTAssertEqual(mockApiManager.lastTrackingUrl?.absoluteString, expectedDecodedUrl)
+    }
+
+    func testTrackLinkClickAsync() async throws {
+        let encodedUrl = "ortto-sdk://example.com/pathname?tracking_url=aHR0cHM6Ly90cmFja2luZy5leGFtcGxlLmNvbS8_cD1leGFtcGxlJnBsdD1pb3MmZT0xMTYxYzUzOThhYzMyY2JiNjI3ZmY1NzU3Y2U0ZWQyNzdjNjkwNTkwZWJhNzBhN2Q2Y2Q5ZDRhMWZkMTc1ZjJhJnNpZD02NjczYTRhZWZlNjllM2E3YWJkM2I4MTU"
+        var expectedDecodedUrl = "https://tracking.example.com/?p=example&plt=ios&e=1161c5398ac32cbb627ff5757ce4ed277c690590eba70a7d6cd9d4a1fd175f2a&sid=6673a4aefe69e3a7abd3b815"
+
+        var urlComponents = URLComponents(string: expectedDecodedUrl)!
+        urlComponents.queryItems?.append(contentsOf: DeviceIdentity.getTrackingQueryItems())
+        expectedDecodedUrl = urlComponents.url!.absoluteString
+
+        try await Ortto.shared.trackLinkClick(encodedUrl)
 
         XCTAssertEqual(mockApiManager.lastTrackingUrl?.absoluteString, expectedDecodedUrl)
     }

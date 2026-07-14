@@ -9,7 +9,7 @@ import Foundation
 @testable import OrttoSDKCore
 import XCTest
 
-final class PushPermissionHTTPTests: OrttoTestCase {
+final class PushPermissionHTTPTests: OrttoIsolatedTestCase {
 
     private let baseURL = URL(string: "https://api.example.test")!
     private let token = PushToken(value: "device-token", type: "apns")
@@ -27,6 +27,9 @@ final class PushPermissionHTTPTests: OrttoTestCase {
     func testSendPushPermissionSendsExpectedRequest() async throws {
         let http = MockOrttoHTTPClient()
         let api = makeApiManager(http: http)
+        // The request carries the live session from userStorage (read inside the queue),
+        // not the argument passed to sendPushPermissionResult.
+        Ortto.shared.userStorage.session = "session-id"
 
         http.sendResponder = { request in
             XCTAssertEqual(request.httpMethod, "POST")
@@ -46,7 +49,6 @@ final class PushPermissionHTTPTests: OrttoTestCase {
         }
 
         let result = await api.sendPushPermissionResult(
-            sessionID: "session-id",
             token: token,
             permission: true
         )
@@ -68,7 +70,6 @@ final class PushPermissionHTTPTests: OrttoTestCase {
         }
 
         api.sendPushPermission(
-            sessionID: "session-id",
             token: token,
             permission: true
         ) { response in
@@ -90,7 +91,6 @@ final class PushPermissionHTTPTests: OrttoTestCase {
         }
 
         let result = await api.sendPushPermissionResult(
-            sessionID: "session-id",
             token: token,
             permission: true
         )
@@ -116,7 +116,6 @@ final class PushPermissionHTTPTests: OrttoTestCase {
         }
 
         api.sendPushPermission(
-            sessionID: "session-id",
             token: token,
             permission: true
         ) { response in
@@ -136,7 +135,6 @@ final class PushPermissionHTTPTests: OrttoTestCase {
         }
 
         let result = await api.sendPushPermissionResult(
-            sessionID: nil,
             token: token,
             permission: true
         )

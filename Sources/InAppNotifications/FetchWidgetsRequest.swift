@@ -14,12 +14,13 @@ import OrttoSDKCore
 /// Encodes itself as the POST body using the short wire-format keys.
 /// Uses a custom date decoder because the API returns dates in
 /// `"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"` form.
-struct FetchWidgetsRequest: OrttoAPIRequest, Encodable {
+struct FetchWidgetsRequest: OrttoAPISessionRequest, Encodable {
     typealias Response = WidgetsResponse
 
     // MARK: - Fields (wire format)
 
-    let sessionId: String?
+    // Not a constructor argument — the send middleware sets this (OrttoAPISessionRequest).
+    var sessionID: String? = nil
     let contactId: String?
     let emailAddress: String?
     let phoneNumber: String?
@@ -32,12 +33,10 @@ struct FetchWidgetsRequest: OrttoAPIRequest, Encodable {
     // MARK: - Init
 
     init(
-        sessionId: String?,
         applicationKey: String,
         contactId: String? = nil,
         emailAddress: String? = nil
     ) {
-        self.sessionId = sessionId
         self.applicationKey = applicationKey
         self.contactId = contactId
         self.emailAddress = emailAddress
@@ -52,6 +51,10 @@ struct FetchWidgetsRequest: OrttoAPIRequest, Encodable {
 
     var method: HTTPMethod { .post }
     var endpoint: String { "/-/widgets/get" }
+
+    func persistedSession(from response: WidgetsResponse) -> String? {
+        response.sessionId
+    }
 
     /// Encodes `self` — no separate body struct needed.
     func encodeBody(using encoder: JSONEncoder) throws -> Data? {
@@ -83,7 +86,7 @@ struct FetchWidgetsRequest: OrttoAPIRequest, Encodable {
     // MARK: - Wire-format coding keys
 
     enum CodingKeys: String, CodingKey {
-        case sessionId       = "s"
+        case sessionID       = "s"
         case contactId       = "c"
         case emailAddress    = "e"
         case phoneNumber     = "p"

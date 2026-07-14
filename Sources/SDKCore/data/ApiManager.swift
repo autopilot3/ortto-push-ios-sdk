@@ -10,19 +10,35 @@
 import Foundation
 
 public protocol ApiManagerInterface {
-    /// Registers the current user identity and returns the Ortto session ID.
-    func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse?
-
-    /// Fires a GET tracking request to a pre-built URL (e.g. link-click tracking).
-    func sendLinkTracking(_ trackingUrl: URL) async throws
-
     /// The app key this manager was configured with, or `nil` if not yet initialized.
     var appKey: String? { get }
 
-    /// Sends any typed API request through the connector.
-    /// Extensions in other modules (e.g. `OrttoPushMessaging`) use this to add
-    /// endpoint methods without accessing the connector directly.
+    /// Single send path: retries when `isRetryable`; routes `isSessionBound` requests through
+    /// the session lane + middleware (read→inject→send→persist) so they converge on one
+    /// session. Others go straight to the connector.
     func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response
+
+    /// Sends straight to the connector, bypassing the session lane — for use from INSIDE an already-queued operation (a nested `send` would deadlock on the lane). Retries like `send`; the caller owns session injection/persistence.
+    func sendUnqueued<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response
+}
+
+extension ApiManagerInterface {
+
+    /// Default for fakes (which have no queue): identical to `send`.
+    public func sendUnqueued<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
+        try await send(request)
+    }
+
+    /// Persists the user + session a request established (consistent pair); shared by real and fake managers.
+    // Two keys, no await between: an off-lane reader (only the best-effort widget fetch) could see a torn pair in a sub-µs window — negligible.
+    func persistResponseState<R: OrttoAPIRequest>(from response: R.Response, for request: R) {
+        if let user = request.persistedUser(from: response) {
+            Ortto.shared.userStorage.user = user
+        }
+        if let session = request.persistedSession(from: response) {
+            Ortto.shared.userStorage.session = session
+        }
+    }
 }
 
 public class ApiManager: ApiManagerInterface {
@@ -48,41 +64,39 @@ public class ApiManager: ApiManagerInterface {
     public var appKey: String? { connector?.appKey }
 
     public func send<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
+        guard request.isSessionBound else {
+            // Stateless request: no queue, no session middleware.
+            return try await sendUnqueued(request)
+        }
         guard let connector else {
             throw OrttoHTTPError.invalidRequest(
                 "ApiManager: SDK not initialized. Call Ortto.initialize() before making API calls."
             )
         }
-        return try await connector.send(request)
+        let maxAttempts = request.isRetryable ? 3 : 1
+        // Session-bound: read→send→persist runs as one lane unit so a retrying request keeps its
+        // FIFO slot. Cost: its backoff briefly delays queued successors — accepted, for ordering.
+        return try await Ortto.shared.requestQueue.enqueue {
+            try await withRetry(maxAttempts: maxAttempts) {
+                let response = try await connector.send(
+                    request.injectingSession(Ortto.shared.userStorage.session)
+                )
+                // The send completed, so the server committed — mirror it locally even if the caller
+                // has since cancelled. The next session op (a later lane turn) overwrites if needed.
+                self.persistResponseState(from: response, for: request)
+                return response
+            }
+        }
     }
 
-    public func sendRegisterIdentity(_ storage: UserStorage) async throws -> IdentityRegistrationResponse? {
+    public func sendUnqueued<R: OrttoAPIRequest>(_ request: R) async throws -> R.Response {
         guard let connector else {
-            Ortto.log().error("ApiManager@registerIdentity: SDK not initialized")
-            return nil
+            throw OrttoHTTPError.invalidRequest(
+                "ApiManager: SDK not initialized. Call Ortto.initialize() before making API calls."
+            )
         }
-        guard let user = storage.user else {
-            Ortto.log().info("ApiManager@registerIdentity.noUserIdentified")
-            return nil
+        return try await withRetry(maxAttempts: request.isRetryable ? 3 : 1) {
+            try await connector.send(request)
         }
-
-        let request = RegisterIdentityRequest(
-            user: user,
-            appKey: connector.appKey,
-            sessionID: storage.session,
-            shouldSkipNonExistingContacts: Ortto.shared.shouldSkipNonExistingContacts
-        )
-
-        let response = try await connector.send(request)
-        Ortto.log().info("ApiManager@registerIdentity.success session=\(response.sessionID)")
-        return response
-    }
-
-    public func sendLinkTracking(_ trackingUrl: URL) async throws {
-        guard let connector else {
-            Ortto.log().error("ApiManager@sendLinkTracking: SDK not initialized")
-            return
-        }
-        try await connector.sendGet(trackingUrl)
     }
 }
