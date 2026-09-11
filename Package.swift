@@ -17,8 +17,8 @@ let package = Package(
         .library(name: "OrttoInAppNotifications", targets: ["OrttoInAppNotifications"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "12.0.0")),
-        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "12.19.1")),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.13.9"),
     ],
     targets: [
         .target(

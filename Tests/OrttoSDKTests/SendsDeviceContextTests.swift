@@ -49,6 +49,12 @@ final class SendsDeviceContextTests: OrttoTestCase {
 
     // MARK: - Connector behaviour
 
+    func testReleaseMetadataReports1101() {
+        let queryItems = DeviceIdentity.getTrackingQueryItems()
+        XCTAssertEqual(queryItems.first(where: { $0.name == "sv" })?.value, "1.10.1")
+        XCTAssertEqual(OrttoHTTPHeader.userAgent, "OrttoSDK/1.10.1")
+    }
+
     func testConnectorAppendsQueryItemsForDeviceContextRequest() async throws {
         let http = MockOrttoHTTPClient()
         http.sendResponder = { request in

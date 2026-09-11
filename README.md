@@ -13,7 +13,7 @@ Integration documentation is available at [this link](https://help.ortto.com/dev
 
 Swift Package Manager is the supported installation path for new integrations and future releases.
 
-CocoaPods support is deprecated. Version 1.9.1 is intended to be the final CocoaPods maintenance release, updating Firebase Messaging to the Firebase 12.x line.
+CocoaPods support is deprecated. Version 1.10.1 is the final CocoaPods maintenance release, updating Firebase Messaging and SwiftSoup to the newest versions available through CocoaPods.
 
 This release supports Firebase 12.x. Firebase 11.x and older are no longer supported because Google only maintains the latest Firebase major version: https://firebase.google.com/policies/changes-to-firebase/versioning-and-maintenance
 

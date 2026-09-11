@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'OrttoInAppNotifications'
-  s.version          = '1.10.0'
+  s.version          = '1.10.1'
   s.summary          = 'OrttoSDK In-App Notifications Module'
   s.homepage         = 'https://github.com/autopilot3/ortto-push-ios-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE.md' }
@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '15.0'
   s.documentation_url = 'https://help.ortto.com/developer/latest/developer-guide/push-sdks/'
   s.dependency "OrttoSDKCore", "= #{s.version.to_s}"
-  s.dependency "SwiftSoup", '2.6.0'
+  s.dependency "SwiftSoup", '2.11.3'
   s.resource_bundles = {
     'WebView' => [
       'Sources/InAppNotifications/Resources/WebView.bundle/**/*.{html,js,css}'
