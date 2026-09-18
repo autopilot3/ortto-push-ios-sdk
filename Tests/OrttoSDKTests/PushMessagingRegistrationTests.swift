@@ -70,6 +70,26 @@ final class PushMessagingRegistrationTests: OrttoIsolatedTestCase {
         wait(for: [noFurtherSend], timeout: 0.5)
     }
 
+    /// Re-registers the same token after notification permission changes.
+    func testPermissionChangeReRegistersSameToken() async throws {
+        mock.shouldSucceed = true
+        Ortto.shared.preferences.setObject(object: token, key: "token")
+
+        PushMessaging.shared.permission = .Deny
+        let denied = try await Ortto.shared.dispatchPushRequest()
+        XCTAssertNotNil(denied)
+        XCTAssertEqual(mock.sentRequestCount, 1)
+
+        PushMessaging.shared.permission = .Accept
+        let accepted = try await Ortto.shared.dispatchPushRequest()
+        XCTAssertNotNil(accepted)
+        XCTAssertEqual(mock.sentRequestCount, 2)
+
+        let duplicate = try await Ortto.shared.dispatchPushRequest()
+        XCTAssertNil(duplicate)
+        XCTAssertEqual(mock.sentRequestCount, 2)
+    }
+
     /// Logout clears the identity and the registration record but keeps the device token, so the
     /// next user re-registers the same device instead of being stuck with no token until the OS
     /// re-delivers it. (The prior contact is disabled by clearIdentity's permission:false call.)
