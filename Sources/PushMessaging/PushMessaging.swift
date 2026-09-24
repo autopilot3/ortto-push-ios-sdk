@@ -82,6 +82,8 @@ public class PushMessaging {
     private struct Registration: Codable {
         let token: PushToken
         let date: Date
+        /// Optional for records written before 1.10.1.
+        let permission: Bool?
     }
 
     /// The last registration Ortto confirmed (written only on success); used to dedup.
@@ -95,24 +97,34 @@ public class PushMessaging {
         Task { try? await sendPushRegistration(token) }
     }
 
-    /// Registers the token unless already registered (dedup keyed on token; clearIdentity resets it on contact switch). `nil` if already registered.
+    /// Registers unless the same token and permission state are already confirmed.
     @discardableResult
     func sendPushRegistration(_ token: PushToken) async throws -> PushRegistrationResponse? {
-        if let latest = latestRegistration, latest.token == token {
+        let isAllowed = permission.isAllowed()
+        if let latest = latestRegistration,
+           latest.token == token,
+           latest.permission == isAllowed {
             Ortto.log().info("PushMessaging@registration skip; token already registered \(latest.date)")
             return nil
         }
-        return try await registerDeviceToken(token: token)
+        return try await registerDeviceToken(token: token, permission: isAllowed)
     }
 
     /// Registers the token and records it for dedup; no dedup check here (unlike `sendPushRegistration`). Session persisted in-lane by `send`.
     @discardableResult
     func registerDeviceToken(token: PushToken) async throws -> PushRegistrationResponse {
+        try await registerDeviceToken(token: token, permission: permission.isAllowed())
+    }
+
+    private func registerDeviceToken(
+        token: PushToken,
+        permission isAllowed: Bool
+    ) async throws -> PushRegistrationResponse {
         let response = try await Ortto.shared.apiManager
-            .sendPushPermissionResult(token: token, permission: permission.isAllowed())
+            .sendPushPermissionResult(token: token, permission: isAllowed)
             .get()
         // Session is persisted inside the serial lane; here we only record the dedup marker.
-        latestRegistration = Registration(token: token, date: Date())
+        latestRegistration = Registration(token: token, date: Date(), permission: isAllowed)
         return response
     }
 }

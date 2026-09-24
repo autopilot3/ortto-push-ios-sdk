@@ -87,7 +87,11 @@ public class MessagingService: MessagingServiceProtocol {
 
         let http = httpClientFactory()
         let categoryID = Self.categoryIdentifier(for: pushPayload, requested: request.content.categoryIdentifier)
-        let content = buildContent(from: pushPayload, categoryID: categoryID)
+        let content = buildContent(
+            from: pushPayload,
+            originalContent: request.content,
+            categoryID: categoryID
+        )
         let category = buildCategory(from: pushPayload, categoryID: categoryID)
         let delivery = NotificationDelivery(content: content, contentHandler: contentHandler)
         addDelivery(delivery)
@@ -110,12 +114,13 @@ public class MessagingService: MessagingServiceProtocol {
                 content.attachments = [imageAttachment]
             }
 
-            _ = await tracking
-
             guard !Task.isCancelled else { return }
 
             delivery.deliver()
             self.removeDelivery(delivery)
+
+            // Best-effort tracking must not delay notification display.
+            _ = await tracking
         }
 
         return true
@@ -153,6 +158,7 @@ public class MessagingService: MessagingServiceProtocol {
 
     private func buildContent(
         from payload: PushNotificationPayload,
+        originalContent: UNNotificationContent,
         categoryID: String
     ) -> UNMutableNotificationContent {
         var actionLinks: [String: String] = [:]
@@ -168,11 +174,17 @@ public class MessagingService: MessagingServiceProtocol {
             actionLinks[UNNotificationDefaultActionIdentifier] = primaryAction.link
         }
 
-        let content = UNMutableNotificationContent()
+        // Preserve provider metadata such as Firebase's `gcm.message_id`.
+        let content = originalContent.mutableCopy() as? UNMutableNotificationContent
+            ?? UNMutableNotificationContent()
+        var userInfo = content.userInfo
+        for (key, value) in actionLinks {
+            userInfo[key] = value
+        }
         content.title = payload.title
         content.body = payload.body
         content.sound = .default
-        content.userInfo = actionLinks
+        content.userInfo = userInfo
         content.categoryIdentifier = categoryID
         return content
     }

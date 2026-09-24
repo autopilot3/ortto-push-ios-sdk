@@ -1,10 +1,13 @@
 <!-- Types: Added, Changed, Deprecated, Removed, Fixed, Security -->
 # 1.10.1 Monthly dependency maintenance
-- [changed] Updated the Swift Package Manager dependency floors to Firebase Apple SDK 12.19.1 and SwiftSoup 2.13.9, the current stable releases when this version was finalized.
+- [changed] Updated SwiftPM floors to Firebase 12.19.0 for FlutterFire compatibility and SwiftSoup 2.13.9.
 - [changed] Updated the CocoaPods dependencies to FirebaseMessaging 12.19.x and SwiftSoup 2.11.3. SwiftSoup 2.11.3 is the newest version available through CocoaPods; newer SwiftSoup releases are available through Swift Package Manager.
 - [fixed] Incorporated Firebase Messaging 12.19 fixes for registration-token callbacks at app launch, cached-token handling across locale changes, and malformed incoming payloads.
+- [fixed] Re-registers an unchanged token when notification permission changes.
+- [fixed] Preserves provider metadata while enriching notifications.
+- [fixed] Delivers notifications before awaiting best-effort tracking.
 - [security] Updated the Fastlane release toolchain to remove vulnerable Excon versions below 1.5.0 and Faraday versions through 1.10.5.
-- [changed] This maintenance release contains no SDK implementation or public API changes relative to 1.10.0.
+- [changed] This maintenance release contains no public API changes relative to 1.10.0.
 - [deprecated] CocoaPods installation remains deprecated. Use Swift Package Manager for future Ortto iOS SDK releases.
 
 # 1.9.1 Firebase 12 and CocoaPods maintenance release

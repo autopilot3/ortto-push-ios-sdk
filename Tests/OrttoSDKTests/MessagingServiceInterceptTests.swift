@@ -100,6 +100,7 @@ import XCTest
             XCTAssertEqual(userInfo["\(category.identifier).0"], "ortto://release")
             XCTAssertEqual(userInfo["\(category.identifier).1"], "ortto://docs")
             XCTAssertEqual(userInfo[UNNotificationDefaultActionIdentifier], "ortto://primary")
+            XCTAssertEqual(userInfo["gcm.message_id"], "fcm-message-123")
 
             XCTAssertEqual(httpClient.downloadRequests.count, 1)
             XCTAssertEqual(httpClient.sentRequests.count, 1)
@@ -298,6 +299,38 @@ import XCTest
             XCTAssertEqual(httpClient.sentRequests.count, 1)
         }
 
+        func testDidReceiveDoesNotWaitForSlowTracking() {
+            let httpClient = MockOrttoHTTPClient()
+            let service = MessagingService(
+                httpClientFactory: { httpClient },
+                categoryRegistrar: { _ in true }
+            )
+
+            let trackingFinished = expectation(description: "slow tracking finished")
+            httpClient.sendResponder = { request in
+                try await Task.sleep(nanoseconds: 500_000_000)
+                trackingFinished.fulfill()
+                return OrttoHTTPResponse(data: Data(), response: .ok(url: request.url!))
+            }
+
+            let request = UNNotificationRequest(
+                identifier: "request-slow-tracking",
+                content: makePushContent(
+                    imageURL: nil,
+                    trackingURL: URL(string: "https://tracking.example.test/slow")!
+                ),
+                trigger: nil
+            )
+
+            let contentDelivered = expectation(description: "content delivered before tracking")
+            XCTAssertTrue(service.didReceive(request) { _ in
+                contentDelivered.fulfill()
+            })
+
+            wait(for: [contentDelivered], timeout: 0.2)
+            wait(for: [trackingFinished], timeout: 1)
+        }
+
         // MARK: - Optional fields absent
 
         func testDidReceiveSkipsDownloadWhenNoImageURL() {
@@ -374,6 +407,7 @@ import XCTest
             content.categoryIdentifier = "ortto-push-category"
 
             var userInfo: [String: Any] = [
+                "gcm.message_id": "fcm-message-123",
                 "title": "New release",
                 "body": "The notification service extension rewrote this body.",
                 "actions": """
