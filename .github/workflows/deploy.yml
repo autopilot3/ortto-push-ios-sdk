@@ -25,15 +25,15 @@ jobs:
       SDK_TAG: ${{ inputs.git-tag }}
     steps:
       - name: Checkout the existing release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ inputs.git-tag }}
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
           xcode-version: '26.2'
 
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1
         with:
           ruby-version: '3.3'
 
